@@ -2,7 +2,10 @@
 #define AVR_TIMER_16B_H
 
 #include "interface/avr_hardware_interface.h"
+#include <QMap>
+#include <stdint.h>
 
+#define REG_COUNT 17
 
 class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
 {
@@ -16,34 +19,43 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
         * @return
         */
        virtual int getRegisterCount();
+
        /**
         * @brief getInterruptCount Returns the count of interrupt vectors that need to be set
         * @return
         */
        virtual int getInterruptCount() ;
+
        /**
         * @brief getRegisters Returns a list of Relevant Registers
         * @return
         */
        virtual QStringList getRegisters() ;
+
        /**
         * @brief getInterrupts Returns a list of relevant Interrupts
         * @return
         */
        virtual QStringList getInterrupts();
+
        //Bind Registers
         /**
         * @brief bindRegister Binds a pointer to a register
         * @param n The register to connect
         * @param ptr The pointer to connect
         */
-       virtual void bindRegister(int n, uint8_t *ptr);
+       virtual void bindRegister(QString reg, uint8_t *ptr);
+
         /**
         * @brief update Runs an update cycle for the hardware
         * @param cycles Number of cycles run by last instruction
         * @return An interrupt vector if any
         */
        virtual int update(int cycles);
+
+    private:
+        QMap<QString,int> registers;
+        uint8_t* reg[REG_COUNT];
 };
 
 #endif // AVR_TIMER_16B_H

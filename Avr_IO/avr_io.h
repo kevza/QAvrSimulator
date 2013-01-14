@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstdio>
 
+
 #define REG_COUNT 9
 
 class Avr_IO: public QObject, public Avr_Hardware_Interface
@@ -15,6 +16,8 @@ class Avr_IO: public QObject, public Avr_Hardware_Interface
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_IO();
+
+        virtual QString getPluginName();
 
         /**
         * @brief getRegisterCount Returns the count of registers that need to be setup
@@ -49,9 +52,28 @@ class Avr_IO: public QObject, public Avr_Hardware_Interface
         * @return An interrupt vector if any
         */
        virtual int update(int cycles);
+
+        /**
+         * @brief getInputs Returns a QMap of pointers to any required inputs
+         * @return a QMap of pointers to inputs
+         */
+        virtual QMap <QString, uint8_t*> getInputs();
+
+        /**
+         * @brief getOutputs
+         * @return a QMap of pointers to outputs
+         */
+        virtual QMap <QString, uint8_t>  getOutputs();
+
+        void updateOut();
+
     private:
         uint8_t* reg[9];
         QMap <QString,int> regMap;
+        QMap <QString,uint8_t*> inputs;
+        QMap <QString,uint8_t> outputs;
+        uint8_t pinb, pinc,pind;
+        uint8_t portb[9],portc[9],portd[9];
 };
 
 #endif // AVR_IO_H

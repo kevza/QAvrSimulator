@@ -61,6 +61,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="btnHardware">
+          <property name="text">
+           <string>Btn 1</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -76,8 +83,20 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_Hex"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLoad_Hex">
+   <property name="text">
+    <string>Load Hex</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

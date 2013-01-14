@@ -777,9 +777,10 @@ std::string Avr_Core::decodeInstruction(){
 						case CBI:
 							A = GET_A_5_BIT;
 							B = inst & 0x7;
-							reg->io[A] ^= BIT(B);
+                            reg->io[A] &= ~(BIT(B));
                             this->cCount = 1;
 							res = "cbi";
+                            reg->pc++;
 						break;
 						case SBI:
 							reg->io[((inst & 0xf8) >> 3)] |= (1 << (inst & 0x7));
@@ -804,6 +805,7 @@ std::string Avr_Core::decodeInstruction(){
 						break;
 						case SBIS:
 							if (reg->io[(inst & 0xf8) >> 3] & (1 << (inst & 0x7))){
+
                                 if (this->isTwoWord(this->flash->getFlash()[reg->pc + 1])){
                                     this->cCount = 3;
                                     reg->pc += 3;

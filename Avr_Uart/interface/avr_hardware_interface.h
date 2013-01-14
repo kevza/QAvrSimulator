@@ -1,6 +1,7 @@
 #ifndef AVR_HARDWARE_INTERFACE_H
 #define AVR_HARDWARE_INTERFACE_H
 #include <QStringList>
+#include <QMap>
 #include <QtPlugin>
 #include <stdint.h>
 
@@ -8,6 +9,9 @@ class Avr_Hardware_Interface
 {
     public:
         virtual ~Avr_Hardware_Interface(){}
+
+
+        virtual QString getPluginName() = 0;
         //Get Counts and Lists of regs/ints
          /**
          * @brief getRegisterCount Returns the count of registers that need to be setup
@@ -42,6 +46,18 @@ class Avr_Hardware_Interface
          * @return An interrupt vector if any
          */
         virtual int update(int cycles) = 0;
+
+        /**
+         * @brief getInputs Returns a QMap of pointers to any required inputs
+         * @return a QMap of pointers to inputs
+         */
+        virtual QMap <QString, uint8_t*> getInputs() = 0;
+
+        /**
+         * @brief getOutputs
+         * @return a QMap of pointers to outputs
+         */
+        virtual QMap <QString, uint8_t>  getOutputs() = 0;
 };
 
 Q_DECLARE_INTERFACE(Avr_Hardware_Interface, "com.kevin_luke.Avr_Core_Builder.HardwareUnit/1.0")
