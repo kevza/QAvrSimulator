@@ -1,10 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QGraphicsRectItem>
-#include <QGraphicsScene>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QTimer>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,16 +11,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
 
-    QGraphicsScene* myScene = new QGraphicsScene();
-    for (int x = 0 ; x < 7; x++){
-        for (int y = 0; y < 8;y++){
-            QGraphicsRectItem* rect = new QGraphicsRectItem(10 + (12 * x),10 + (12 * y),10,10);
+  myScene = new QGraphicsScene();
+    for (int x = 0 ; x < 5; x++){
+        for (int y = 0; y < 7;y++){
+            rect[y * 5 + x] = new QGraphicsRectItem(10 + (12 * x),10 + (12 * y),10,10);
 
 
 
-            rect->setBrush(Qt::black);
+            rect[y * 5 + x]->setBrush(Qt::black);
 
-            myScene->addItem(rect);
+            myScene->addItem(rect[y * 5 + x]);
         }
     }
     ui->mainGView->setScene(myScene);
@@ -44,23 +40,60 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::gui_update(){
-    static int t = 0;
     if (core){
         QMutex m;
         m.lock();
-        if (!hardware){
+        if (!this->hardware || !ledmat){
+
             foreach (Avr_Hardware_Interface * h ,core->hardware){
                 if (h->getPluginName() == "AVRIO"){
-                    std::cout << "Found\n";
-                    hardware = h;
+
+                    this->hardware = h;
+                }
+                if (h->getPluginName() == "AVRLEDMAT"){
+
+                    ledmat = h;
                 }
             }
-        }
+        }else{
 
+
+            QMap<QString,uint8_t> theMap;
+            theMap = ledmat->getOutputs();
+            QStringList leds;
+            leds << "C0R0"<< "C1R0"<< "C2R0"<< "C3R0"<< "C4R0"
+                 << "C0R1"<< "C1R1"<< "C2R1"<< "C3R1"<< "C4R1"
+                 << "C0R2"<< "C1R2"<< "C2R2"<< "C3R2"<< "C4R2"
+                 << "C0R3"<< "C1R3"<< "C2R3"<< "C3R3"<< "C4R3"
+                 << "C0R4"<< "C1R4"<< "C2R4"<< "C3R4"<< "C4R4"
+                 << "C0R5"<< "C1R5"<< "C2R5"<< "C3R5"<< "C4R5"
+                 << "C0R6"<< "C1R6"<< "C2R6"<< "C3R6"<< "C4R6";
+
+
+            for (int x = 0 ; x < 5; x++){
+                for (int y = 0; y < 7;y++){
+
+                    rect[y * 5 + x]->setBrush(QBrush(QColor(theMap[leds.at(y * 5 + x)],0,0)));
+
+                }
+            }
+            myScene->update();
+
+
+        /*
         QMap <QString, uint8_t> myMap;
 
         myMap = hardware->getOutputs();
         std::cout << t << " : ";
+        std::cout << (int)myMap["PORTB0"] << ", ";
+        std::cout << (int)myMap["PORTB1"] << ", ";
+        std::cout << (int)myMap["PORTB2"] << ", ";
+        std::cout << (int)myMap["PORTB3"] << ", ";
+        std::cout << (int)myMap["PORTB4"] << ", ";
+        std::cout << (int)myMap["PORTB5"] << ", ";
+        std::cout << (int)myMap["PORTB6"] << ", ";
+        std::cout << (int)myMap["PORTB7"] << ",";
+        std::cout <<"-";
         std::cout << (int)myMap["PORTC0"] << ", ";
         std::cout << (int)myMap["PORTC1"] << ", ";
         std::cout << (int)myMap["PORTC2"] << ", ";
@@ -68,8 +101,18 @@ void MainWindow::gui_update(){
         std::cout << (int)myMap["PORTC4"] << ", ";
         std::cout << (int)myMap["PORTC5"] << ", ";
         std::cout << (int)myMap["PORTC6"] << ", ";
-        std::cout << (int)myMap["PORTC7"] << "\n";
-        t++;
+        std::cout << (int)myMap["PORTC7"] << ",";
+        std::cout <<"-";
+        std::cout << (int)myMap["PORTD0"] << ", ";
+        std::cout << (int)myMap["PORTD1"] << ", ";
+        std::cout << (int)myMap["PORTD2"] << ", ";
+        std::cout << (int)myMap["PORTD3"] << ", ";
+        std::cout << (int)myMap["PORTD4"] << ", ";
+        std::cout << (int)myMap["PORTD5"] << ", ";
+        std::cout << (int)myMap["PORTD6"] << ", ";
+        std::cout << (int)myMap["PORTD7"] << "\n";
+        t++;*/
+        }
         m.unlock();
     }
 }
@@ -119,6 +162,7 @@ void MainWindow::on_btnHardware_released()
 }
 
 void MainWindow::on_loadHex_clicked(){
+    //QString fileName = "/home/kevin/Documents/Uni Stuff/Second Year/Second Year S2/ENCE260/Embedded/ucfk4/lab_1/ex1/ex1.hex";//QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
     if (core){
         //Stop any threads

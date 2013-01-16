@@ -19,15 +19,22 @@ void Avr_Core::run(){
     isThreadStopped = false;
     int interrupt = 0;
     QMutex mutex;
+    int count = 0;
     while (!isThreadStopped){
         //Lock the thread
         mutex.lock();
         this->decodeInstruction();
         //Update Hardware
+
         foreach (Avr_Hardware_Interface *h, hardware){
             interrupt = h->update(this->cCount);
         }
         this->interrupt(interrupt);
+        count += this->cCount;
+        if (count > 1000000 ){
+            //qDebug() << "mil";
+            count = 0;
+        }
         mutex.unlock();
     }
 }
@@ -35,7 +42,15 @@ void Avr_Core::run(){
 void Avr_Core::step(){
     //Runs the Core
     int inter = 0;
-    printf("%s at PC = %x\n",this->decodeInstruction().c_str(), reg->pc);
+    for (int i =0 ; i < 500; i++){
+        if (i % 20 == 0){
+            std::cout << "\n";
+        }
+        std::cout <<i <<":" <<(int)reg->ram[i] << " , ";
+
+    }
+
+    printf("\n%s at PC = 0x%x\n",this->decodeInstruction().c_str(), (reg->pc * 2));
     fflush(stdout);
     //Update Hardware
     foreach (Avr_Hardware_Interface *h, hardware){
@@ -540,7 +555,6 @@ std::string Avr_Core::decodeInstruction(){
 					Rd = GET_REGISTER_5_BIT_D;
 					Rr = GET_REGISTER_5_BIT_R;
 					R = reg->ram[Rd] ^ reg->ram[Rr];
-					
 					reg->setSREG(V, 0);
 					reg->setSREG(N, R & 0x80);
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -696,7 +710,7 @@ std::string Avr_Core::decodeInstruction(){
 									Q = (inst & 0x7);
 									Q |= (inst & 0xc00) >> 7;
 									Q |= (inst & 0x2000) >> 8; 
-									regZ = reg->getZ();
+                                    regZ = reg->getZ();
 									reg->ram[Rd] = reg->ram[regZ + Q];
                                     this->cCount = 2;
 									reg->pc++;
@@ -779,7 +793,7 @@ std::string Avr_Core::decodeInstruction(){
 							B = inst & 0x7;
                             reg->io[A] &= ~(BIT(B));
                             this->cCount = 1;
-							res = "cbi";
+                            res = "cbi";
                             reg->pc++;
 						break;
 						case SBI:
@@ -961,8 +975,7 @@ std::string Avr_Core::decodeInstruction(){
                                         reg->ram[Rd] = ((this->flash->getFlash()[regZ >> 1] >> 8) + rampZ) & 0xff;
 									}else{	
                                         reg->ram[Rd] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
-									}
-
+                                    }
                                     reg->pc++;
                                     this->cCount = 3;
 									res = "lpm";
@@ -976,7 +989,7 @@ std::string Avr_Core::decodeInstruction(){
                                         reg->ram[Rd] = ((this->flash->getFlash()[regZ >> 1] >> 8) + rampZ) & 0xff;
 									}else{	
                                         reg->ram[Rd] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
-									}
+                                    }
 									regZ++; reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 3;
@@ -1121,7 +1134,7 @@ std::string Avr_Core::decodeInstruction(){
 								case LDYP:
 									Rd = GET_REGISTER_5_BIT_D;
 									regY = reg->getY();
-									reg->ram[Rd] = reg->ram[regY];
+                                    reg->ram[Rd] = reg->ram[regY];
 									regY++;
 									reg->setY(regY);
 									reg->pc++;
@@ -1338,6 +1351,9 @@ std::string Avr_Core::decodeInstruction(){
 			switch (inst & 0xf800){
 				//STS and LDS are a best guess implementation
 				//of 16 bit sts and lds, they might not work well
+                //Not sure what to do here these are only available on some devices
+                //And they clash with ldd rN, Z+ Q
+                /*
 				case STS1:
 					Rd = GET_REGISTER_4_BIT_D + 16;
 					K = (inst & 0xf);  
@@ -1345,7 +1361,7 @@ std::string Avr_Core::decodeInstruction(){
 					K |= (inst & BIT(10)) >> 5;
 					K |= ((~inst) & BIT(8)) >> 1;	
 					K |= (inst & BIT(8)) >> 2;
-					
+                    K += 0x40;
 					reg->ram[K] = reg->ram[Rd];
 					reg->pc++;
                     this->cCount = 1;
@@ -1353,17 +1369,17 @@ std::string Avr_Core::decodeInstruction(){
 				break;
 				case LDS1:
 					Rd = GET_REGISTER_4_BIT_D + 16;
-					K = (inst & 0xf);  
-					K |= (inst & BIT(9)) >> 5;	
+                    K = (inst & 0xf);
+                    K |= (inst & BIT(9)) >> 5;
 					K |= (inst & BIT(10)) >> 5;
 					K |= ((~inst) & BIT(8)) >> 1;	
 					K |= (inst & BIT(8)) >> 2;
-	
-					reg->ram[Rd] = reg->ram[K];
-					reg->pc++;
+                    K += 0x40;
+                    reg->ram[Rd] = reg->ram[K];
+                    reg->pc++;
                     this->cCount = 1;
 					res = "lds1";
-				break;
+                break;*/
 				default:
 					switch (inst & 0xd208){
 						case STZ3:
@@ -1392,7 +1408,7 @@ std::string Avr_Core::decodeInstruction(){
 									Q = (inst & 0x7);
 									Q |= (inst & 0xc00) >> 7;
 									Q |= (inst & 0x2000) >> 8; 
-									regZ = reg->getZ();
+                                    regZ = reg->getZ();
 									reg->ram[Rd] = reg->ram[regZ + Q];
 									reg->pc++;
                                     this->cCount = 2;

@@ -1,5 +1,6 @@
 #include "avr_core_builder.h"
 #include <iostream>
+#include <QDebug>
 
 Avr_Core_Builder::Avr_Core_Builder(QObject *parent) : QObject(parent)
 {  
@@ -36,19 +37,25 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
             id = line.substr(0,i);
             setting = line.substr(i + 1, line.size() - i - 1);
             if (id == "RAMSIZE"){
+                qDebug() << "Load Ram\n";
                 core->mem->initRam(sizeToInt(setting) + 0xff);
                 core->reg->setRam(core->mem->getRam());
             }else if (id == "FLASHSIZE"){
+                qDebug() << "Load Flash\n";
                 core->setFlash(new Avr_Flash(sizeToInt(setting)));
             }else if (id == "EPROMSIZE"){
+                qDebug() << "Load Eprom\n";
                 core->mem->initEprom(sizeToInt(setting));
             }else if (id == "SPL"){
+                qDebug() << "Set SPL\n";
                 core->reg->setStackPL(getRegPtr(setting));
             }else if (id == "SPH"){
+                qDebug() << "Set SPH\n";
                 core->reg->setStackPH(getRegPtr(setting));
             }else if (id == "SREG"){
                 core->reg->setSREGP(getRegPtr(setting));
             }else if (id == "PLUGINLIB"){
+                qDebug() << "Load Plugin " << QString(setting.c_str()) << "\n";
                 loader.setFileName(QString(setting.c_str()));
                 loader.load();
                 QList <QObject*> objects = loader.staticInstances();
@@ -64,6 +71,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
                     i = line.find(':');
                     id = line.substr(0,i);
                     setting = line.substr(i + 1, line.size() - i - 1);
+                    qDebug() << "Setting " << QString(setting.c_str()) << "\n";
                     h->bindRegister(QString(id.c_str()),getRegPtr(setting));
                 }
                 //Load Interrupts

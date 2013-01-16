@@ -1,5 +1,5 @@
 #include "avr_io.h"
-
+#include <QDebug>
 Avr_IO::Avr_IO(){
     //Registers
     regMap["PINB"] = 0;
@@ -13,6 +13,7 @@ Avr_IO::Avr_IO(){
     regMap["PIND"] = 6;
     regMap["DDRD"] = 7;
     regMap["PORTD"] = 8;
+    pinb = 0;pinc = 0;pind = 0;
 
     inputs["PINB"] = &pinb;
     inputs["PINC"] = &pinc;
@@ -118,9 +119,10 @@ int Avr_IO::update(int cycles){
         uint8_t shift = (1 << i);
         if (*reg[1] & shift){
             //UPDATE OUTPUT
-            if (*reg[0] & shift)
-            portb[i] += 1;
-            portb[8] |= shift;
+            if (*reg[2] & shift){
+                portb[i] += 1;
+                portb[8] |= shift;
+            }
         }else{
             //UPDATE INPUT
             if (pinb & (1 << i)){
@@ -130,13 +132,13 @@ int Avr_IO::update(int cycles){
             }
             portb[8] &= ~shift;
         }
+
         //Port C
         if (*reg[4] & (1 << i)){
             //UPDATE OUTPUT
             if (*reg[5] & shift){
                 portc[i] += 1;
                 portc[8] |= shift;
-                ;
             }
 
         }else{
@@ -168,11 +170,11 @@ int Avr_IO::update(int cycles){
             portd[8] &= ~shift;
         }
 
-
+        /*
         outputs["PORTBD"] = portb[8];
         outputs["PORTCD"] = portc[8];
         outputs["PORTDD"] = portd[8];
-
+        */
     }
     count += 1;
     if (count == 255){

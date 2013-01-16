@@ -7,7 +7,12 @@
 #include <stdint.h>
 #include <iostream>
 #include <QMutex>
-
+#include <QGraphicsRectItem>
+#include <QGraphicsScene>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QTimer>
+#include <QStringList>
 
 namespace Ui {
 class MainWindow;
@@ -42,6 +47,9 @@ private:
     Avr_Core *core;
     Ui::MainWindow *ui;
     Avr_Hardware_Interface *hardware;
+    Avr_Hardware_Interface *ledmat;
+    QGraphicsRectItem* rect[35];
+    QGraphicsScene* myScene;
 };
 
 #endif // MAINWINDOW_H

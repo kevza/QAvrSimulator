@@ -1,0 +1,239 @@
+#include "avr_ledmat.h"
+#include <QDebug>
+
+Avr_Ledmat::Avr_Ledmat(){
+    //Registers
+    regMap["DDRB"] = 0;
+    regMap["PORTB"] = 1;
+    regMap["DDRC"] = 2;
+    regMap["PORTC"] = 3;
+
+    regM[0] = 3;
+    regM[1] = 1;
+    regM[2] = 3;
+    regM[3] = 3;
+    regM[4] = 3;
+
+    cols[0] = 6;cols[1] = 7; cols[2] = 4;
+    cols[3] = 7;cols[4] = 5;
+
+
+    outputs["C0R0"] = 0;
+    outputs["C1R0"] = 0;
+    outputs["C2R0"] = 0;
+    outputs["C3R0"] = 0;
+    outputs["C4R0"] = 0;
+
+    outputs["C0R1"] = 0;
+    outputs["C1R1"] = 0;
+    outputs["C2R1"] = 0;
+    outputs["C3R1"] = 0;
+    outputs["C4R1"] = 0;
+
+    outputs["C0R2"] = 0;
+    outputs["C1R2"] = 0;
+    outputs["C2R2"] = 0;
+    outputs["C3R2"] = 0;
+    outputs["C4R2"] = 0;
+
+    outputs["C0R3"] = 0;
+    outputs["C1R3"] = 0;
+    outputs["C2R3"] = 0;
+    outputs["C3R3"] = 0;
+    outputs["C4R3"] = 0;
+
+    outputs["C0R4"] = 0;
+    outputs["C1R4"] = 0;
+    outputs["C2R4"] = 0;
+    outputs["C3R4"] = 0;
+    outputs["C4R4"] = 0;
+
+    outputs["C0R5"] = 0;
+    outputs["C1R5"] = 0;
+    outputs["C2R5"] = 0;
+    outputs["C3R5"] = 0;
+    outputs["C4R5"] = 0;
+
+    outputs["C0R6"] = 0;
+    outputs["C1R6"] = 0;
+    outputs["C2R6"] = 0;
+    outputs["C3R6"] = 0;
+    outputs["C4R6"] = 0;
+
+
+
+
+}
+
+QString Avr_Ledmat::getPluginName(){
+    return "AVRLEDMAT";
+}
+
+/**
+ * @brief Avr_Ledmat::getRegisterCount
+ * @return The number of registers to set up
+ */
+int Avr_Ledmat::getRegisterCount(){
+    return 4;
+}
+
+/**
+ * @brief Avr_Ledmat::getRegisters
+ * @return a QList of Register Names
+ */
+QStringList Avr_Ledmat::getRegisters(){
+    return QStringList() <<"PORTB" << "DDRB"  << "PORTC" << "DDRC";
+}
+
+/**
+ * @brief Avr_Ledmat::getInterruptCount
+ * @return The number of Interrupts
+ */
+int Avr_Ledmat::getInterruptCount(){
+    return 0;
+}
+
+/**
+ * @brief Avr_Ledmat::getInterrupts
+ * @return A QList of interrupt names
+ */
+QStringList Avr_Ledmat::getInterrupts(){
+    //NO INTERUPPTS
+    return QStringList();
+}
+
+/**
+ * @brief Avr_Ledmat::bindRegister Binds a memory location to a register
+ * @param n The Number of the Register
+ * @param ptr The memory location to point to
+ */
+void Avr_Ledmat::bindRegister(QString reg, uint8_t *ptr){
+    if (regMap.contains(reg)){
+        this->reg[regMap[reg]] = ptr;
+        qDebug() << "Connect " << reg  <<"\n";
+    }else{
+        std::cout << "Register Doesn't exists :" << reg.toStdString() << "\n";
+        exit(99);
+    }
+}
+
+/**
+ * @brief Avr_Ledmat::update Runs an update cycle on the hard ware
+ * @param cycles The number of cycles since the last update
+ * @return Any relevant Interrupt Vector
+ */
+int Avr_Ledmat::update(int cycles){
+    static int count = 0;
+
+    for (int i = 0 ; i < 7 ; i++){
+        if ((*reg[2] & (1 << 6)) && !(*reg[3] & (1 << 6))){
+            //C6 LOW
+            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+                //Bi LOW
+                grid[i * 5]+= 1;
+
+            }
+
+        }
+        if ((*reg[0] & (1 << 7)) && !(*reg[1] & (1 << 7))){
+            //B7 LOW
+            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+                //Bi LOW
+                 grid[i * 5 + 1]+= 1;
+
+            }
+
+        }
+        if ((*reg[2] & (1 << 4)) && !(*reg[3] & (1 << 4))){
+            //C4 LOW
+            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+                //Bi LOW
+                 grid[i * 5 + 2 ]+= 1;
+
+            }
+
+        }
+        if ((*reg[2] & (1 << 7)) && !(*reg[3] & (1 << 7))){
+            //C7 LOW
+            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+                //Bi LOW
+                 grid[i * 5 + 3]+= 1;
+
+            }
+
+        }
+        if ((*reg[2] & (1 << 5)) && !(*reg[3] & (1 << 5))){
+            //C6 LOW
+            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+                //Bi LOW
+
+                 grid[i * 5 + 4]+= 1;
+            }
+        }
+
+
+    }
+    count += 1;
+    if (count == 65535){
+        count = 0;
+        updateOut();
+    }
+
+
+    return -1;
+}
+
+QMap <QString, uint8_t*> Avr_Ledmat::getInputs(){
+    return QMap<QString, uint8_t*>();
+}
+
+QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
+    return outputs;
+}
+
+
+void Avr_Ledmat::updateOut(){
+    outputs["C0R0"] = (grid[0]); grid[0] = 0;
+    outputs["C1R0"] = (grid[1]); grid[1] = 0;
+    outputs["C2R0"] = (grid[2]); grid[2] = 0;
+    outputs["C3R0"] = (grid[3]); grid[3] = 0;
+    outputs["C4R0"] = (grid[4]); grid[4] = 0;
+
+    outputs["C0R1"] = (grid[5]); grid[5] = 0;
+    outputs["C1R1"] = (grid[6] ); grid[6] = 0;
+    outputs["C2R1"] = (grid[7] ); grid[7] = 0;
+    outputs["C3R1"] = (grid[8] ); grid[8] = 0;
+    outputs["C4R1"] = (grid[9] ); grid[9] = 0;
+
+    outputs["C0R2"] = (grid[10] ); grid[10] = 0;
+    outputs["C1R2"] = (grid[11] ); grid[11] = 0;
+    outputs["C2R2"] = (grid[12] ); grid[12] = 0;
+    outputs["C3R2"] = (grid[13] ); grid[13] = 0;
+    outputs["C4R2"] = (grid[14]); grid[14] = 0;
+
+    outputs["C0R3"] = (grid[15] ); grid[15] = 0;
+    outputs["C1R3"] = (grid[16] ); grid[16] = 0;
+    outputs["C2R3"] = (grid[17] ); grid[17] = 0;
+    outputs["C3R3"] = (grid[18] ); grid[18] = 0;
+    outputs["C4R3"] = (grid[19] ); grid[19] = 0;
+
+    outputs["C0R4"] = (grid[20] ); grid[20] = 0;
+    outputs["C1R4"] = (grid[21] ); grid[21] = 0;
+    outputs["C2R4"] = (grid[22] ); grid[22] = 0;
+    outputs["C3R4"] = (grid[23] ); grid[23] = 0;
+    outputs["C4R4"] = (grid[24] ); grid[24] = 0;
+
+    outputs["C0R5"] = (grid[25] ); grid[25] = 0;
+    outputs["C1R5"] = (grid[26]); grid[26] = 0;
+    outputs["C2R5"] = (grid[27] ); grid[27] = 0;
+    outputs["C3R5"] = (grid[28] ); grid[28] = 0;
+    outputs["C4R5"] = (grid[29] ); grid[29] = 0;
+
+    outputs["C0R6"] = (grid[30] ); grid[30] = 0;
+    outputs["C1R6"] = (grid[31] ); grid[31] = 0;
+    outputs["C2R6"] = (grid[32] ); grid[32] = 0;
+    outputs["C3R6"] = (grid[33]) ; grid[33] = 0;
+    outputs["C4R6"] = (grid[34]); grid[34] = 0;
+}
+
+Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)
