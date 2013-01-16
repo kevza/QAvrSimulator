@@ -23,7 +23,9 @@ void Avr_Core::run(){
     while (!isThreadStopped){
         //Lock the thread
         mutex.lock();
+
         this->decodeInstruction();
+
         //Update Hardware
 
         foreach (Avr_Hardware_Interface *h, hardware){
@@ -1336,10 +1338,13 @@ std::string Avr_Core::decodeInstruction(){
 											}
 											
 										break;
+
 									}	
 								break;
+
 							}
 						break;
+
 					}
 				
 				break;
@@ -1427,11 +1432,14 @@ std::string Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
 									res = "styq";
 								break;
+                                default:
+                                    //Bad Instruction
+                                    exit(99);
+                                break;
 							}
 						break;
 					}
-				break;
-				
+				break;	
 			}
 		break;
 

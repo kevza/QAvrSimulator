@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
     QTimer *timer = new QTimer;
-    timer->setInterval(20);
+    timer->setInterval(10);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
     timer->start();
 }

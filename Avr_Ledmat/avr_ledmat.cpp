@@ -174,7 +174,7 @@ int Avr_Ledmat::update(int cycles){
 
     }
     count += 1;
-    if (count == 65535){
+    if (count == 512){
         count = 0;
         updateOut();
     }
@@ -193,47 +193,56 @@ QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
 
 
 void Avr_Ledmat::updateOut(){
-    outputs["C0R0"] = (grid[0]); grid[0] = 0;
-    outputs["C1R0"] = (grid[1]); grid[1] = 0;
-    outputs["C2R0"] = (grid[2]); grid[2] = 0;
-    outputs["C3R0"] = (grid[3]); grid[3] = 0;
-    outputs["C4R0"] = (grid[4]); grid[4] = 0;
+    for (int i = 0 ; i < 35; i++){
+        if (grid[i] > 0){
+            grid[i] -=1;
+        }
+        if (grid[i] > 255){
+            grid[i] = 255;
+        }
+    }
 
-    outputs["C0R1"] = (grid[5]); grid[5] = 0;
-    outputs["C1R1"] = (grid[6] ); grid[6] = 0;
-    outputs["C2R1"] = (grid[7] ); grid[7] = 0;
-    outputs["C3R1"] = (grid[8] ); grid[8] = 0;
-    outputs["C4R1"] = (grid[9] ); grid[9] = 0;
+    outputs["C0R0"] = (grid[0]);
+    outputs["C1R0"] = (grid[1]);
+    outputs["C2R0"] = (grid[2]);
+    outputs["C3R0"] = (grid[3]);
+    outputs["C4R0"] = (grid[4]);
 
-    outputs["C0R2"] = (grid[10] ); grid[10] = 0;
-    outputs["C1R2"] = (grid[11] ); grid[11] = 0;
-    outputs["C2R2"] = (grid[12] ); grid[12] = 0;
-    outputs["C3R2"] = (grid[13] ); grid[13] = 0;
-    outputs["C4R2"] = (grid[14]); grid[14] = 0;
+    outputs["C0R1"] = (grid[5]);
+    outputs["C1R1"] = (grid[6] );
+    outputs["C2R1"] = (grid[7] );
+    outputs["C3R1"] = (grid[8] );
+    outputs["C4R1"] = (grid[9] );
 
-    outputs["C0R3"] = (grid[15] ); grid[15] = 0;
-    outputs["C1R3"] = (grid[16] ); grid[16] = 0;
-    outputs["C2R3"] = (grid[17] ); grid[17] = 0;
-    outputs["C3R3"] = (grid[18] ); grid[18] = 0;
-    outputs["C4R3"] = (grid[19] ); grid[19] = 0;
+    outputs["C0R2"] = (grid[10] );
+    outputs["C1R2"] = (grid[11] );
+    outputs["C2R2"] = (grid[12] );
+    outputs["C3R2"] = (grid[13] );
+    outputs["C4R2"] = (grid[14]);
 
-    outputs["C0R4"] = (grid[20] ); grid[20] = 0;
-    outputs["C1R4"] = (grid[21] ); grid[21] = 0;
-    outputs["C2R4"] = (grid[22] ); grid[22] = 0;
-    outputs["C3R4"] = (grid[23] ); grid[23] = 0;
-    outputs["C4R4"] = (grid[24] ); grid[24] = 0;
+    outputs["C0R3"] = (grid[15] );
+    outputs["C1R3"] = (grid[16] );
+    outputs["C2R3"] = (grid[17] );
+    outputs["C3R3"] = (grid[18] );
+    outputs["C4R3"] = (grid[19] );
 
-    outputs["C0R5"] = (grid[25] ); grid[25] = 0;
-    outputs["C1R5"] = (grid[26]); grid[26] = 0;
-    outputs["C2R5"] = (grid[27] ); grid[27] = 0;
-    outputs["C3R5"] = (grid[28] ); grid[28] = 0;
-    outputs["C4R5"] = (grid[29] ); grid[29] = 0;
+    outputs["C0R4"] = (grid[20] );
+    outputs["C1R4"] = (grid[21] );
+    outputs["C2R4"] = (grid[22] );
+    outputs["C3R4"] = (grid[23] );
+    outputs["C4R4"] = (grid[24] );
 
-    outputs["C0R6"] = (grid[30] ); grid[30] = 0;
-    outputs["C1R6"] = (grid[31] ); grid[31] = 0;
-    outputs["C2R6"] = (grid[32] ); grid[32] = 0;
-    outputs["C3R6"] = (grid[33]) ; grid[33] = 0;
-    outputs["C4R6"] = (grid[34]); grid[34] = 0;
+    outputs["C0R5"] = (grid[25] );
+    outputs["C1R5"] = (grid[26]);
+    outputs["C2R5"] = (grid[27] );
+    outputs["C3R5"] = (grid[28] );
+    outputs["C4R5"] = (grid[29] );
+
+    outputs["C0R6"] = (grid[30] );
+    outputs["C1R6"] = (grid[31] );
+    outputs["C2R6"] = (grid[32] );
+    outputs["C3R6"] = (grid[33]) ;
+    outputs["C4R6"] = (grid[34]);
 }
 
 Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)

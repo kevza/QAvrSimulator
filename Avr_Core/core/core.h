@@ -81,8 +81,8 @@ class Avr_Core : public QThread {
 
         //Pointers to Data
         uint8_t Rd, Rr, R,K,A, Q, B;
-        uint16_t regX,regY,regZ, rampZ,rampX, rampY, lK, lR;
-
+        uint16_t regX,regY,regZ, rampZ,rampX, rampY;
+        uint lK, lR;
 		//Get Registers from an instruction
 		inline uint8_t getRegister4BitD(uint16_t inst);
 		inline uint8_t getRegister4BitR(uint16_t inst);

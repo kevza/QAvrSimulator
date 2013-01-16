@@ -48,7 +48,7 @@ class Avr_Registers{
 		bool getSREG(uint8_t bit);
 		void setSREG(uint8_t bit, bool res);
 		
-		int pc;
+        int pc;
 		
 		//Ram and IO areas <- Will probably look at changing the structure of this
 		uint8_t* ram;
