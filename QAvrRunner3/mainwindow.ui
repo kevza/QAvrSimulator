@@ -89,12 +89,27 @@
     </property>
     <addaction name="actionLoad_Hex"/>
    </widget>
+   <widget class="QMenu" name="menuCore">
+    <property name="title">
+     <string>Core</string>
+    </property>
+    <addaction name="actionDebug_Mode"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCore"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_Hex">
    <property name="text">
     <string>Load Hex</string>
+   </property>
+  </action>
+  <action name="actionDebug_Mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debug Mode</string>
    </property>
   </action>
  </widget>

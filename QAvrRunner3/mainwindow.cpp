@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
 
-  myScene = new QGraphicsScene();
+    myScene = new QGraphicsScene();
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
             rect[y * 5 + x] = new QGraphicsRectItem(10 + (12 * x),10 + (12 * y),10,10);
@@ -23,6 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
             myScene->addItem(rect[y * 5 + x]);
         }
     }
+    rect[35] = new QGraphicsRectItem(0,0,10,10);
+    rect[35]->setBrush(Qt::black);
+    myScene->addItem(rect[35]);
+
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
     QTimer *timer = new QTimer;
@@ -40,7 +44,14 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::gui_update(){
+
+
     if (core){
+        if (ui->actionDebug_Mode->isChecked()){
+            core->debug = true;
+        }else{
+            core->debug = false;
+        }
         QMutex m;
         m.lock();
         if (!this->hardware || !ledmat){
@@ -77,6 +88,10 @@ void MainWindow::gui_update(){
 
                 }
             }
+
+            QMap <QString, uint8_t> myMap = hardware->getOutputs();
+            rect[35]->setBrush(QBrush(QColor(myMap["PORTC2"],0,0)));
+
             myScene->update();
 
 

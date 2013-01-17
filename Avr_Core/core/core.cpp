@@ -24,8 +24,16 @@ void Avr_Core::run(){
         //Lock the thread
         mutex.lock();
 
-        this->decodeInstruction();
-
+        if (this->debug){
+            printf("Pc = 0x%x, Instruction = 0x%x, Operation = ",reg->pc * 2,(int)this->flash->getFlash()[reg->pc]);
+            string st = this->decodeInstruction();
+            std::cout << st<< "\n";
+            if (st == "---"){
+                break;
+            }
+        }else{
+            this->decodeInstruction();
+        }
         //Update Hardware
 
         foreach (Avr_Hardware_Interface *h, hardware){
@@ -655,7 +663,7 @@ std::string Avr_Core::decodeInstruction(){
 		case ORI:	//also SBR
 			K = GET_K_8_BIT;
 			Rd = GET_REGISTER_4_BIT_D + 16;
-			R = reg->ram[Rd]  | K;
+            R = reg->ram[Rd] | K;
 
 			
 			reg->setSREG(V, 0);
@@ -673,7 +681,7 @@ std::string Avr_Core::decodeInstruction(){
 		case ANDI:
 			K = GET_K_8_BIT;
 			Rd = GET_REGISTER_4_BIT_D + 16;
-			R = reg->ram[Rd]  & K;
+            R = reg->ram[Rd] & K;
 			reg->setSREG(V, 0);
 			reg->setSREG(N, R & BIT(7));
 			reg->setSREG(Z,(R == 0));
@@ -684,57 +692,95 @@ std::string Avr_Core::decodeInstruction(){
             this->cCount = 1;
 			res = "andi";
 		break;
-		case 0x8000:
-			switch (inst & 0xd208){
-				case STZ3:
-					Q = GET_Q;
-					Rr = GET_REGISTER_5_BIT_D;
-					reg->ram[reg->getZ() + Q] = reg->ram[Rr];
-					reg->pc++;
-                    this->cCount = 1;
-					res = "stz";
-				break;
-				default:
-					switch (inst & 0x0208){
-								case LDYQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-									regY = reg->getY();
-									reg->ram[Rd] = reg->ram[regY + Q];
-									reg->pc++;
-                                    this->cCount = 2;
-									res = "ldyq";
-								break;
-								case LDZQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-                                    regZ = reg->getZ();
-									reg->ram[Rd] = reg->ram[regZ + Q];
-                                    this->cCount = 2;
-									reg->pc++;
-									res = "ldzq";
-								break;
-								case STYQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-									regY = reg->getY();
-									//Copy the Data
-									reg->ram[regY + Q] = reg->ram[Rd];
-                                    this->cCount = 2;
-									reg->pc++;
-									res = "styq";
-								break;
-					}
-				break;
-			}
-		break;
-	
+    //Still some clashes to sort
+    case 0x8000:case 0xa000:
+        switch (inst & 0x0208){
+            case LDYQ:
+                Rd = GET_REGISTER_5_BIT_D;
+                Q = (inst & 0x7);
+                Q |= (inst & 0xc00) >> 7;
+                Q |= (inst & 0x2000) >> 8;
+                regY = reg->getY();
+                reg->ram[Rd] = reg->ram[regY + Q];
+                reg->pc++;
+                this->cCount = 2;
+                res = "ldyq";
+                break;
+            case LDZQ:
+                Rd = GET_REGISTER_5_BIT_D;
+                Q = (inst & 0x7);
+                Q |= (inst & 0xc00) >> 7;
+                Q |= (inst & 0x2000) >> 8;
+                regZ = reg->getZ();
+                reg->ram[Rd] = reg->ram[regZ + Q];
+                this->cCount = 2;
+                reg->pc++;
+                res = "ldzq";
+                break;
+            case STYQ:
+                Rd = GET_REGISTER_5_BIT_D;
+                Q = (inst & 0x7);
+                Q |= (inst & 0xc00) >> 7;
+                Q |= (inst & 0x2000) >> 8;
+                regY = reg->getY();
+                //Copy the Data
+                reg->ram[regY + Q] = reg->ram[Rd];
+                this->cCount = 2;
+                reg->pc++;
+                res = "styq";
+             break;
+             default:
+                switch (inst & 0xd208){
+                    case STZ3:
+                        Q = GET_Q;
+                        Rr = GET_REGISTER_5_BIT_D;
+                        reg->ram[reg->getZ() + Q] = reg->ram[Rr];
+                        reg->pc++;
+                        this->cCount = 1;
+                        res = "stz";
+                    break;
+
+
+                    default:
+                        switch(inst & 0xf800) {
+                        //Really do not know how to fix this?????
+
+                            case STS1:
+                                Rd = GET_REGISTER_4_BIT_D + 16;
+                                K = (inst & 0xf);
+                                K |= (inst & BIT(9)) >> 5;
+                                K |= (inst & BIT(10)) >> 5;
+                                K |= ((~inst) & BIT(8)) >> 1;
+                                K |= (inst & BIT(8)) >> 2;
+                                //K += 0x40;
+                                qDebug() << "STS1" << (int)K;
+                                reg->ram[K] = reg->ram[Rd];
+                                reg->pc++;
+                                this->cCount = 1;
+                                res = "sts1";
+                            break;
+                            case LDS1:
+                                Rd = GET_REGISTER_4_BIT_D + 16;
+                                K = (inst & 0xf);
+                                K |= (inst & BIT(9)) >> 5;
+                                K |= (inst & BIT(10)) >> 5;
+                                K |= ((~inst) & BIT(8)) >> 1;
+                                K |= (inst & BIT(8)) >> 2;
+                                //K += 0x40;
+                                qDebug() << "LDS1" << (int)K;
+                                reg->ram[Rd] = reg->ram[K];
+                                reg->pc++;
+                                this->cCount = 1;
+                                res = "lds1";
+                            break;
+
+
+                        }
+                break;
+                }
+            break;
+        }
+        break;
 		//1001
 		case 0x9000:
 			switch (inst & 0xfe0e){
@@ -1070,20 +1116,23 @@ std::string Avr_Core::decodeInstruction(){
 											reg->ram[regX] = reg->ram[Rr];
 											regX++;
 											reg->setX(regX);
+                                            res = "st+";
 										break;
 										case (0x2):
                                             this->cCount = 2;
 											regX--;
 											reg->setX(regX);
 											reg->ram[regX] = reg->ram[Rr];
+                                            res = "-st";
 										break;
 										default:
                                             this->cCount = 1;
 											reg->ram[regX] = reg->ram[Rr];
+                                            res = "st";
 										break;
 									}
 									reg->pc++;
-									res = "st";
+
 								break;
 								case STZ1:
 									Rr = GET_REGISTER_5_BIT_D;
@@ -1350,99 +1399,6 @@ std::string Avr_Core::decodeInstruction(){
 				break;
 			}
 		break;
-
-		//1010
-		case 0xa000:
-			switch (inst & 0xf800){
-				//STS and LDS are a best guess implementation
-				//of 16 bit sts and lds, they might not work well
-                //Not sure what to do here these are only available on some devices
-                //And they clash with ldd rN, Z+ Q
-                /*
-				case STS1:
-					Rd = GET_REGISTER_4_BIT_D + 16;
-					K = (inst & 0xf);  
-					K |= (inst & BIT(9)) >> 5;	
-					K |= (inst & BIT(10)) >> 5;
-					K |= ((~inst) & BIT(8)) >> 1;	
-					K |= (inst & BIT(8)) >> 2;
-                    K += 0x40;
-					reg->ram[K] = reg->ram[Rd];
-					reg->pc++;
-                    this->cCount = 1;
-					res = "sts1";
-				break;
-				case LDS1:
-					Rd = GET_REGISTER_4_BIT_D + 16;
-                    K = (inst & 0xf);
-                    K |= (inst & BIT(9)) >> 5;
-					K |= (inst & BIT(10)) >> 5;
-					K |= ((~inst) & BIT(8)) >> 1;	
-					K |= (inst & BIT(8)) >> 2;
-                    K += 0x40;
-                    reg->ram[Rd] = reg->ram[K];
-                    reg->pc++;
-                    this->cCount = 1;
-					res = "lds1";
-                break;*/
-				default:
-					switch (inst & 0xd208){
-						case STZ3:
-							Q = GET_Q;
-							Rr = GET_REGISTER_5_BIT_D;
-							reg->ram[reg->getZ() + Q] = reg->ram[Rr];
-							reg->pc++;
-                            this->cCount = 1;
-							res = "stz";
-						break;
-						default:
-							switch (inst & 0x0208){
-								case LDYQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-									regY = reg->getY();
-									reg->ram[Rd] = reg->ram[regY + Q];
-									reg->pc++;
-                                    this->cCount = 2;
-									res = "ldyq";
-								break;
-								case LDZQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-                                    regZ = reg->getZ();
-									reg->ram[Rd] = reg->ram[regZ + Q];
-									reg->pc++;
-                                    this->cCount = 2;
-									res = "ldzq";
-								break;
-								case STYQ:
-									Rd = GET_REGISTER_5_BIT_D;
-									Q = (inst & 0x7);
-									Q |= (inst & 0xc00) >> 7;
-									Q |= (inst & 0x2000) >> 8; 
-									regY = reg->getY();
-									//Copy the Data
-									reg->ram[regY + Q] = reg->ram[Rd];
-									
-									reg->pc++;
-                                    this->cCount = 2;
-									res = "styq";
-								break;
-                                default:
-                                    //Bad Instruction
-                                    exit(99);
-                                break;
-							}
-						break;
-					}
-				break;	
-			}
-		break;
-
 		//1011
 		case 0xb000:
 			switch (inst & 0xf800){

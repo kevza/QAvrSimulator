@@ -48,7 +48,7 @@ private:
     Ui::MainWindow *ui;
     Avr_Hardware_Interface *hardware;
     Avr_Hardware_Interface *ledmat;
-    QGraphicsRectItem* rect[35];
+    QGraphicsRectItem* rect[36];
     QGraphicsScene* myScene;
 };
 

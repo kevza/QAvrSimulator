@@ -5,7 +5,7 @@
 #include <QMap>
 #include <stdint.h>
 
-#define REG_COUNT 17
+#define REG_COUNT 15
 
 class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
 {
@@ -14,6 +14,8 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
     public:
         Avr_Timer_16b();
 
+
+        virtual QString getPluginName();
         /**
         * @brief getRegisterCount Returns the count of registers that need to be setup
         * @return
@@ -53,9 +55,24 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
         */
        virtual int update(int cycles);
 
+        /**
+         * @brief getInputs Returns a QMap of pointers to any required inputs
+         * @return a QMap of pointers to inputs
+         */
+        virtual QMap <QString, uint8_t*> getInputs();
+
+        /**
+         * @brief getOutputs
+         * @return a QMap of pointers to outputs
+         */
+        virtual QMap <QString, uint8_t>  getOutputs();
+
     private:
         QMap<QString,int> registers;
         uint8_t* reg[REG_COUNT];
+        uint16_t count;
+        int prescaler;
+        int d;
 };
 
 #endif // AVR_TIMER_16B_H

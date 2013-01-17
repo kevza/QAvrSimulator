@@ -73,6 +73,7 @@ class Avr_Core : public QThread {
 
         QVector <Avr_Hardware_Interface*> hardware;
         bool isThreadStopped;
+        bool debug;
 		
     private:
         void run();
