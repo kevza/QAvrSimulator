@@ -25,7 +25,7 @@ void Avr_Core::run(){
         mutex.lock();
 
         if (this->debug){
-            printf("Pc = 0x%x, Instruction = 0x%x, Operation = ",reg->pc * 2,(int)this->flash->getFlash()[reg->pc]);
+            //printf("Pc = 0x%x, Instruction = 0x%x, Operation = ",reg->pc * 2,(int)this->flash->getFlash()[reg->pc]);
             string st = this->decodeInstruction();
             std::cout << st<< "\n";
             if (st == "---"){
@@ -52,13 +52,15 @@ void Avr_Core::run(){
 void Avr_Core::step(){
     //Runs the Core
     int inter = 0;
-    for (int i =0 ; i < 500; i++){
+    for (int i =0 ; i < 32; i++){
         if (i % 20 == 0){
             std::cout << "\n";
         }
         std::cout <<i <<":" <<(int)reg->ram[i] << " , ";
-
     }
+    std::cout << "/n A : " << (int)reg->ram[1256] << '|' << (int)reg->ram[1255] <<"\n";
+    std::cout << "/n B : " << (int)reg->ram[1258] << '|' << (int)reg->ram[1257] <<"\n";
+    std::cout << "/n C : " << (int)reg->ram[1260] << '|' << (int)reg->ram[1259] <<"\n";
 
     printf("\n%s at PC = 0x%x\n",this->decodeInstruction().c_str(), (reg->pc * 2));
     fflush(stdout);
@@ -171,7 +173,7 @@ inline uint8_t Avr_Core::getK6Bit(uint16_t inst){
 #define GET_K_6_BIT ((inst & 0xc0) >> 2) | (inst & 0xf)
 
 inline uint8_t Avr_Core::getK8Bit(uint16_t inst){
-	return ((inst >> 4) & 0x00f0) | (inst & 0xf);  
+    return ((inst >> 4) & 0xf0) | (inst & 0xf);
 }
 
 #define GET_K_8_BIT (((inst >> 4) & 0xf0) | (inst & 0xf))
@@ -182,11 +184,11 @@ inline uint8_t Avr_Core::getK8Bit(uint16_t inst){
 inline int8_t Avr_Core::getK7Bit(uint16_t inst){
 	uint8_t res;
 	res = (inst & 0x3f8) >> 3;
-	if (res & BIT(6)){
-		res = 128 - res;
-		return -res;
+    if (res & BIT(6)){
+        res = ~((~res + 1) & 0x7f) + 1;
+        return res;
 	}
-	return res;     
+    return res;
 }
 
 /**
@@ -212,63 +214,63 @@ inline uint8_t Avr_Core::getA5Bit(uint16_t inst){
 *@brief Sets the Carry Flags (H,C) for the supplied bit
 */
 inline bool Avr_Core::setCarryFlag(uint8_t bit){
-	return ((reg->ram[Rr] & (1 << bit)) & ~(R & (1 << bit)))
-		| ((reg->ram[Rd] & (1 << bit)) & ~(R & (1 << bit)))
-		| ((reg->ram[Rd] & (1 << bit)) & (reg->ram[Rr] & (1 << bit)));
+    return ((reg->ram[Rr] & (1 << bit)) & ~(R & (1 << bit)))
+        || ((reg->ram[Rd] & (1 << bit)) & ~(R & (1 << bit)))
+        || ((reg->ram[Rd] & (1 << bit)) & (reg->ram[Rr] & (1 << bit)));
 }
 
 /**
 *@brief Sets the Carry Flags (H,C) for the supplied bit
 */
 inline bool Avr_Core::setBorrowFlag(uint8_t bit){
-	return ((reg->ram[Rr] & (1 << bit)) & (R & (1 << bit)))
-		| (~(reg->ram[Rd] & (1 << bit)) & (R & (1 << bit)))
-		| (~(reg->ram[Rd] & (1 << bit)) & (reg->ram[Rr] & (1 << bit)));
+    return ((reg->ram[Rr] & (1 << bit)) & (R & (1 << bit)))
+        | (~(reg->ram[Rd] & (1 << bit)) & (R & (1 << bit)))
+        | (~(reg->ram[Rd] & (1 << bit)) & (reg->ram[Rr] & (1 << bit)));
 }
 
 /**
 *@brief Sets the Sub Carry Flags (H,C) for the supplied bit
 */
 inline bool Avr_Core::setSubBorrow(uint8_t bit){
-	return (~(reg->ram[Rd] & BIT(bit)) & (reg->ram[Rr] & BIT(bit))) |
-			((reg->ram[Rr] & BIT(bit)) & (R & BIT(bit))) |
-			((R & BIT(bit)) & ~(reg->ram[Rd] & BIT(bit)));
+    return (~(reg->ram[Rd] & BIT(bit)) & (reg->ram[Rr] & BIT(bit))) |
+            ((reg->ram[Rr] & BIT(bit)) & (R & BIT(bit))) |
+            ((R & BIT(bit)) & ~(reg->ram[Rd] & BIT(bit)));
 }
 
 /**
 *@brief Sets the Sub Carry Flags (H,C) for the supplied bit
 */
 inline bool Avr_Core::setSubBorrowK(uint8_t bit){
-	return (~(reg->ram[Rd] & BIT(bit)) & (K & BIT(bit))) |
-			((K & BIT(bit)) & (R & BIT(bit))) |
-			((R & BIT(bit)) & ~(reg->ram[Rd] & BIT(bit)));
+    return (~(reg->ram[Rd] & BIT(bit)) & (K & BIT(bit))) |
+            ((K & BIT(bit)) & (R & BIT(bit))) |
+            ((R & BIT(bit)) & ~(reg->ram[Rd] & BIT(bit)));
 }
 
 /**
 *@brief Sets the Flags for Subs Twos complement overflow
 */
 inline bool Avr_Core::setSubTCOverflow(){
-	return ((reg->ram[Rd] & BIT(7)) & ~(reg->ram[Rr] & BIT(7)) & ~(R & BIT(7))) |
-			(~(reg->ram[Rd] & BIT(7)) & (reg->ram[Rr] & BIT(7)) & (R & BIT(7)));
+    return ((reg->ram[Rd] & BIT(7)) & ~(reg->ram[Rr] & BIT(7)) & ~(R & BIT(7))) |
+            (~(reg->ram[Rd] & BIT(7)) & (reg->ram[Rr] & BIT(7)) & (R & BIT(7)));
 }
 
 /**
 *@brief Sets the Flags for Subs Twos complement overflow
 */
 inline bool Avr_Core::setSubTCOverflowK(){
-	return ((reg->ram[Rd] & BIT(7)) & ~(K & BIT(7)) & ~(R & BIT(7))) |
-			(~(reg->ram[Rd] & BIT(7)) & (K & BIT(7)) & (R & BIT(7)));
+    return ((reg->ram[Rd] & BIT(7)) & ~(K & BIT(7)) & ~(R & BIT(7))) |
+            (~(reg->ram[Rd] & BIT(7)) & (K & BIT(7)) & (R & BIT(7)));
 }
 
 /**
 *@brief Sets the overflow flag
 */
 bool Avr_Core::setOverflow(){
-	return 	((reg->ram[Rd] & 1 << 7) &
-			(reg->ram[Rr] & 1 << 7) &	
-			~(R & 1 << 7)) |
-			(~(reg->ram[Rd] & 1 << 7) &
-			~(reg->ram[Rr] & 1 << 7) &	
+    return 	((reg->ram[Rd] & 1 << 7) &
+            (reg->ram[Rr] & 1 << 7) &
+            ~(R & 1 << 7)) |
+            (~(reg->ram[Rd] & 1 << 7) &
+            ~(reg->ram[Rr] & 1 << 7) &
 			(R & 1 << 7));
 }
 
@@ -354,7 +356,7 @@ std::string Avr_Core::decodeInstruction(){
 						reg->setSREG(H, this->setCarryFlag(3));
 						
 						reg->setSREG(V, this->setOverflow());
-						reg->setSREG(N, R & (1 << 7));
+                        reg->setSREG(N, R & BIT(7));
 						reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 						reg->setSREG(Z, R == 0);
 						reg->setSREG(C,this->setCarryFlag(7));
@@ -372,10 +374,10 @@ std::string Avr_Core::decodeInstruction(){
 						reg->setSREG(H, this->setBorrowFlag(3));
 						
 						reg->setSREG(V, ((Rd & BIT(7)) & ~(Rr & BIT(7)) & ~(R & BIT(7)))
-										| (~(Rd & BIT(7)) & (Rr & BIT(7)) & (R & BIT(7))));
-						reg->setSREG(N, (bool)(R & (1 << 7)));
+                                        || (~(Rd & BIT(7)) & (Rr & BIT(7)) & (R & BIT(7))));
+                        reg->setSREG(N, (R & BIT(7)));
 						reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
-						reg->setSREG(Z, !(bool)R && reg->getSREG(Z));
+                        reg->setSREG(Z, !R && reg->getSREG(Z));
 						reg->setSREG(C, this->setBorrowFlag(7));
 						
 						reg->pc++;
@@ -503,7 +505,7 @@ std::string Avr_Core::decodeInstruction(){
 					reg->setSREG(N,R & BIT(7));
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 					reg->setSREG(Z,R == 0);
-					reg->setSREG(C,this->setSubBorrow(7));
+                    reg->setSREG(C,abs(reg->ram[Rr]< abs(reg->ram[Rd])));
 					reg->pc++;
                     this->cCount = 1;
 					res = "cp";
@@ -513,7 +515,6 @@ std::string Avr_Core::decodeInstruction(){
 					Rr = GET_REGISTER_5_BIT_R;
 					R = reg->ram[Rd] - reg->ram[Rr];
 					reg->setSREG(H,this->setSubBorrow(3));
-					
 					reg->setSREG(V,this->setSubTCOverflow());
 					reg->setSREG(N,R & BIT(7));
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -553,7 +554,7 @@ std::string Avr_Core::decodeInstruction(){
 					R = reg->ram[Rd] & reg->ram[Rr];
 					
 					reg->setSREG(V, 0);
-					reg->setSREG(N, R & 0x80);
+                    reg->setSREG(N, R & BIT(7));
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 					reg->setSREG(Z, R == 0);
 					reg->ram[Rd] = R;
@@ -566,7 +567,7 @@ std::string Avr_Core::decodeInstruction(){
 					Rr = GET_REGISTER_5_BIT_R;
 					R = reg->ram[Rd] ^ reg->ram[Rr];
 					reg->setSREG(V, 0);
-					reg->setSREG(N, R & 0x80);
+                    reg->setSREG(N, R & BIT(7));
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 					reg->setSREG(Z, R == 0);
 					reg->ram[Rd] = R;
@@ -589,7 +590,7 @@ std::string Avr_Core::decodeInstruction(){
 			
 					
 					reg->setSREG(V, 0);
-					reg->setSREG(N, R & 0x80);
+                    reg->setSREG(N, R & BIT(7));
 					reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 					reg->setSREG(Z, R == 0);
 					
@@ -613,7 +614,7 @@ std::string Avr_Core::decodeInstruction(){
 			reg->setSREG(N, R & 0x80);
 			reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 			reg->setSREG(Z, R == 0);
-			reg->setSREG(C, K > reg->ram[Rd]);
+            reg->setSREG(C, K > reg->ram[Rd]);
 			
 			res = "cpi";
             this->cCount = 1;
@@ -624,6 +625,7 @@ std::string Avr_Core::decodeInstruction(){
 		case SBCI:
 			K = GET_K_8_BIT;
 			Rd = GET_REGISTER_4_BIT_D + 16;
+
 			R = reg->ram[Rd] - K - reg->getSREG(C);
 			
 			reg->setSREG(H, this->setSubBorrowK(3));
@@ -631,7 +633,7 @@ std::string Avr_Core::decodeInstruction(){
 			reg->setSREG(V, this->setSubTCOverflowK());
 			reg->setSREG(N, R & BIT(7));
 			reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
-			reg->setSREG(Z, (R == 0) & reg->getSREG(Z));
+            reg->setSREG(Z, (R == 0) && reg->getSREG(Z));
 			reg->setSREG(C, this->setSubBorrowK(7));
 			
 			reg->ram[Rd] = R;
@@ -669,7 +671,7 @@ std::string Avr_Core::decodeInstruction(){
 			reg->setSREG(V, 0);
 			reg->setSREG(N, R & BIT(7));
 			reg->setSREG(Z, (R == 0));
-			
+            reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 			
 			reg->ram[Rd] = R;
 			reg->pc++;
@@ -684,9 +686,7 @@ std::string Avr_Core::decodeInstruction(){
             R = reg->ram[Rd] & K;
 			reg->setSREG(V, 0);
 			reg->setSREG(N, R & BIT(7));
-			reg->setSREG(Z,(R == 0));
-			
-			
+            reg->setSREG(Z,(R == 0));
 			reg->ram[Rd] = R;
 			reg->pc++;
             this->cCount = 1;
@@ -697,9 +697,7 @@ std::string Avr_Core::decodeInstruction(){
         switch (inst & 0x0208){
             case LDYQ:
                 Rd = GET_REGISTER_5_BIT_D;
-                Q = (inst & 0x7);
-                Q |= (inst & 0xc00) >> 7;
-                Q |= (inst & 0x2000) >> 8;
+                Q = GET_Q;
                 regY = reg->getY();
                 reg->ram[Rd] = reg->ram[regY + Q];
                 reg->pc++;
@@ -708,9 +706,7 @@ std::string Avr_Core::decodeInstruction(){
                 break;
             case LDZQ:
                 Rd = GET_REGISTER_5_BIT_D;
-                Q = (inst & 0x7);
-                Q |= (inst & 0xc00) >> 7;
-                Q |= (inst & 0x2000) >> 8;
+                Q = GET_Q;
                 regZ = reg->getZ();
                 reg->ram[Rd] = reg->ram[regZ + Q];
                 this->cCount = 2;
@@ -719,64 +715,52 @@ std::string Avr_Core::decodeInstruction(){
                 break;
             case STYQ:
                 Rd = GET_REGISTER_5_BIT_D;
-                Q = (inst & 0x7);
-                Q |= (inst & 0xc00) >> 7;
-                Q |= (inst & 0x2000) >> 8;
+                Q = GET_Q;
                 regY = reg->getY();
                 //Copy the Data
                 reg->ram[regY + Q] = reg->ram[Rd];
+
+                qDebug() << (int) (regY + Q);
                 this->cCount = 2;
                 reg->pc++;
                 res = "styq";
              break;
              default:
-                switch (inst & 0xd208){
-                    case STZ3:
-                        Q = GET_Q;
-                        Rr = GET_REGISTER_5_BIT_D;
-                        reg->ram[reg->getZ() + Q] = reg->ram[Rr];
-                        reg->pc++;
-                        this->cCount = 1;
-                        res = "stz";
-                    break;
+                if (0){//(inst & 0xA800) == LDS1){
+                    Rd = GET_REGISTER_4_BIT_D + 16;
+                    K = (inst & 0xf);
+                    K |= (inst & BIT(9)) >> 5;
+                    K |= (inst & BIT(10)) >> 5;
+                    K |= ((~inst) & BIT(8)) >> 1;
+                    K |= (inst & BIT(8)) >> 2;
+                    //qDebug() << "LDS1" << (int)K;
+                    //qDebug() << "PC" <<(int)reg->pc;
+                    reg->ram[Rd] = reg->ram[K];
+                    reg->pc++;
+                    this->cCount = 1;
+                    res = "lds1";
+                }else if ((inst & STZ3) == STZ3){
+                    // STZ3:
+                    Q = GET_Q;
+                    Rr = GET_REGISTER_5_BIT_D;
+                    reg->ram[reg->getZ() + Q] = reg->ram[Rr];
+                    reg->pc++;
+                    this->cCount = 1;
+                    res = "stz";
 
-
-                    default:
-                        switch(inst & 0xf800) {
-                        //Really do not know how to fix this?????
-
-                            case STS1:
-                                Rd = GET_REGISTER_4_BIT_D + 16;
-                                K = (inst & 0xf);
-                                K |= (inst & BIT(9)) >> 5;
-                                K |= (inst & BIT(10)) >> 5;
-                                K |= ((~inst) & BIT(8)) >> 1;
-                                K |= (inst & BIT(8)) >> 2;
-                                //K += 0x40;
-                                qDebug() << "STS1" << (int)K;
-                                reg->ram[K] = reg->ram[Rd];
-                                reg->pc++;
-                                this->cCount = 1;
-                                res = "sts1";
-                            break;
-                            case LDS1:
-                                Rd = GET_REGISTER_4_BIT_D + 16;
-                                K = (inst & 0xf);
-                                K |= (inst & BIT(9)) >> 5;
-                                K |= (inst & BIT(10)) >> 5;
-                                K |= ((~inst) & BIT(8)) >> 1;
-                                K |= (inst & BIT(8)) >> 2;
-                                //K += 0x40;
-                                qDebug() << "LDS1" << (int)K;
-                                reg->ram[Rd] = reg->ram[K];
-                                reg->pc++;
-                                this->cCount = 1;
-                                res = "lds1";
-                            break;
-
-
-                        }
-                break;
+                }else if ((inst & STS1) == STS1){
+                    // STS1:
+                    Rd = GET_REGISTER_4_BIT_D + 16;
+                    K = (inst & 0xf);
+                    K |= (inst & BIT(9)) >> 5;
+                    K |= (inst & BIT(10)) >> 5;
+                    K |= ((~inst) & BIT(8)) >> 1;
+                    K |= (inst & BIT(8)) >> 2;
+                    //qDebug() << "STS1" << (int)K;
+                    reg->ram[K] = reg->ram[Rd];
+                    reg->pc++;
+                    this->cCount = 1;
+                    res = "sts1";
                 }
             break;
         }
@@ -787,15 +771,14 @@ std::string Avr_Core::decodeInstruction(){
 				case JMP:
 					//JMP Command
 					reg->pc++;
-                    reg->pc = this->flash->getFlash()[reg->pc];
+                    K = ((inst & 0x8f0)) >> 3 | (inst & 1);
+                    reg->pc = (K << 16) | this->flash->getFlash()[reg->pc];
                     this->cCount = 3;
 					res = "jmp";
 				break;
-				case CALL:
-				
-					//Call a function and push pc to the stack
-                    lK = this->flash->getFlash()[++reg->pc];
-					reg->pc++;
+                case CALL:
+                    K = ((inst & 0x8f0)) >> 3 | (inst & 1);
+                    reg->pc+=2;
 					if (mem->getRamEnd() < 65536){
                         //push pc to stack
                         this->cCount = 4;
@@ -810,8 +793,8 @@ std::string Avr_Core::decodeInstruction(){
 						reg->ram[reg->sp(-1)] =  reg->pc >> 16;
 						reg->sp(-1);
 					}
-
-					reg->pc = lK;
+                    reg->pc -= 1;
+                    reg->pc =  (K << 16) |this->flash->getFlash()[reg->pc];
 					res = "call";
 				break;
 				
@@ -820,15 +803,13 @@ std::string Avr_Core::decodeInstruction(){
 						case ADIW:
 							K = GET_K_6_BIT;
 							Rd = ((inst & 0x30) >> 4) * 2 + 24;
-							lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]) + K;
-							
-							//Set the Flags
-							
-							reg->setSREG(V, (reg->ram[Rd+1] & BIT(7)) & ((lK >> 8) & BIT(7)));
-							reg->setSREG(N, (lK & 0x8000));
+                            lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]);
+                            lK+= K;
+                            reg->setSREG(V, !(reg->ram[Rd+1] & BIT(7)) && (lK  & BIT(15)));
+                            reg->setSREG(N, (lK & BIT(15)));
 							reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 							reg->setSREG(Z, (lK == 0));
-							reg->setSREG(C, (reg->ram[Rd+1] & BIT(7)) & ~((lK >> 8) & BIT(7)));
+                            reg->setSREG(C, (reg->ram[Rd+1] & BIT(7)) && !(lK & BIT(15)));
 							//Return Values to Memory
 							reg->ram[Rd + 1] = (lK & 0xff00) >> 8;
 							reg->ram[Rd] = lK & 0xff;
@@ -884,15 +865,15 @@ std::string Avr_Core::decodeInstruction(){
 						case SBIW:
 							K = GET_K_6_BIT;
 							Rd = ((inst & 0x30) >> 4) * 2 + 24;
-							lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]) - K;
-							
+                            lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]);
+                            lK -= K;
 							//Set the Flags
-							
+
 							reg->setSREG(V, (reg->ram[Rd+1] & BIT(7)) & ~((lK >> 8 ) & BIT(7)));
-							reg->setSREG(N, (lK & 0x8000));
+                            reg->setSREG(N, (lK & BIT(15)));
 							reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 							reg->setSREG(Z, (lK == 0));
-							reg->setSREG(C,~(reg->ram[Rd+1] & BIT(7)) & ((lK >> 8) & BIT(7)));
+                            reg->setSREG(C,~(reg->ram[Rd+1] & BIT(7)) && ((lK >> 8) & BIT(7)));
 							//Return Values to Memory
 							reg->ram[Rd + 1] = (lK & 0xff00) >> 8;
 							reg->ram[Rd] = lK & 0xff;	
@@ -907,7 +888,7 @@ std::string Avr_Core::decodeInstruction(){
 									R = (reg->ram[Rd]) >> 1;
 									R |= (reg->ram[Rd] & BIT(7));
 									
-									reg->setSREG(C, (reg->ram[Rd] & BIT(0)));
+                                    reg->setSREG(C, (reg->ram[Rd] & 1));
 									reg->setSREG(N, (R & BIT(7)));
 									reg->setSREG(V, reg->getSREG(N) != reg->getSREG(C));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -923,7 +904,7 @@ std::string Avr_Core::decodeInstruction(){
 									//Set Flags
 									
 									reg->setSREG(V, (reg->ram[Rd] == 0x80));
-									reg->setSREG(N, (R & 0x80));
+                                    reg->setSREG(N, (R & BIT(7)));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 									reg->setSREG(Z,(R==0));
 									reg->ram[Rd] = R;
@@ -1018,7 +999,7 @@ std::string Avr_Core::decodeInstruction(){
 								case LPM2:
 									Rd = GET_REGISTER_5_BIT_D;
 									regZ =reg->getZ();
-									rampZ = reg->getRampz();
+                                    rampZ = reg->getRampz();
 									if (regZ & 0x1){
                                         reg->ram[Rd] = ((this->flash->getFlash()[regZ >> 1] >> 8) + rampZ) & 0xff;
 									}else{	
@@ -1048,7 +1029,7 @@ std::string Avr_Core::decodeInstruction(){
 									R = reg->ram[Rd] >> 1;
 									//Set Flags
 									
-									reg->setSREG(C, reg->ram[Rd] & 0x1);
+                                    reg->setSREG(C, reg->ram[Rd] & BIT(0));
 									reg->setSREG(N,0);
 									reg->setSREG(V, reg->getSREG(N) != reg->getSREG(C));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -1092,12 +1073,14 @@ std::string Avr_Core::decodeInstruction(){
 								break;
 								case ROR:
 									Rd = GET_REGISTER_5_BIT_D;
-									reg->setSREG(C, (reg->ram[Rd] & 0x1));
-									R = reg->ram[Rd] >> 1;
+                                    //reg->setSREG(C, (reg->ram[Rd] & 0x1));
+                                    //Hold tmp copy to set sreg
+                                    Rr = reg->ram[Rd];
+                                    R = reg->ram[Rd] >> 1;
 									if (reg->getSREG(C)){
 										R |= BIT(7);
 									}
-									
+                                    reg->setSREG(C, (Rr & 0x1));
 									reg->setSREG(N, reg->getSREG(C));
 									reg->setSREG(Z, R == 0);
 									reg->setSREG(V, reg->getSREG(N) != reg->getSREG(C)); 
@@ -1207,7 +1190,7 @@ std::string Avr_Core::decodeInstruction(){
 									regZ = reg->getZ();
 									reg->ram[Rd] = reg->ram[regZ];
 									regZ++;
-									reg->setZ(regZ);
+                                    reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 2;
 									res = "ldzp";
@@ -1296,14 +1279,14 @@ std::string Avr_Core::decodeInstruction(){
                                             this->cCount = 2;
 											res = "ijmp";
 										break;
-										case LPM:
+                                        case LPM: //R0 implied
 											regZ = reg->getZ();
 											rampZ = reg->getRampz();
 											if (regZ & 0x1){
-                                                reg->ram[Rd] = ((this->flash->getFlash()[regZ >> 1] >> 8) + rampZ) & 0xff;
+                                                reg->ram[0] = ((this->flash->getFlash()[regZ >> 1] >> 8) + rampZ) & 0xff;
 											}else{	
-                                                reg->ram[Rd] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
-											}
+                                                reg->ram[0] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
+                                            }
 											reg->pc++;
                                             this->cCount = 3;
 											res = "lpm";
@@ -1319,10 +1302,11 @@ std::string Avr_Core::decodeInstruction(){
                                                 reg->pc |= reg->ram[reg->sp(1)];
                                                 this->cCount = 5;
                                             }
+                                            res = "ret";
 											if (inst & 0x10){
 												reg->setSREG(I,1);
+                                                res = "reti";
 											}
-											res = "ret";
 										break;
 										
 
@@ -1349,7 +1333,7 @@ std::string Avr_Core::decodeInstruction(){
 												//Set Flags
 												
 												reg->setSREG(V,0);
-												reg->setSREG(N,reg->ram[Rd] & 0x80);
+                                                reg->setSREG(N,reg->ram[Rd] & BIT(7));
 												reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 												reg->setSREG(Z, reg->ram[Rd] == 0);
 												reg->setSREG(C, 1);
@@ -1426,8 +1410,8 @@ std::string Avr_Core::decodeInstruction(){
 			jmp = inst & 0xfff;
 			if (jmp & 0x800){
 				//Negative Number
-				jmp = (~jmp & 0xfff) + 1;
-				reg->pc = reg->pc - jmp + 1;
+                jmp = ((~jmp & 0xfff) + 1) & 0xfff;
+                reg->pc = reg->pc - jmp + 1;
 			}else{
 				reg->pc = reg->pc + jmp + 1;
 			}
@@ -1456,10 +1440,10 @@ std::string Avr_Core::decodeInstruction(){
 			//Make Jump
 			jmp = inst & 0xfff;
 			if (jmp & 0x800){
-				jmp = 4096 - jmp;
-				reg->pc = reg->pc - jmp;
+                jmp = ((~jmp & 0xfff) + 1) & 0xfff;
+                reg->pc = reg->pc - jmp;
 			}else{
-				reg->pc = reg->pc + jmp;
+                reg->pc = reg->pc + jmp;
 			}	
 			res = "rcall";
 		break;
@@ -1505,7 +1489,7 @@ std::string Avr_Core::decodeInstruction(){
 				//Branch if set
 				R = inst & 0x7;
 				jmp = this->getK7Bit(inst);
-				if (reg->getSREG(R) == 1){
+                if (reg->getSREG(R)){
 					reg->pc += jmp + 1;
                     this->cCount = 2;
 				}else{
@@ -1554,9 +1538,6 @@ std::string Avr_Core::decodeInstruction(){
 						}
 						reg->pc++;
 						res = "sbrs";
-					break;
-					case BRHS:
-                    res = "brbc";
 					break;
 				}
 				

@@ -17,6 +17,9 @@ Avr_Ledmat::Avr_Ledmat(){
     cols[0] = 6;cols[1] = 7; cols[2] = 4;
     cols[3] = 7;cols[4] = 5;
 
+    for (int i = 0 ; i < 35 ; i++){
+        this->grid[i] = 0;
+    };
 
     outputs["C0R0"] = 0;
     outputs["C1R0"] = 0;
@@ -148,7 +151,7 @@ int Avr_Ledmat::update(int cycles){
             //C4 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 2 ]+= 1;
+                 grid[i * 5 + 2]+= 1;
 
             }
 
