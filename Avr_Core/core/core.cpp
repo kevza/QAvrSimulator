@@ -25,12 +25,14 @@ void Avr_Core::run(){
         mutex.lock();
 
         if (this->debug){
-            //printf("Pc = 0x%x, Instruction = 0x%x, Operation = ",reg->pc * 2,(int)this->flash->getFlash()[reg->pc]);
-            string st = this->decodeInstruction();
-            std::cout << st<< "\n";
+            int p = reg->pc;
+            printf("%#x:%s\n",p * 2,this->decodeInstruction().c_str());
+            //string st = this->decodeInstruction();
+            //std::cout << st<< "\n";
+            /*
             if (st == "---"){
                 break;
-            }
+            }*/
         }else{
             this->decodeInstruction();
         }
@@ -155,10 +157,10 @@ inline uint8_t Avr_Core::getRegister4BitR(uint16_t inst){
 *@brief Returns fist 4 + 9 bits in an instruction (Direct Address Mode)
 */
 inline uint8_t Avr_Core::getRegister5BitR(uint16_t inst){
-	return (inst & 0x0f) | (inst & 0x0200) >> 5;
+    return (inst & 0x0f) | ((inst & 0x0200) >> 5);
 }
 
-#define GET_REGISTER_5_BIT_R ((inst & 0x0f) | (inst & 0x0200) >> 5)
+#define GET_REGISTER_5_BIT_R ((inst & 0x0f) | ((inst & 0x0200) >> 5))
 
 /**
 *@brief Returns bits 4-7 from an instruction (Direct Address Mode)
@@ -733,8 +735,6 @@ std::string Avr_Core::decodeInstruction(){
                 regY = reg->getY();
                 //Copy the Data
                 reg->ram[regY + Q] = reg->ram[Rd];
-
-                qDebug() << (int) (regY + Q);
                 this->cCount = 2;
                 reg->pc++;
                 res = "styq";
@@ -747,8 +747,6 @@ std::string Avr_Core::decodeInstruction(){
                     K |= (inst & BIT(10)) >> 5;
                     K |= ((~inst) & BIT(8)) >> 1;
                     K |= (inst & BIT(8)) >> 2;
-                    //qDebug() << "LDS1" << (int)K;
-                    //qDebug() << "PC" <<(int)reg->pc;
                     reg->ram[Rd] = reg->ram[K];
                     reg->pc++;
                     this->cCount = 1;
@@ -883,11 +881,11 @@ std::string Avr_Core::decodeInstruction(){
                             lK -= K;
 							//Set the Flags
 
-							reg->setSREG(V, (reg->ram[Rd+1] & BIT(7)) & ~((lK >> 8 ) & BIT(7)));
+                            reg->setSREG(V, (reg->ram[Rd+1] & BIT(7)) & (~(lK >> 8 ) & BIT(7)));
                             reg->setSREG(N, (lK & BIT(15)));
 							reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 							reg->setSREG(Z, (lK == 0));
-                            reg->setSREG(C,~(reg->ram[Rd+1] & BIT(7)) && ((lK >> 8) & BIT(7)));
+                            reg->setSREG(C,((~reg->ram[Rd+1]) & BIT(7)) & ((lK >> 8) & BIT(7)));
 							//Return Values to Memory
 							reg->ram[Rd + 1] = (lK & 0xff00) >> 8;
 							reg->ram[Rd] = lK & 0xff;	
@@ -902,7 +900,7 @@ std::string Avr_Core::decodeInstruction(){
 									R = (reg->ram[Rd]) >> 1;
 									R |= (reg->ram[Rd] & BIT(7));
 									
-                                    reg->setSREG(C, (reg->ram[Rd] & 1));
+                                    reg->setSREG(C, (reg->ram[Rd] & BIT(1)));
 									reg->setSREG(N, (R & BIT(7)));
 									reg->setSREG(V, reg->getSREG(N) != reg->getSREG(C));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -938,7 +936,7 @@ std::string Avr_Core::decodeInstruction(){
 									//Set Flags
 									
 									reg->setSREG(V, (reg->ram[Rd] == 0x7f));
-									reg->setSREG(N, (R & 0x80));
+                                    reg->setSREG(N, (R & BIT(7)));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
 									reg->setSREG(Z,(R==0));
 									reg->ram[Rd] = R;
@@ -978,22 +976,23 @@ std::string Avr_Core::decodeInstruction(){
 									Rd = GET_REGISTER_5_BIT_D;
 									regX = reg->getX();
 									switch (inst & 0x3){
+                                        case 0x0:
+                                            this->cCount = 1;
+                                            reg->ram[Rd] = reg->ram[regX];
+                                        break;
 										case 0x1:
 											reg->ram[Rd] = reg->ram[regX];
 											regX++;
                                             this->cCount = 2;
 											reg->setX(regX);
-										break;
+                                        break;
 										case 0x2:
 											regX--;
 											reg->setX(regX);
                                             this->cCount = 2;
 											reg->ram[Rd] = reg->ram[regX];
 										break;
-										default:
-                                            this->cCount = 1;
-											reg->ram[Rd] = reg->ram[regX];
-										break;	
+
 									}
 
 									reg->pc++;
@@ -1108,6 +1107,11 @@ std::string Avr_Core::decodeInstruction(){
 									Rr = GET_REGISTER_5_BIT_D;
 									regX = reg->getX();
 									switch (inst & 0x3){
+                                        case 0x0:
+                                            this->cCount = 1;
+                                            reg->ram[regX] = reg->ram[Rr];
+                                            res = "st";
+                                        break;
 										case (0x1):
                                             this->cCount = 2;
 											reg->ram[regX] = reg->ram[Rr];
@@ -1122,11 +1126,6 @@ std::string Avr_Core::decodeInstruction(){
 											reg->ram[regX] = reg->ram[Rr];
                                             res = "-st";
 										break;
-										default:
-                                            this->cCount = 1;
-											reg->ram[regX] = reg->ram[Rr];
-                                            res = "st";
-										break;
 									}
 									reg->pc++;
 
@@ -1139,7 +1138,7 @@ std::string Avr_Core::decodeInstruction(){
 									reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 2;
-									res = "stz";
+                                    res = "stz";
 								break;
 								case STZ2:
 									Rr = GET_REGISTER_5_BIT_D;
