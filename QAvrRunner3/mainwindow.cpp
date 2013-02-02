@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QCloseEvent>
+#include <QComboBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,9 +9,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     core = NULL;
+    rom = "";
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
 
+
+
+
+
+
+
+
+
+    //Setup QGraphics Scene (this is testing code not production)
     myScene = new QGraphicsScene();
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
@@ -19,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
             rect[y * 5 + x]->setBrush(Qt::black);
-
+            rect[y * 5 + x]->setFlag(QGraphicsItem::ItemIsMovable,true);
             myScene->addItem(rect[y * 5 + x]);
         }
     }
@@ -29,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
+    ui->toolBar->addWidget(new QComboBox());
     QTimer *timer = new QTimer;
     timer->setInterval(10);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
@@ -42,6 +54,86 @@ MainWindow::~MainWindow()
     }
     delete ui;
 }
+
+
+ void MainWindow::closeEvent(QCloseEvent *event){
+    if (core){
+        core->isThreadStopped = true;
+        while (core->isRunning()){
+
+        }
+    }
+    event->accept();
+}
+
+
+
+void MainWindow::on_actionStart_triggered()
+{
+    if (ui->actionStart->isChecked()){
+        if (QFile(rom).exists()){
+
+            Avr_Core_Builder builder;
+            core = builder.loadCore("plugins/ATMega32u2");
+            core->isThreadStopped = true;
+            core->reg->pc = 0;
+            core->flash->loadHex(rom.toStdString().c_str());
+            ui->actionPause->setEnabled(true);
+            ui->actionPause->setChecked(true);
+        }else{
+            QMessageBox msgBox;
+            msgBox.setText("A valid rom (.hex file) is required!");
+            msgBox.exec();
+            ui->actionStart->setChecked(false);
+        }
+    }else{
+        core->isThreadStopped = true;
+        while (core->isRunning()){
+            //Wait for core to finish
+        }
+        if (core){
+            delete core;
+            core = NULL;
+        }
+        ui->actionPause->setDisabled(true);
+        ui->actionStep->setDisabled(true);
+
+    }
+
+}
+
+void MainWindow::on_actionPause_triggered()
+{
+    //Pausing Core
+    if (ui->actionPause->isChecked()){
+        if (core){
+            this->core->isThreadStopped = true;
+        }
+        this->ui->actionStep->setEnabled(true);
+    }else{
+        if (core){
+            this->core->isThreadStopped = false;
+            this->core->start();
+        }
+        this->ui->actionStep->setDisabled(true);
+    }
+}
+
+void MainWindow::on_actionStep_triggered()
+{
+    if (core){
+        core->step();
+    }
+}
+
+void MainWindow::on_loadHex_clicked(){
+    rom = QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
+    if (!QFile(rom).exists()){
+        rom = "";
+    }
+}
+
+
 
 void MainWindow::gui_update(){
 
@@ -132,29 +224,6 @@ void MainWindow::gui_update(){
     }
 }
 
-void MainWindow::on_btnStart_clicked()
-{
-    if (!core){
-        Avr_Core_Builder builder;
-        core = builder.loadCore("plugins/ATMega32u2");
-        //builder.loadProgram("ex1.hex");
-        ui->btnStart->setText("Start Core");
-    }else{
-        core->start();
-    }
-}
-
-void MainWindow::on_btnStop_clicked()
-{
-    core->isThreadStopped = true;
-}
-
-void MainWindow::on_btnStep_clicked()
-{
-    if (core){
-        core->step();
-    }
-}
 
 void MainWindow::on_btnHardware_pressed()
 {
@@ -176,17 +245,4 @@ void MainWindow::on_btnHardware_released()
     }
 }
 
-void MainWindow::on_loadHex_clicked(){
-    //QString fileName = "/home/kevin/Documents/Uni Stuff/Second Year/Second Year S2/ENCE260/Embedded/ucfk4/lab_1/ex1/ex1.hex";//QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
-    if (core){
-        //Stop any threads
-        core->isThreadStopped = true;
-        core->reg->pc = 0;
-        core->flash->loadHex(fileName.toStdString().c_str());
-    }else{
-        QMessageBox msgBox;
-        msgBox.setText("There must be a valid core!");
-        msgBox.exec();
-    }
-}
+

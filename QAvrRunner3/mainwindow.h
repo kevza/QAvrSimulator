@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QStringList>
+#include <QString>
 
 namespace Ui {
 class MainWindow;
@@ -28,13 +29,6 @@ public:
 
     
 private slots:
-    void on_btnStart_clicked();
-
-    void on_btnStop_clicked();
-
-    void on_btnStep_clicked();
-
-
     void on_btnHardware_pressed();
 
     void on_btnHardware_released();
@@ -43,8 +37,19 @@ private slots:
 
     void gui_update();
 
+    void on_actionStart_triggered();
+
+    void on_actionPause_triggered();
+
+    void on_actionStep_triggered();
+
+
+protected:
+    virtual void closeEvent(QCloseEvent *);
+
 private:
     Avr_Core *core;
+    QString rom;
     Ui::MainWindow *ui;
     Avr_Hardware_Interface *hardware;
     Avr_Hardware_Interface *ledmat;

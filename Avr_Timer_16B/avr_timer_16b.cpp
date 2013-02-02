@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QDebug>
+enum {TIFR1,TIMSK1,TCCR1A,TCCR1B,TCCR1C,TCNT1L,TCNT1H,ICR1L,ICR1H,OCR1AL,OCR1AH,OCR1BL,OCR1BH,OCR1CL,OCR1CH};
 
 Avr_Timer_16b::Avr_Timer_16b(){
     registers["TIFR1"] = 0;
@@ -80,15 +81,20 @@ void Avr_Timer_16b::bindRegister(QString reg, uint8_t *ptr){
  */
 int Avr_Timer_16b::update(int cycles){
     //Get count
-    count = (*this->reg[6] << 8) | *this->reg[5];
-    uint16_t oldCount = count;
-    //Simulate the number of cycles to respond to
+    count = (*this->reg[TCNT1H] << 8) | *this->reg[TCNT1L];
+    uint8_t wgm = (*this->reg[TCCR1B] & 0x18) >> 1 | (*this->reg[TCCR1A] & 0x3);
 
-    switch ((*this->reg[3]) & 0x7){
+    uint16_t top;
+    uint16_t bottom;
+
+    //Skips compare if condition satisfied as per timer spec ATMega32u2 datasheet page 134
+    bool skipCompare = ~(count == oldCount);
+
+    oldCount = count;
+    switch ((*this->reg[TCCR1B]) & 0x7){
         case 1:
             //PS=1
-            count += cycles;
-
+            count += (cycles * d);
         break;
         case 2:
             //PS=8
@@ -96,7 +102,7 @@ int Avr_Timer_16b::update(int cycles){
             this->prescaler += cycles;
             this->prescaler %= 8;
             if (this->prescaler < cycles){
-                count += 1;
+                count += d;
             }
 
         break;
@@ -106,7 +112,7 @@ int Avr_Timer_16b::update(int cycles){
             this->prescaler += cycles;
             this->prescaler %= 64;
             if (this->prescaler < cycles){
-                count += 1;
+                count += d;
             }
 
         break;
@@ -115,7 +121,7 @@ int Avr_Timer_16b::update(int cycles){
             this->prescaler += cycles;
             this->prescaler %= 256;
             if (this->prescaler < cycles){
-                count += 1;
+                count += d;
             }
 
         break;
@@ -124,11 +130,62 @@ int Avr_Timer_16b::update(int cycles){
             this->prescaler += cycles;
             this->prescaler %= 1024;
             if (this->prescaler < cycles){
-                count += 1;
+                count += d;
             }
 
         break;
+    }
+    //Switch Mode
+    switch (wgm){
+        case 0:
+            top = 0xffff;
 
+        break;
+        case 1:
+
+        break;
+        case 2:
+
+        break;
+        case 3:
+
+        break;
+        case 4:
+
+        break;
+        case 5:
+
+        break;
+        case 6:
+
+        break;
+        case 7:
+
+        break;
+        case 8:
+
+        break;
+        case 9:
+
+        break;
+        case 10:
+
+        break;
+        case 11:
+
+        break;
+        case 12:
+
+        break;
+        case 13:
+
+        break;
+        case 14:
+
+        break;
+        case 15:
+
+        break;
     }
 
     //Set overflow flag
@@ -136,7 +193,7 @@ int Avr_Timer_16b::update(int cycles){
         *this->reg[0] |= 1;
     }
 
-    //Set count
+    //Save count
     *this->reg[5] = count & 0xff;
     *this->reg[6] = count >> 8;
     return -1;

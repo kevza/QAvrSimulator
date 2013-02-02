@@ -71,6 +71,7 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
         QMap<QString,int> registers;
         uint8_t* reg[REG_COUNT];
         uint16_t count;
+        uint16_t oldCount;
         int prescaler;
         int d;
 };

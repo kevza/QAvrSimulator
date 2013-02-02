@@ -13,9 +13,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    Tools/ledmatitem.cpp \
+    Tools/leditem.cpp \
+    Tools/buttonitem.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    Tools/ledmatitem.h \
+    Tools/leditem.h \
+    Tools/buttonitem.h
 
 FORMS    += mainwindow.ui
 
@@ -29,3 +35,6 @@ DEPENDPATH += $$PWD/../Avr_Core
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Builds/Avr_Core-build-Desktop-Release/release/Avr_Core.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Builds/Avr_Core-build-Desktop-Release/debug/Avr_Core.lib
 else:unix: PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Builds/Avr_Core-build-Desktop-Release/libAvr_Core.a
+
+RESOURCES += \
+    RunnerResources.qrc
