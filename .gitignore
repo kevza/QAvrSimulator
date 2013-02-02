@@ -11,3 +11,6 @@
 *.lai
 *.la
 *.a
+# Platform Specific User Files
+*.pro.user
+
