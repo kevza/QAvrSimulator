@@ -1,6 +1,7 @@
 #include "avr_core_builder.h"
 #include <iostream>
 #include <QDebug>
+#include <QDir>
 
 Avr_Core_Builder::Avr_Core_Builder(QObject *parent) : QObject(parent)
 {  
@@ -18,8 +19,8 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
     //Load Configuration File
     ifstream configFile;
     string line;string id;string setting;
-
-    configFile.open(mmcu.toStdString().c_str());
+    QString path = QDir::currentPath() + "/" + mmcu;
+    configFile.open(path.toStdString().c_str());
 
     if (configFile.is_open()){
         //Process config
@@ -40,28 +41,36 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
                 qDebug() << "Load Ram\n";
                 core->mem->initRam(sizeToInt(setting) + 0xff);
                 core->reg->setRam(core->mem->getRam());
+
             }else if (id == "FLASHSIZE"){
                 qDebug() << "Load Flash\n";
                 core->setFlash(new Avr_Flash(sizeToInt(setting)));
+
             }else if (id == "EPROMSIZE"){
                 qDebug() << "Load Eprom\n";
                 core->mem->initEprom(sizeToInt(setting));
+
             }else if (id == "SPL"){
                 qDebug() << "Set SPL\n";
                 core->reg->setStackPL(getRegPtr(setting));
+
             }else if (id == "SPH"){
                 qDebug() << "Set SPH\n";
                 core->reg->setStackPH(getRegPtr(setting));
+
             }else if (id == "SREG"){
                 core->reg->setSREGP(getRegPtr(setting));
+
             }else if (id == "PLUGINLIB"){
+
                 qDebug() << "Load Plugin " << QString(setting.c_str()) << "\n";
-                loader.setFileName(QString(setting.c_str()));
+                loader.setFileName(QDir::currentPath()+"/" +QString(setting.c_str()));
                 loader.load();
-                QList <QObject*> objects = loader.staticInstances();
+
                 QObject *plugin = loader.instance();
                 Avr_Hardware_Interface *h = qobject_cast<Avr_Hardware_Interface*>(plugin);
-                //Load Registers
+
+                //Load Registers for the plugin
                 for (int j = 0; j < h->getRegisterCount();j++){
                     configFile >> line;
                     if (line[0]==';'){
