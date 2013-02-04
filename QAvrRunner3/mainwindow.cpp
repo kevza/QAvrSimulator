@@ -3,6 +3,8 @@
 #include <QCloseEvent>
 #include <QComboBox>
 
+#include <Tools/buttonitem.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -12,23 +14,12 @@ MainWindow::MainWindow(QWidget *parent) :
     rom = "";
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
-
-
-
-
-
-
-
-
-
     //Setup QGraphics Scene (this is testing code not production)
     myScene = new QGraphicsScene();
+
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
             rect[y * 5 + x] = new QGraphicsRectItem(10 + (12 * x),10 + (12 * y),10,10);
-
-
-
             rect[y * 5 + x]->setBrush(Qt::black);
             rect[y * 5 + x]->setFlag(QGraphicsItem::ItemIsMovable,true);
             myScene->addItem(rect[y * 5 + x]);
@@ -38,9 +29,18 @@ MainWindow::MainWindow(QWidget *parent) :
     rect[35]->setBrush(Qt::black);
     myScene->addItem(rect[35]);
 
+
+    btn = new ButtonItem();
+
+    myScene->addItem(btn);
+
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
     ui->toolBar->addWidget(new QComboBox());
+
+    this->hardware = NULL;
+    this->ledmat = NULL;
+
     QTimer *timer = new QTimer;
     timer->setInterval(10);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
@@ -75,11 +75,14 @@ void MainWindow::on_actionStart_triggered()
 
             Avr_Core_Builder builder;
             core = builder.loadCore("plugins/ATMega32u2");
+
             core->isThreadStopped = true;
             core->reg->pc = 0;
             core->flash->loadHex(rom.toStdString().c_str());
+
             ui->actionPause->setEnabled(true);
             ui->actionPause->setChecked(true);
+
         }else{
             QMessageBox msgBox;
             msgBox.setText("A valid rom (.hex file) is required!");
@@ -99,6 +102,7 @@ void MainWindow::on_actionStart_triggered()
         ui->actionStep->setDisabled(true);
 
     }
+
 
 }
 
@@ -152,15 +156,15 @@ void MainWindow::gui_update(){
                 if (h->getPluginName() == "AVRIO"){
 
                     this->hardware = h;
+                    btn->setHardware(h);
                 }
                 if (h->getPluginName() == "AVRLEDMAT"){
 
                     ledmat = h;
                 }
             }
+
         }else{
-
-
             QMap<QString,uint8_t> theMap;
             theMap = ledmat->getOutputs();
             QStringList leds;
@@ -186,61 +190,7 @@ void MainWindow::gui_update(){
 
             myScene->update();
 
-
-        /*
-        QMap <QString, uint8_t> myMap;
-
-        myMap = hardware->getOutputs();
-        std::cout << t << " : ";
-        std::cout << (int)myMap["PORTB0"] << ", ";
-        std::cout << (int)myMap["PORTB1"] << ", ";
-        std::cout << (int)myMap["PORTB2"] << ", ";
-        std::cout << (int)myMap["PORTB3"] << ", ";
-        std::cout << (int)myMap["PORTB4"] << ", ";
-        std::cout << (int)myMap["PORTB5"] << ", ";
-        std::cout << (int)myMap["PORTB6"] << ", ";
-        std::cout << (int)myMap["PORTB7"] << ",";
-        std::cout <<"-";
-        std::cout << (int)myMap["PORTC0"] << ", ";
-        std::cout << (int)myMap["PORTC1"] << ", ";
-        std::cout << (int)myMap["PORTC2"] << ", ";
-        std::cout << (int)myMap["PORTC3"] << ", ";
-        std::cout << (int)myMap["PORTC4"] << ", ";
-        std::cout << (int)myMap["PORTC5"] << ", ";
-        std::cout << (int)myMap["PORTC6"] << ", ";
-        std::cout << (int)myMap["PORTC7"] << ",";
-        std::cout <<"-";
-        std::cout << (int)myMap["PORTD0"] << ", ";
-        std::cout << (int)myMap["PORTD1"] << ", ";
-        std::cout << (int)myMap["PORTD2"] << ", ";
-        std::cout << (int)myMap["PORTD3"] << ", ";
-        std::cout << (int)myMap["PORTD4"] << ", ";
-        std::cout << (int)myMap["PORTD5"] << ", ";
-        std::cout << (int)myMap["PORTD6"] << ", ";
-        std::cout << (int)myMap["PORTD7"] << "\n";
-        t++;*/
         }
-        m.unlock();
-    }
-}
-
-
-void MainWindow::on_btnHardware_pressed()
-{
-    if (core){
-        QMutex m;
-        m.lock();
-        *hardware->getInputs()["PIND"] |= (1 << 7);
-        m.unlock();
-    }
-}
-
-void MainWindow::on_btnHardware_released()
-{
-    if (core){
-        QMutex m;
-        m.lock();
-        *hardware->getInputs()["PIND"] &= ~(1 << 7);
         m.unlock();
     }
 }

@@ -14,6 +14,7 @@
 #include <QTimer>
 #include <QStringList>
 #include <QString>
+#include <Tools/buttonitem.h>
 
 namespace Ui {
 class MainWindow;
@@ -29,9 +30,6 @@ public:
 
     
 private slots:
-    void on_btnHardware_pressed();
-
-    void on_btnHardware_released();
 
     void on_loadHex_clicked();
 
@@ -55,6 +53,7 @@ private:
     Avr_Hardware_Interface *ledmat;
     QGraphicsRectItem* rect[36];
     QGraphicsScene* myScene;
+    ButtonItem *btn;
 };
 
 #endif // MAINWINDOW_H

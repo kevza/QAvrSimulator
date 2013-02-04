@@ -8,6 +8,11 @@ Avr_Core_Builder::Avr_Core_Builder(QObject *parent) : QObject(parent)
 
 }
 
+/**
+ * @brief Avr_Core_Builder::loadCore Loads the core described by the configuration file at the path mmcu
+ * @param mmcu The path for the configuration file
+ * @return
+ */
 Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
     //Loader to open plugins
     QPluginLoader loader;
@@ -17,13 +22,15 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
     core->setRegisters(new Avr_Registers);
 
     //Load Configuration File
-    ifstream configFile;
     string line;string id;string setting;
+
     QString path = QDir::currentPath() + "/" + mmcu;
+    ifstream configFile;
     configFile.open(path.toStdString().c_str());
 
     if (configFile.is_open()){
-        //Process config
+        //Process config file, there might be a problem
+        //with the loop termination here
         while (!configFile.eof()){
             configFile >> line;
             if (line == "END"){
@@ -109,6 +116,11 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
     return core;
 }
 
+/**
+ * @brief Avr_Core_Builder::sizeToInt Converts a memory size to an integer number of bytes
+ * @param size
+ * @return
+ */
 int Avr_Core_Builder::sizeToInt(string size){
     int i = size.size() - 1;
     std::stringstream ss;
@@ -137,6 +149,11 @@ bool Avr_Core_Builder::loadProgram(string file){
     }
 }
 
+/**
+ * @brief Avr_Core_Builder::getRegPtr Gets a pointer to a location in an array by the hexdecimal address (Assuming the array starts at 0x00)
+ * @param loc
+ * @return
+ */
 uint8_t* Avr_Core_Builder::getRegPtr(string loc){
     std::stringstream ss;
     int res;
