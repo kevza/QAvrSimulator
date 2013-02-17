@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <cstdio>
+#include <queue>
 
 #include "Avr_Core_global.h"
 #include "avr_memory.h"
@@ -61,7 +62,17 @@ class Avr_Core : public QThread {
          */
         void interrupt(int pc);
 
+        /**
+         * @brief step Steps through the instructions one by one
+         */
         void step();
+
+        /**
+         * @brief stringFormat Builds a string based on a format string for debug information
+         * @param fmt
+         * @return the constructed string
+         */
+        std::string debugFormat(const char *fmt, ...);
 
         //Ready for testing
 		uint8_t *sreg;
@@ -74,7 +85,9 @@ class Avr_Core : public QThread {
         QVector <Avr_Hardware_Interface*> hardware;
         bool isThreadStopped;
         bool debug;
-		
+        //Lists instructions for debug output
+        std::queue <string> debugQueue;
+
     private:
         void run();
         int jmp;

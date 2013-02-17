@@ -16,14 +16,17 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     Tools/ledmatitem.cpp \
     Tools/leditem.cpp \
-    Tools/buttonitem.cpp
+    Tools/buttonitem.cpp \
+    Debugger/debugview.cpp
 
 HEADERS  += mainwindow.h \
     Tools/ledmatitem.h \
     Tools/leditem.h \
-    Tools/buttonitem.h
+    Tools/buttonitem.h \
+    Debugger/debugview.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    Debugger/debugview.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../QAvrSimulator-Builds/Avr_Core-build-Desktop-Release/release/ -lAvr_Core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../QAvrSimulator-Builds/Avr_Core-build-Desktop-Release/debug/ -lAvr_Core

@@ -15,6 +15,7 @@
 #include <QStringList>
 #include <QString>
 #include <Tools/buttonitem.h>
+#include <Debugger/debugview.h>
 
 namespace Ui {
 class MainWindow;
@@ -42,6 +43,8 @@ private slots:
     void on_actionStep_triggered();
 
 
+    void on_actionDebugger_triggered();
+
 protected:
     virtual void closeEvent(QCloseEvent *);
 
@@ -54,6 +57,7 @@ private:
     QGraphicsRectItem* rect[36];
     QGraphicsScene* myScene;
     ButtonItem *btn;
+    DebugView *debugger;
 };
 
 #endif // MAINWINDOW_H

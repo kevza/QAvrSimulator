@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     core = NULL;
+    debugger = new DebugView();
     rom = "";
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
@@ -31,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     btn = new ButtonItem();
-
+    btn->setScale(0.2);
     myScene->addItem(btn);
 
     ui->mainGView->setScene(myScene);
@@ -52,22 +53,35 @@ MainWindow::~MainWindow()
     if (core){
         delete core;
     }
+    if (debugger){
+        delete debugger;
+    }
     delete ui;
 }
 
-
+/**
+  * @brief MainWindow::closeEvent Catches the close event of the window and shuts down gracefully
+  * @param event
+  */
  void MainWindow::closeEvent(QCloseEvent *event){
+    //Stop a running core
     if (core){
         core->isThreadStopped = true;
         while (core->isRunning()){
 
         }
     }
+    //close any open debug windows
+    if (debugger){
+        debugger->close();
+    }
     event->accept();
 }
 
 
-
+ /**
+ * @brief MainWindow::on_actionStart_triggered Starts a new core
+ */
 void MainWindow::on_actionStart_triggered()
 {
     if (ui->actionStart->isChecked()){
@@ -82,6 +96,11 @@ void MainWindow::on_actionStart_triggered()
 
             ui->actionPause->setEnabled(true);
             ui->actionPause->setChecked(true);
+            ui->actionStep->setEnabled(true);
+            //Register the core with the debug window
+            if (debugger){
+                debugger->attachCore(core);
+            }
 
         }else{
             QMessageBox msgBox;
@@ -95,6 +114,9 @@ void MainWindow::on_actionStart_triggered()
             //Wait for core to finish
         }
         if (core){
+            if (debugger){
+                debugger->attachCore(NULL);
+            }
             delete core;
             core = NULL;
         }
@@ -106,6 +128,9 @@ void MainWindow::on_actionStart_triggered()
 
 }
 
+/**
+ * @brief MainWindow::on_actionPause_triggered Pauses a currently running core.
+ */
 void MainWindow::on_actionPause_triggered()
 {
     //Pausing Core
@@ -123,6 +148,9 @@ void MainWindow::on_actionPause_triggered()
     }
 }
 
+/**
+ * @brief MainWindow::on_actionStep_triggered Step a paused core
+ */
 void MainWindow::on_actionStep_triggered()
 {
     if (core){
@@ -130,6 +158,9 @@ void MainWindow::on_actionStep_triggered()
     }
 }
 
+/**
+ * @brief MainWindow::on_loadHex_clicked Selects a hex file to run in the simulator
+ */
 void MainWindow::on_loadHex_clicked(){
     rom = QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
     if (!QFile(rom).exists()){
@@ -138,7 +169,10 @@ void MainWindow::on_loadHex_clicked(){
 }
 
 
-
+/**
+ * @brief MainWindow::gui_update Trigger an update of all gui elements on
+ *          timeout
+ */
 void MainWindow::gui_update(){
 
 
@@ -196,3 +230,23 @@ void MainWindow::gui_update(){
 }
 
 
+
+/**
+ * @brief MainWindow::on_actionDebugger_triggered Shows and hides the debug view
+ */
+void MainWindow::on_actionDebugger_triggered()
+{
+    if (ui->actionDebugger->isChecked()){
+        //Show the debugger
+        if (!debugger){
+            debugger = new DebugView(NULL);
+
+        }
+        debugger->show();
+        debugger->attachCore(this->core);
+    }else{
+        //Hide the debugger
+        debugger->hide();
+
+    }
+}

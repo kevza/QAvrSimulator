@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>QAvr Simulator</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -121,6 +121,7 @@
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionStep"/>
+   <addaction name="actionDebugger"/>
   </widget>
   <action name="actionLoad_Hex">
    <property name="text">
@@ -179,6 +180,17 @@
    </property>
    <property name="text">
     <string>Step</string>
+   </property>
+  </action>
+  <action name="actionDebugger">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debugger</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
  </widget>

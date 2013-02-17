@@ -15,79 +15,7 @@ enum {C,Z,N,V,S,H,T,I};
 
 #define BIT(X) (1 << X)
 
-void Avr_Core::run(){
-    isThreadStopped = false;
-    int interrupt = 0;
-    QMutex mutex;
-    int count = 0;
-    while (!isThreadStopped){
-        //Lock the thread
-        mutex.lock();
 
-        if (this->debug){
-            int p = reg->pc;
-            printf("%#x:%s\n",p * 2,this->decodeInstruction().c_str());
-            //string st = this->decodeInstruction();
-            //std::cout << st<< "\n";
-            /*
-            if (st == "---"){
-                break;
-            }*/
-        }else{
-            this->decodeInstruction();
-        }
-        //Update Hardware
-
-        foreach (Avr_Hardware_Interface *h, hardware){
-            interrupt = h->update(this->cCount);
-        }
-        this->interrupt(interrupt);
-        count += this->cCount;
-        if (count > 1000000 ){
-            //qDebug() << "mil";
-            count = 0;
-        }
-        mutex.unlock();
-    }
-}
-
-void Avr_Core::step(){
-    //Runs the Core
-    int inter = 0;
-    int j = 0;
-    for (int i =0 ; i < 1279; i++){
-
-        if ((int)reg->ram[i]> 0){
-            if (j % 20 == 0){
-                std::cout << "\n";
-            }
-            std::cout <<i <<":" <<(int)reg->ram[i] << " , ";
-            j+= 1;
-        }
-    }
-
-    std::cout << "\nSREG : ";
-    for (int i = 0 ; i < 8; i++){
-        if (reg->getSREG(i)){
-            std::cout << "1 ";
-        }else{
-            std::cout <<"0 ";
-
-        }
-
-    }
-
-
-    printf("\n%s at PC = 0x%x\n",this->decodeInstruction().c_str(), (reg->pc * 2));
-    fflush(stdout);
-    //Update Hardware
-    foreach (Avr_Hardware_Interface *h, hardware){
-            inter = h->update(this->cCount);
-    }
-    if (inter != -1){
-        std::cout << "Interrupt to PC = " << inter <<"\n";
-    }
-}
 
 Avr_Core::Avr_Core(Avr_Flash *f, Avr_Memory *mem, Avr_Registers *regI){
 	//Load Flash
@@ -143,6 +71,61 @@ void Avr_Core::setRegisters(Avr_Registers *reg){
 }
 
 
+void Avr_Core::run(){
+    isThreadStopped = false;
+    int interrupt = 0;
+    QMutex mutex;
+    while (!isThreadStopped){
+        //Lock the thread
+        mutex.lock();
+        this->decodeInstruction();
+        foreach (Avr_Hardware_Interface *h, hardware){
+            interrupt = h->update(this->cCount);
+        }
+        this->interrupt(interrupt);
+        mutex.unlock();
+    }
+}
+
+/**
+ * @brief Avr_Core::step Step through instructions
+ */
+void Avr_Core::step(){
+    bool state = this->debug;
+    this->debug = true;
+    debugQueue.push(this->decodeInstruction());
+    int inter = -1;
+    foreach (Avr_Hardware_Interface *h, hardware){
+            inter = h->update(this->cCount);
+    }
+    this->interrupt(inter);
+    this->debug = state;
+}
+
+/**
+ * @brief Avr_Core::stringFormat Creates a string with format
+ * @param fmt
+ * @return The formatted string
+ */
+std::string Avr_Core::debugFormat(const char *fmt, ...)
+{
+    //Bail out if not in debug mode
+    if (!this->debug){
+        return "";
+    }
+    char *ret;
+    va_list ap;
+    va_start(ap, fmt);
+    if (!vasprintf(&ret, fmt, ap)){
+        qDebug() << "Form debug string for queue failed";
+    };
+    va_end(ap);
+
+    std::string str(ret);
+    free(ret);
+
+    return str;
+}
 
 /**
 *@brief Returns fist 4 bits in an instruction (Direct Address Mode)
@@ -1401,15 +1384,18 @@ std::string Avr_Core::decodeInstruction(){
 			switch (inst & 0xf800){
 				case IN:
 					A = GET_A_6_BIT;
-					Rd = GET_REGISTER_5_BIT_D;				
+                    Rd = GET_REGISTER_5_BIT_D;
+                    //Debug information
+                    res = debugFormat("in R%d %d",(int)Rd, (int)A);
+
 					reg->ram[Rd] = reg->io[A];
-					res = "in";
                     this->cCount = 1;
 					reg->pc++;
 				break;
 				case OUT:
 					A = GET_A_6_BIT;
 					Rr = GET_REGISTER_5_BIT_D;
+                    res = debugFormat("out %d R%d",(int)A, (int)Rr);
 					reg->io[A] = reg->ram[Rr];
 					res = "out";
                     this->cCount = 1;
@@ -1425,11 +1411,15 @@ std::string Avr_Core::decodeInstruction(){
 				//Negative Number
                 jmp = ((~jmp & 0xfff) + 1) & 0xfff;
                 reg->pc = reg->pc - jmp + 1;
-			}else{
+                //Debug information
+                res = debugFormat("rjmp -%d",(int)jmp);
+            }else{
 				reg->pc = reg->pc + jmp + 1;
+                //Debug information
+                res = debugFormat("rjmp %d",(int)jmp);
+
 			}
             this->cCount = 2;
-			res = "rjmp";		
 		break;
 
 		//1101

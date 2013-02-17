@@ -7,13 +7,8 @@
  */
 ButtonItem::ButtonItem()
 {
-    QPixmap *map = new QPixmap();
-    map->load(":/icons/Icons/Stop.png");
-    if (!QFile::exists(":/icons/Icons/Stop.png")){
-        qDebug() << "Bummer dude";
 
-    }
-    this->setPixmap(*map);
+    this->setPixmap(QPixmap(":/icons/Icons/Stop.png"));
     this->setFlag(QGraphicsItem::ItemIsMovable,true);
     this->setVisible(true);
     this->hardware = NULL;
@@ -25,14 +20,14 @@ ButtonItem::ButtonItem()
  * @param event
  */
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
+    this->setPixmap(QPixmap(":/icons/Icons/Play.png"));
+    this->update();
     if(hardware){
         QMutex m;
         m.lock();
         *hardware->getInputs()["PIND"] |= (1 << 7);
         m.unlock();
     }
-
-
     //Keep QGraphics Item default behaviours
     QGraphicsItem::mousePressEvent(event);
 }
@@ -43,6 +38,8 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
  * @param event
  */
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
+    this->setPixmap(QPixmap(":/icons/Icons/Stop.png"));
+    this->update();
     if(hardware){
         QMutex m;
         m.lock();
