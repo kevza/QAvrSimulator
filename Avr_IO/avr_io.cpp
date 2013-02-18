@@ -13,11 +13,42 @@ Avr_IO::Avr_IO(){
     regMap["PIND"] = 6;
     regMap["DDRD"] = 7;
     regMap["PORTD"] = 8;
-    pinb = 0;pinc = 0;pind = 0;
 
-    inputs["PINB"] = &pinb;
-    inputs["PINC"] = &pinc;
-    inputs["PIND"] = &pind;
+
+    inputs["PINB0"] = &pinb[0];
+    inputs["PINB1"] = &pinb[1];
+    inputs["PINB2"] = &pinb[2];
+    inputs["PINB3"] = &pinb[3];
+    inputs["PINB4"] = &pinb[4];
+    inputs["PINB5"] = &pinb[5];
+    inputs["PINB6"] = &pinb[6];
+    inputs["PINB7"] = &pinb[7];
+
+    inputs["PINC0"] = &pinc[0];
+    inputs["PINC1"] = &pinc[1];
+    inputs["PINC2"] = &pinc[2];
+    inputs["PINC3"] = &pinc[3];
+    inputs["PINC4"] = &pinc[4];
+    inputs["PINC5"] = &pinc[5];
+    inputs["PINC6"] = &pinc[6];
+    inputs["PINC7"] = &pinc[7];
+
+    inputs["PIND0"] = &pind[0];
+    inputs["PIND1"] = &pind[1];
+    inputs["PIND2"] = &pind[2];
+    inputs["PIND3"] = &pind[3];
+    inputs["PIND4"] = &pind[4];
+    inputs["PIND5"] = &pind[5];
+    inputs["PIND6"] = &pind[6];
+    inputs["PIND7"] = &pind[7];
+
+
+    //Set all inputs to off position
+    QList <uint8_t*> inpPtrs = inputs.values();
+    for (int i = 0 ; i < inputs.size();i++){
+        uint8_t *t = inpPtrs.at(i);
+        *t = 0;
+    }
 
     outputs["PORTB0"] = 0;
     outputs["PORTB1"] = 0;
@@ -27,7 +58,6 @@ Avr_IO::Avr_IO(){
     outputs["PORTB5"] = 0;
     outputs["PORTB6"] = 0;
     outputs["PORTB7"] = 0;
-    outputs["PORTBD"] = 0;
 
     outputs["PORTC0"] = 0;
     outputs["PORTC1"] = 0;
@@ -37,7 +67,6 @@ Avr_IO::Avr_IO(){
     outputs["PORTC5"] = 0;
     outputs["PORTC6"] = 0;
     outputs["PORTC7"] = 0;
-    outputs["PORTCD"] = 0;
 
     outputs["PORTD0"] = 0;
     outputs["PORTD1"] = 0;
@@ -47,9 +76,6 @@ Avr_IO::Avr_IO(){
     outputs["PORTD5"] = 0;
     outputs["PORTD6"] = 0;
     outputs["PORTD7"] = 0;
-    outputs["PORTDD"] = 0;
-
-
 }
 
 QString Avr_IO::getPluginName(){
@@ -125,7 +151,7 @@ int Avr_IO::update(int cycles){
             }
         }else{
             //UPDATE INPUT
-            if (pinb & (1 << i)){
+            if (pinb[i] == 1){
                 *reg[0] |= shift;
             }else{
                 *reg[0] &= ~shift;
@@ -144,7 +170,7 @@ int Avr_IO::update(int cycles){
         }else{
             //UPDATE INPUT
             //UPDATE INPUT
-            if (pinc & shift){
+            if (pinc[i] == 1){
                 *reg[3] |= shift;
             }else{
                 *reg[3] &= ~(shift);
@@ -162,7 +188,7 @@ int Avr_IO::update(int cycles){
         }else{
             //UPDATE INPUT
             //UPDATE INPUT
-            if (pind & shift){
+            if (pind[i] == 1){
                 *reg[6] |= shift;
             }else{
                 *reg[6] &= ~shift;
@@ -185,7 +211,7 @@ int Avr_IO::update(int cycles){
     return -1;
 }
 
-QMap <QString, uint8_t*> Avr_IO::getInputs(){
+QMap <QString,uint8_t*> Avr_IO::getInputs(){
     return inputs;
 }
 
@@ -222,6 +248,8 @@ void Avr_IO::updateOut(){
     outputs["PORTD5"] = portd[5];
     outputs["PORTD6"] = portd[6];
     outputs["PORTD7"] = portd[7];
+
+    //Reset all ports for next round
     for (int i = 0 ; i < 8 ; i++){
         portb[i] = 0;
         portc[i] = 0;

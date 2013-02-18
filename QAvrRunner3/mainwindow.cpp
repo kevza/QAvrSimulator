@@ -4,6 +4,7 @@
 #include <QComboBox>
 
 #include <Tools/buttonitem.h>
+#include <Scene/layoutmanager.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
     //Setup QGraphics Scene (this is testing code not production)
-    myScene = new QGraphicsScene();
+    myScene = new LayoutManager();
 
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
@@ -43,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ledmat = NULL;
 
     QTimer *timer = new QTimer;
-    timer->setInterval(10);
+    timer->setInterval(20);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
     timer->start();
 }
@@ -222,7 +223,7 @@ void MainWindow::gui_update(){
             QMap <QString, uint8_t> myMap = hardware->getOutputs();
             rect[35]->setBrush(QBrush(QColor(myMap["PORTC2"],0,0)));
 
-            myScene->update();
+            //myScene->update();
 
         }
         m.unlock();

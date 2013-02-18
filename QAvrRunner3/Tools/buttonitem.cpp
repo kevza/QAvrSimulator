@@ -25,7 +25,7 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
     if(hardware){
         QMutex m;
         m.lock();
-        *hardware->getInputs()["PIND"] |= (1 << 7);
+        *hardware->getInputs()["PIND7"] = 1;
         m.unlock();
     }
     //Keep QGraphics Item default behaviours
@@ -43,7 +43,7 @@ void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
     if(hardware){
         QMutex m;
         m.lock();
-        *hardware->getInputs()["PIND"] &= ~(1 << 7);
+        *hardware->getInputs()["PIND7"] = 0;
         m.unlock();
     }
     //Keep QGraphics Item default behaviours
