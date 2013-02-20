@@ -23,7 +23,7 @@ Avr_Core::Avr_Core(Avr_Flash *f, Avr_Memory *mem, Avr_Registers *regI){
 	reg = regI;
 	
 	this->sreg = reg->sreg;
-	reg->pc = 0;
+    reg->pc = 0;
 	//Setup Memory
 	reg->setRam(mem->getRam());
 	reg->setRamEnd(mem->getRamEnd());
@@ -36,7 +36,6 @@ Avr_Core::Avr_Core(Avr_Flash *f, Avr_Memory *mem, Avr_Registers *regI){
 	for (int i = 0 ; i < 8;i++){
 		reg->setSREG(i, 0);
 	}
-	
 }
 
 Avr_Core::Avr_Core(){
@@ -74,16 +73,14 @@ void Avr_Core::setRegisters(Avr_Registers *reg){
 void Avr_Core::run(){
     isThreadStopped = false;
     int interrupt = 0;
-    QMutex mutex;
+
     while (!isThreadStopped){
         //Lock the thread
-        mutex.lock();
         this->decodeInstruction();
         foreach (Avr_Hardware_Interface *h, hardware){
             interrupt = h->update(this->cCount);
         }
         this->interrupt(interrupt);
-        mutex.unlock();
     }
 }
 
@@ -305,10 +302,11 @@ inline bool Avr_Core::isTwoWord(uint16_t inst){
  */
 void Avr_Core::interrupt(int vector){
     //Changes the Program Counter and pushed old pc to the stack;
-    if (pc == -1 || !reg->getSREG(I)){
+    if (vector == -1 || !reg->getSREG(I)){
         //No interrupt Return
         return;
     }
+
     //Push the program counter to the stack
     if (mem->getRamEnd() < 65536){
         //push pc to stack
