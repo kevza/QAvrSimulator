@@ -2,6 +2,7 @@
 #include "opcode_masks.h"
 #include <iostream>
 #include <ctime>
+#include <stdarg.h>
 /**
  *@brief A Cpu simulator for Avr based Microprocessors
  *      built as a project to study software simulation of micros
@@ -113,6 +114,7 @@ std::string Avr_Core::debugFormat(const char *fmt, ...)
     char *ret;
     va_list ap;
     va_start(ap, fmt);
+
     if (!vasprintf(&ret, fmt, ap)){
         qDebug() << "Form debug string for queue failed";
     };
