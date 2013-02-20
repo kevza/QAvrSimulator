@@ -2,6 +2,10 @@
 #include "opcode_masks.h"
 #include <iostream>
 #include <ctime>
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 /**
  *@brief A Cpu simulator for Avr based Microprocessors
  *      built as a project to study software simulation of micros
@@ -15,7 +19,26 @@ enum {C,Z,N,V,S,H,T,I};
 
 #define BIT(X) (1 << X)
 
+//Vasprint patch see http://code.google.com/p/libnzbfetch/source/browse/trunk/src/compat/vasprintf.c?r=43
+//for acknowledgement
 
+#ifdef _WIN32
+#define va_copy(a,b) memcpy((&a),(&b),sizeof(b))
+
+int vasprintf(char **strp, const char *fmt, va_list ap)
+{
+        va_list aq = NULL;
+        int ret;
+
+        va_copy(aq, ap);
+        ret = vsnprintf(NULL, 0, fmt, aq);
+        va_end(aq);
+        if ((*strp = malloc(ret + 1)) == NULL)
+                return (-1);
+        ret = vsnprintf(*strp, ret + 1, fmt, ap);
+        return (ret);
+}
+#endif
 
 Avr_Core::Avr_Core(Avr_Flash *f, Avr_Memory *mem, Avr_Registers *regI){
 	//Load Flash
@@ -113,6 +136,8 @@ std::string Avr_Core::debugFormat(const char *fmt, ...)
     char *ret;
     va_list ap;
     va_start(ap, fmt);
+
+
     if (!vasprintf(&ret, fmt, ap)){
         qDebug() << "Form debug string for queue failed";
     };
