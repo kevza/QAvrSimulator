@@ -14,6 +14,7 @@
 #include <QTimer>
 #include <QStringList>
 #include <QString>
+#include <QComboBox>
 #include <Tools/buttonitem.h>
 #include <Debugger/debugview.h>
 
@@ -42,8 +43,9 @@ private slots:
 
     void on_actionStep_triggered();
 
-
     void on_actionDebugger_triggered();
+
+    void core_changed(QString def);
 
 protected:
     virtual void closeEvent(QCloseEvent *);
@@ -51,6 +53,8 @@ protected:
 private:
     Avr_Core *core;
     QString rom;
+    QString coreDef;
+    QComboBox *coresList;
     Ui::MainWindow *ui;
     Avr_Hardware_Interface *hardware;
     Avr_Hardware_Interface *ledmat;

@@ -9,9 +9,11 @@ DebugView::DebugView(QWidget *parent) :
     ui->setupUi(this);
     this->core = NULL;
     QTimer *time = new QTimer;
+
     time->setInterval(20);
     connect(time,SIGNAL(timeout()),this,SLOT(update()));
     time->start();
+
     //Setup Lists in Registers View
     for (int i = 0 ; i < 32; i++){
         ui->registersWidget->addItem(new QListWidgetItem(QString::number(i,16)));

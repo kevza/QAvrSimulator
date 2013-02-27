@@ -38,7 +38,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
-    ui->toolBar->addWidget(new QComboBox());
+
+    //Load a list of available cores
+    coresList = new QComboBox();
+    QDir d;
+    //Set the plugin directory
+    d.setCurrent("./plugins");
+
+    qDebug() << d.currentPath();
+    QStringList filter;
+    filter << "*.def";
+    coresList->addItems(d.entryList(filter,QDir::Files));
+    ui->toolBar->addWidget(coresList);
+    connect(coresList,SIGNAL(currentIndexChanged(QString)),this,SLOT(core_changed(QString)));
 
     this->hardware = NULL;
     this->ledmat = NULL;
@@ -57,7 +69,16 @@ MainWindow::~MainWindow()
     if (debugger){
         delete debugger;
     }
+    delete coresList;
     delete ui;
+}
+
+/**
+ * @brief MainWindow::core_changed Slot for changes in core from combo box
+ * @param def
+ */
+void MainWindow::core_changed(QString def){
+    coreDef = def;
 }
 
 /**
@@ -87,20 +108,27 @@ void MainWindow::on_actionStart_triggered()
 {
     if (ui->actionStart->isChecked()){
         if (QFile(rom).exists()){
+            if (QFile(coreDef).exists()){
+                Avr_Core_Builder builder;
+                core = builder.loadCore(coreDef);
 
-            Avr_Core_Builder builder;
-            core = builder.loadCore("plugins/ATMega32u2");
+                core->isThreadStopped = true;
+                core->reg->pc = 0;
+                core->flash->loadHex(rom.toStdString().c_str());
 
-            core->isThreadStopped = true;
-            core->reg->pc = 0;
-            core->flash->loadHex(rom.toStdString().c_str());
+                ui->actionPause->setEnabled(true);
+                ui->actionPause->setChecked(true);
+                ui->actionStep->setEnabled(true);
 
-            ui->actionPause->setEnabled(true);
-            ui->actionPause->setChecked(true);
-            ui->actionStep->setEnabled(true);
-            //Register the core with the debug window
-            if (debugger){
-                debugger->attachCore(core);
+                //Register the core with the debug window
+                if (debugger){
+                    debugger->attachCore(core);
+                }
+            }else{
+                QMessageBox msgBox;
+                msgBox.setText("Please select a valid core!");
+                msgBox.exec();
+                ui->actionStart->setChecked(false);
             }
 
         }else{
@@ -178,11 +206,14 @@ void MainWindow::gui_update(){
 
 
     if (core){
+        /*
+         *If a debug mode for a running situation is needed
+         *
         if (ui->actionDebug_Mode->isChecked()){
             core->debug = true;
         }else{
             core->debug = false;
-        }
+        }*/
         QMutex m;
         m.lock();
         if (!this->hardware || !ledmat){
@@ -237,7 +268,7 @@ void MainWindow::gui_update(){
  */
 void MainWindow::on_actionDebugger_triggered()
 {
-    if (ui->actionDebugger->isChecked()){
+    if (!debugger || debugger->isHidden()){
         //Show the debugger
         if (!debugger){
             debugger = new DebugView(NULL);

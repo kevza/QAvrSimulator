@@ -99,7 +99,6 @@
     <property name="title">
      <string>Core</string>
     </property>
-    <addaction name="actionDebug_Mode"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCore"/>
@@ -126,14 +125,6 @@
   <action name="actionLoad_Hex">
    <property name="text">
     <string>Load Hex</string>
-   </property>
-  </action>
-  <action name="actionDebug_Mode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Debug Mode</string>
    </property>
   </action>
   <action name="actionStart">
@@ -183,8 +174,9 @@
    </property>
   </action>
   <action name="actionDebugger">
-   <property name="checkable">
-    <bool>true</bool>
+   <property name="icon">
+    <iconset resource="RunnerResources.qrc">
+     <normaloff>:/icons/Icons/Debug.png</normaloff>:/icons/Icons/Debug.png</iconset>
    </property>
    <property name="text">
     <string>Debugger</string>
