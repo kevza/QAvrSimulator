@@ -28,6 +28,36 @@ void Avr_Registers::setRam(uint8_t *r){
 	this->io = r + 0x20;
 }
 
+uint8_t Avr_Registers::ramG(int l){
+    if (l >= this->ramEnd){
+        throw std::string("Past Ram End Error");
+    }
+    return this->ram[l];
+}
+
+void Avr_Registers::ramS(int l, uint8_t s){
+    if (l >= this->ramEnd){
+        throw std::string("Past Ram End Error");
+    }
+    this->ram[l] = s;
+}
+
+uint8_t Avr_Registers::ioG(int l){
+    if (l >= this->ramEnd - 0x20){
+        throw std::string("Past Ram End Error");
+    }
+    return this->io[l];
+}
+
+void Avr_Registers::ioS(int l, uint8_t s){
+    if (l >= this->ramEnd - 0x20){
+        throw std::string("Past Ram End Error");
+    }
+    this->io[l] = s;
+}
+
+
+
 /**
 *@brief Sets the SREG Address
 */

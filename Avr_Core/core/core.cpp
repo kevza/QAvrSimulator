@@ -100,7 +100,14 @@ void Avr_Core::run(){
 
     while (!isThreadStopped){
         //Lock the thread
-        this->decodeInstruction();
+		try{
+			printf("Pc=%d\n",reg->pc);
+        	this->decodeInstruction();
+		}catch(...){
+			printf("An unhandled exception occured at Pc=%d\n",this->pc);
+			fflush(stdout);
+			break;
+		}
         foreach (Avr_Hardware_Interface *h, hardware){
             interrupt = h->update(this->cCount);
         }
@@ -730,7 +737,14 @@ std::string Avr_Core::decodeInstruction(){
                 Rd = GET_REGISTER_5_BIT_D;
                 Q = GET_Q;
                 regZ = reg->getZ();
-                reg->ram[Rd] = reg->ram[regZ + Q];
+               	if (regZ + Q > reg->ramEnd) {
+					printf("%d\n",(int)regZ + Q);
+					printf("Read past ram end at %d\n",reg->ramEnd);
+					isThreadStopped = true;
+					return "";
+
+				}
+				reg->ram[Rd] = reg->ram[regZ + Q];
                 this->cCount = 2;
                 reg->pc++;
                 res = "ldzq";

@@ -12,6 +12,10 @@ class Avr_Registers{
 		//
 		void setRam(uint8_t *r);
 		void setRamEnd(int e);
+        uint8_t ramG(int l);
+        void ramS(int l, uint8_t s);
+        uint8_t ioG(int l);
+        void ioS(int l, uint8_t s);
 		
         //Setup Pointers for key register SP/PC/SREG
 		void setSREGP(uint8_t *r);

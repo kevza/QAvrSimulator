@@ -48,7 +48,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
                 qDebug() << "Load Ram\n";
                 core->mem->initRam(sizeToInt(setting) + 0xff);
                 core->reg->setRam(core->mem->getRam());
-
+				core->reg->setRamEnd(core->mem->getRamEnd());
             }else if (id == "FLASHSIZE"){
                 qDebug() << "Load Flash\n";
                 core->setFlash(new Avr_Flash(sizeToInt(setting)));

@@ -5,7 +5,7 @@
 *@date 15/11/2012
 */
 #include "avr_memory.h"
-
+#include <cstdio>
 Avr_Memory::Avr_Memory(){
 
 
@@ -19,6 +19,8 @@ void Avr_Memory::initRam(int size){
 	for (int i = 0 ; i < size; i++){
 		this->ram[i] = 0;
 	}
+	printf("Ram Size : %d",size);
+	fflush(stdout);
 	this->ramEnd = size;
 }
 
