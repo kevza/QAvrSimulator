@@ -815,12 +815,13 @@ std::string Avr_Core::decodeInstruction(){
 					//JMP Command
 					reg->pc++;
                     K = ((inst & 0x8f0)) >> 3 | (inst & 1);
+                    res = debugFormat("JMP %d",K);
                     reg->pc = (K << 16) | this->flash->getFlash()[reg->pc];
                     this->cCount = 3;
-					res = "jmp";
 				break;
                 case CALL:
                     K = ((inst & 0x8f0)) >> 3 | (inst & 1);
+                    res = debugFormat("CALL %d",K);
                     reg->pc+=2;
 					if (mem->getRamEnd() < 65536){
                         //push pc to stack
@@ -838,7 +839,6 @@ std::string Avr_Core::decodeInstruction(){
 					}
                     reg->pc -= 1;
                     reg->pc =  (K << 16) |this->flash->getFlash()[reg->pc];
-					res = "call";
 				break;
 				
 				default:
@@ -846,6 +846,7 @@ std::string Avr_Core::decodeInstruction(){
 						case ADIW:
 							K = GET_K_6_BIT;
 							Rd = ((inst & 0x30) >> 4) * 2 + 24;
+                            res = debugFormat("ADIW R%d:R%d, %d",Rd + 1,Rd,K);
                             lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]);
                             lK+= K;
                             reg->setSREG(V, !(reg->ram[Rd+1] & BIT(7)) && (lK  & BIT(15)));
@@ -858,24 +859,29 @@ std::string Avr_Core::decodeInstruction(){
 							reg->ram[Rd] = lK & 0xff;
 							reg->pc++;
                             this->cCount = 2;
-							res = "adiw";
+
 						break;
 						case CBI:
 							A = GET_A_5_BIT;
 							B = inst & 0x7;
+                            res = debugFormat("CBI %d, %d",A,B);
                             reg->io[A] &= ~(BIT(B));
                             this->cCount = 1;
-                            res = "cbi";
                             reg->pc++;
 						break;
 						case SBI:
-							reg->io[((inst & 0xf8) >> 3)] |= (1 << (inst & 0x7));
+                            A = GET_A_5_BIT;
+                            B = inst & 0x7;
+                            res = debugFormat("SBI %d, %d",A,B);
+                            reg->io[A] |= BIT(B);
 							reg->pc++;
                             this->cCount = 1;
-							res = "sbi";
 						break;
 						case SBIC:
-							if (reg->io[((inst & 0xf8) >> 3)] & (1 << (inst & 0x7))){
+                            A = GET_A_5_BIT;
+                            B = inst & 0x7;
+                            res = debugFormat("SBIC %d, %d",A,B);
+                            if (reg->io[A] & BIT(B)){
                                 this->cCount = 1;
 								reg->pc++;	
 							}else{
@@ -886,12 +892,13 @@ std::string Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
                                     reg->pc+= 2;
                                 }
-							}
-							res = "sbic";
+                            }
 						break;
 						case SBIS:
-							if (reg->io[(inst & 0xf8) >> 3] & (1 << (inst & 0x7))){
-
+                            A = GET_A_5_BIT;
+                            B = inst & 0x7;
+                            res = debugFormat("SBIS %d, %d",A,B);
+                            if (reg->io[A] & BIT(B)){
                                 if (this->isTwoWord(this->flash->getFlash()[reg->pc + 1])){
                                     this->cCount = 3;
                                     reg->pc += 3;
@@ -902,12 +909,13 @@ std::string Avr_Core::decodeInstruction(){
 							}else{
                                 this->cCount = 1;
 								reg->pc++;
-							}
-							res = "sbis";
+                            }
 						break;
 						case SBIW:
 							K = GET_K_6_BIT;
 							Rd = ((inst & 0x30) >> 4) * 2 + 24;
+                            res = debugFormat("SBIW R%d:R%d, %d", Rd + 1, Rd, K);
+
                             lK = ((reg->ram[Rd + 1] << 8) | reg->ram[Rd]);
                             lK -= K;
 							//Set the Flags
@@ -922,12 +930,12 @@ std::string Avr_Core::decodeInstruction(){
 							reg->ram[Rd] = lK & 0xff;	
 							reg->pc++;
                             this->cCount = 2;
-							res = "sbiw";
 						break;
 						default:
 							switch (inst & 0xfe0f){
 								case ASR:
-									Rd = GET_REGISTER_5_BIT_D;
+                                    Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("ASR R%d",Rd);
 									R = (reg->ram[Rd]) >> 1;
 									R |= (reg->ram[Rd] & BIT(7));
 									
@@ -939,10 +947,10 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "asr";
 								break;
 								case DEC:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("DEC R%d",Rd);
 									R = reg->ram[Rd] - 1;
 									//Set Flags
 									
@@ -953,7 +961,6 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "dec";
 								break;
 								case ELPMII:
 									/*to do*/
@@ -963,9 +970,9 @@ std::string Avr_Core::decodeInstruction(){
 								break;
 								case INC:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("INC R%d",Rd);
 									R = reg->ram[Rd] + 1;
-									//Set Flags
-									
+                                    //Set Flags
 									reg->setSREG(V, (reg->ram[Rd] == 0x7f));
                                     reg->setSREG(N, (R & BIT(7)));
 									reg->setSREG(S, reg->getSREG(N) != reg->getSREG(V));
@@ -973,33 +980,32 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "inc";
 								break;
 								case LAC:
 									Rd = getRegister5BitD(inst);
 									regZ = reg->getZ();
+                                    res = debugFormat("LAC %d, R%d",regZ , Rd);
 									reg->ram[regZ] = reg->ram[Rd] & (0xff - reg->ram[regZ]);
 									reg->pc++;
                                     this->cCount = 1;
-									res = "lac";
 								break;
 								case LAS:
 									Rd = getRegister5BitD(inst);
 									regZ = reg->getZ();
+                                    res = debugFormat("LAS %d, R%d",regZ, Rd);
 									reg->ram[regZ] = reg->ram[Rd] | reg->ram[regZ];
 									reg->ram[Rd] = reg->ram[regZ];
 									reg->pc++;
                                     this->cCount = 1;
-									res = "las";
 								break;
 								case LAT:
 									Rd = getRegister5BitD(inst);
 									regZ =reg->getZ();
+                                    res = debugFormat("LAT %d, R%d",regZ, Rd);
 									reg->ram[regZ] = reg->ram[Rd] ^ reg->ram[regZ];
 									reg->ram[Rd] = reg->ram[regZ];
 									reg->pc++;
                                     this->cCount = 1;
-									res = "lat";
 								break;
 								case LD1:case LD2:case LD3:
 									//Note there are some variations here for low
@@ -1008,16 +1014,19 @@ std::string Avr_Core::decodeInstruction(){
 									regX = reg->getX();
 									switch (inst & 0x3){
                                         case 0x0:
+                                            res = debugFormat("LD R%d,%d", Rd, regX);
                                             this->cCount = 1;
                                             reg->ram[Rd] = reg->ram[regX];
                                         break;
 										case 0x1:
+                                            res = debugFormat("LD R%d,%d+", Rd, regX);
 											reg->ram[Rd] = reg->ram[regX];
 											regX++;
                                             this->cCount = 2;
 											reg->setX(regX);
                                         break;
 										case 0x2:
+                                            res = debugFormat("LD R%d,-%d", Rd, regX);
 											regX--;
 											reg->setX(regX);
                                             this->cCount = 2;
@@ -1025,9 +1034,7 @@ std::string Avr_Core::decodeInstruction(){
 										break;
 
 									}
-
-									reg->pc++;
-									res = "ld";
+                                    reg->pc++;
 								break;
 								case LDS:
 									//Note there are some variations here for low
@@ -1035,15 +1042,16 @@ std::string Avr_Core::decodeInstruction(){
 									Rd = GET_REGISTER_5_BIT_D;
 									reg->pc++;
                                     lK  = this->flash->getFlash()[reg->pc];
+                                    res = debugFormat("LDS R%d, %d",Rd, lK);
 									reg->ram[Rd] = reg->ram[lK];
 									reg->pc++;
                                     this->cCount = 2;
-									res = "lds"; 
 								break;
 								case LPM2:
 									Rd = GET_REGISTER_5_BIT_D;
-									regZ =reg->getZ();
+                                    regZ = reg->getZ();
                                     rampZ = reg->getRampz();
+                                    res = debugFormat("LPM R%d, %d",Rd, regZ + rampZ);
 									if (regZ & 0x1){
                                         reg->ram[Rd] = (this->flash->getFlash()[(regZ >> 1) + rampZ] >> 8) & 0xff;
 									}else{	
@@ -1051,13 +1059,12 @@ std::string Avr_Core::decodeInstruction(){
                                     }
                                     reg->pc++;
                                     this->cCount = 3;
-									res = "lpm";
-
 								break;
 								case LPM3:
 									Rd = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
 									rampZ = reg->getRampz();
+                                    res = debugFormat("LPM R%d, %d+",Rd, regZ + rampZ);
 									if (regZ & 0x1){
                                         reg->ram[Rd] = (this->flash->getFlash()[(regZ >> 1) + rampZ ] >> 8)& 0xff;
 									}else{	
@@ -1066,10 +1073,10 @@ std::string Avr_Core::decodeInstruction(){
 									regZ++; reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 3;
-									res = "lpm+";
 								break;
 								case LSR:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("LSR R%d",Rd);
                                     R = reg->ram[Rd] >> 1;
 									//Set Flags
 									
@@ -1082,10 +1089,10 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "lsr";
 								break;
 								case NEG:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("NEG R%d",Rd);
 									R = 0x0 - reg->ram[Rd];
 									//Set Flags
 									reg->setSREG(H, (R & BIT(3)) | (reg->ram[Rd] & BIT(3)));
@@ -1098,25 +1105,25 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "neg";
 								break;
 								case POP:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("POP R%d",Rd);
 									reg->ram[Rd] = reg->ram[reg->sp(1)];
 									reg->pc++;
                                     this->cCount = 2;
-									res = "pop";
 								break;
 								case PUSH:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("PUSH R%d",Rd);
 									reg->ram[reg->sp(0)] = reg->ram[Rd];
 									reg->sp(-1);
 									reg->pc++;
                                     this->cCount = 2;
-									res = "push";
 								break;
 								case ROR:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("ROR R%d",Rd);
                                     //reg->setSREG(C, (reg->ram[Rd] & 0x1));
                                     //Hold tmp copy to set sreg
                                     Rr = reg->ram[Rd];
@@ -1132,19 +1139,19 @@ std::string Avr_Core::decodeInstruction(){
 									reg->ram[Rd] = R;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "ror";
 								break;
 								case ST: case ST1: case ST2:
 									Rr = GET_REGISTER_5_BIT_D;
 									regX = reg->getX();
 									switch (inst & 0x3){
                                         case 0x0:
+                                            res = debugFormat("ST %d, R%d",regX,Rr);
                                             this->cCount = 1;
                                             reg->ram[regX] = reg->ram[Rr];
-                                            res = "st";
                                         break;
 										case (0x1):
                                             this->cCount = 2;
+                                            res = debugFormat("ST %d+, R%d",regX,Rr);
 											reg->ram[regX] = reg->ram[Rr];
 											regX++;
 											reg->setX(regX);
@@ -1152,61 +1159,61 @@ std::string Avr_Core::decodeInstruction(){
 										break;
 										case (0x2):
                                             this->cCount = 2;
+                                            res = debugFormat("ST -%d, R%d",regX,Rr);
 											regX--;
 											reg->setX(regX);
-											reg->ram[regX] = reg->ram[Rr];
-                                            res = "-st";
+                                            reg->ram[regX] = reg->ram[Rr];
 										break;
 									}
 									reg->pc++;
 
 								break;
 								case STZ1:
-									Rr = GET_REGISTER_5_BIT_D;
+                                    Rr = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
+                                    res = debugFormat("ST %d+, R%d",regZ,Rr);
 									reg->ram[regZ] = reg->ram[Rr];
 									regZ++; 
 									reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 2;
-                                    res = "stz";
 								break;
 								case STZ2:
 									Rr = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
+                                    res = debugFormat("ST -%d, R%d",regZ,Rr);
 									regZ--;
 									reg->ram[regZ] = reg->ram[Rr];
 									reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 2;
-									res = "stz";
 								break;
 								
 								case STSL:
 									Rd = GET_REGISTER_5_BIT_D;
 									reg->pc++;
                                     lK = this->flash->getFlash()[reg->pc];
+                                    res = debugFormat("STSL %d, R%d",lK,Rr);
 									reg->ram[lK] = reg->ram[Rd];
 									reg->pc++;
                                     this->cCount = 2;
-									res = "stsl";
 								break;
 								case SWAP:
 									Rd = GET_REGISTER_5_BIT_D;
+                                    res = debugFormat("SWAP R%d",Rd);
 									K = reg->ram[Rd];
 									reg->ram[Rd] = (K << 4) | (K >> 4);
 									reg->pc++;
                                     this->cCount = 1;
-									res = "swap";
 								break;
 								case XCH:
 									Rd = GET_REGISTER_5_BIT_D;
 									K  = reg->ram[Rd];
+                                    res = debugFormat("XCH %d, R%d",reg->getZ(),Rr);
 									reg->ram[Rd] = reg->ram[reg->getZ()];
 									reg->ram[reg->getZ()] = K;
 									reg->pc++;
                                     this->cCount = 1;
-									res = "xch";
 								break;
 								
 								case LDYP:
