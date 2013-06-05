@@ -9,9 +9,16 @@ class ButtonItem : public QGraphicsPixmapItem
         ButtonItem();
         virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
         virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-        void setHardware(Avr_Hardware_Interface *h);
+        void connectHardware(Avr_Hardware_Interface *h);
+        void setPin(QString pin);
+        void setTexturePressed(QString file);
+        void setTextureDepressed(QString file);
+
     private:
         Avr_Hardware_Interface *hardware;
+        QString pin;
+        QString pressedTex;
+        QString depressedTex;
 
 };
 

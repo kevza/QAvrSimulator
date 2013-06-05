@@ -7,11 +7,13 @@
  */
 ButtonItem::ButtonItem()
 {
-
     this->setPixmap(QPixmap(":/icons/Icons/Stop.png"));
-    this->setFlag(QGraphicsItem::ItemIsMovable,true);
     this->setVisible(true);
     this->hardware = NULL;
+    //Set default to main press button for lack of a better option
+    this->pin = "PIND7";
+    pressedTex = ":/icons/Icons/Play.png";
+    depressedTex = ":/icons/Icons/Stop.png";
 }
 
 
@@ -20,37 +22,46 @@ ButtonItem::ButtonItem()
  * @param event
  */
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
-    this->setPixmap(QPixmap(":/icons/Icons/Play.png"));
+    qDebug() << "Pressed";
+    this->setPixmap(QPixmap(pressedTex));
     this->update();
     if(hardware){
         QMutex m;
         m.lock();
-        *hardware->getInputs()["PIND7"] = 1;
+        *hardware->getInputs()[this->pin] = 1;
         m.unlock();
     }
-    //Keep QGraphics Item default behaviours
-    QGraphicsItem::mousePressEvent(event);
 }
-
 
 /**
  * @brief ButtonItem::mouseReleaseEvent
  * @param event
  */
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
-    this->setPixmap(QPixmap(":/icons/Icons/Stop.png"));
+    qDebug() << "Released";
+    this->setPixmap(QPixmap(depressedTex));
     this->update();
     if(hardware){
         QMutex m;
         m.lock();
-        *hardware->getInputs()["PIND7"] = 0;
+        *hardware->getInputs()[this->pin] = 0;
         m.unlock();
     }
-    //Keep QGraphics Item default behaviours
-    QGraphicsItem::mouseReleaseEvent(event);
 }
 
 
-void ButtonItem::setHardware(Avr_Hardware_Interface *core){
+void ButtonItem::connectHardware(Avr_Hardware_Interface *core){
     this->hardware = core;
+}
+
+void ButtonItem::setPin(QString pin){
+    this->pin = pin;
+}
+
+void ButtonItem::setTexturePressed(QString file){
+    pressedTex = file;
+}
+
+void ButtonItem::setTextureDepressed(QString file){
+    depressedTex = file;
 }

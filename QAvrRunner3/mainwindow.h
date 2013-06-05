@@ -16,6 +16,7 @@
 #include <QString>
 #include <QComboBox>
 #include <Tools/buttonitem.h>
+#include <Tools/ledmatitem.h>
 #include <Debugger/debugview.h>
 
 namespace Ui {
@@ -60,7 +61,8 @@ private:
     Avr_Hardware_Interface *ledmat;
     QGraphicsRectItem* rect[36];
     QGraphicsScene* myScene;
-    ButtonItem *btn;
+    ButtonItem *btn[6];
+    LedMatItem *ledMatItem;
     DebugView *debugger;
 };
 

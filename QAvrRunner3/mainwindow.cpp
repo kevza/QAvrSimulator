@@ -3,8 +3,9 @@
 #include <QCloseEvent>
 #include <QComboBox>
 
-#include <Tools/buttonitem.h>
+
 #include <Scene/layoutmanager.h>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,22 +20,21 @@ MainWindow::MainWindow(QWidget *parent) :
     //Setup QGraphics Scene (this is testing code not production)
     myScene = new LayoutManager();
 
-    for (int x = 0 ; x < 5; x++){
-        for (int y = 0; y < 7;y++){
-            rect[y * 5 + x] = new QGraphicsRectItem(10 + (12 * x),10 + (12 * y),10,10);
-            rect[y * 5 + x]->setBrush(Qt::black);
-            rect[y * 5 + x]->setFlag(QGraphicsItem::ItemIsMovable,true);
-            myScene->addItem(rect[y * 5 + x]);
-        }
+    //Add the buttons to the controller
+    int xPos[] = {80,140,140,140,200,260};
+    int yPos[] = {60,0,60,120,60,120};
+    QString ports[] = {"PINC6","PINC7","PINC4","PINC5","PINB7","PIND7"};
+    for (int i = 0; i < 6; i++){
+        btn[i] = new ButtonItem();
+        btn[i]->setScale(0.2);
+        btn[i]->setX(xPos[i]);btn[i]->setY(yPos[i]);
+        btn[i]->setPin(ports[i]);
+        myScene->addItem(btn[i]);
     }
-    rect[35] = new QGraphicsRectItem(0,0,10,10);
-    rect[35]->setBrush(Qt::black);
-    myScene->addItem(rect[35]);
 
-
-    btn = new ButtonItem();
-    btn->setScale(0.2);
-    myScene->addItem(btn);
+    //Add the ledmat to the controller
+    ledMatItem = new LedMatItem();
+    myScene->addItem(ledMatItem);
 
     ui->mainGView->setScene(myScene);
     ui->mainGView->show();
@@ -42,15 +42,18 @@ MainWindow::MainWindow(QWidget *parent) :
     //Load a list of available cores
     coresList = new QComboBox();
     QDir d;
+
     //Set the plugin directory
     d.setCurrent("./plugins");
 
-    qDebug() << d.currentPath();
     QStringList filter;
     filter << "*.def";
     coresList->addItems(d.entryList(filter,QDir::Files));
     ui->toolBar->addWidget(coresList);
     connect(coresList,SIGNAL(currentIndexChanged(QString)),this,SLOT(core_changed(QString)));
+    if (coresList->count() > 0){
+        this->coreDef = coresList->itemText(0);
+    }
 
     this->hardware = NULL;
     this->ledmat = NULL;
@@ -203,61 +206,26 @@ void MainWindow::on_loadHex_clicked(){
  *          timeout
  */
 void MainWindow::gui_update(){
-
-
+    static bool setup = false;
     if (core){
-        /*
-         *If a debug mode for a running situation is needed
-         *
-        if (ui->actionDebug_Mode->isChecked()){
-            core->debug = true;
-        }else{
-            core->debug = false;
-        }*/
-        QMutex m;
-        m.lock();
-        if (!this->hardware || !ledmat){
-
+        if (!setup){
+            qDebug() << "Im not Timed in";
             foreach (Avr_Hardware_Interface * h ,core->hardware){
                 if (h->getPluginName() == "AVRIO"){
-
                     this->hardware = h;
-                    btn->setHardware(h);
+                    for (int i = 0 ; i < 6; i++){
+                        btn[i]->connectHardware(h);
+                    }
                 }
                 if (h->getPluginName() == "AVRLEDMAT"){
-
-                    ledmat = h;
+                    ledMatItem->connectHardware(h);
                 }
             }
-
+            setup = true;
         }else{
-            QMap<QString,uint8_t> theMap;
-            theMap = ledmat->getOutputs();
-            QStringList leds;
-            leds  << "C4R0"<< "C3R0"<< "C2R0"<< "C1R0"<< "C0R0"
-                  << "C4R1"<< "C3R1"<< "C2R1"<< "C1R1"<< "C0R1"
-                  << "C4R2"<< "C3R2"<< "C2R2"<< "C1R2"<< "C0R2"
-                  << "C4R3"<< "C3R3"<< "C2R3"<< "C1R3"<< "C0R3"
-                  << "C4R4"<< "C3R4"<< "C2R4"<< "C1R4"<< "C0R4"
-                  << "C4R5"<< "C3R5"<< "C2R5"<< "C1R5"<< "C0R5"
-                  << "C4R6"<< "C3R6"<< "C2R6"<< "C1R6"<< "C0R6";
-
-
-            for (int x = 0 ; x < 5; x++){
-                for (int y = 0; y < 7;y++){
-
-                    rect[y * 5 + x]->setBrush(QBrush(QColor(theMap[leds.at(y * 5 + x)],0,0)));
-
-                }
-            }
-
-            QMap <QString, uint8_t> myMap = hardware->getOutputs();
-            rect[35]->setBrush(QBrush(QColor(myMap["PORTC2"],0,0)));
-
-            //myScene->update();
-
+           //this->ui->mainGView->repaint();
+            ledMatItem->update();
         }
-        m.unlock();
     }
 }
 
