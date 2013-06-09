@@ -785,7 +785,6 @@ std::string Avr_Core::decodeInstruction(){
                     Rr = GET_REGISTER_5_BIT_D;
                     regZ = reg->getZ();
                     res = debugFormat("ST R%d, (Z)%d + (Q)%d",Rd,regZ, Q);
-
                     reg->ram[regZ + Q] = reg->ram[Rr];
                     reg->pc++;
                     this->cCount = 1;

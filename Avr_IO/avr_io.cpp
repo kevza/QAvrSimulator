@@ -47,7 +47,7 @@ Avr_IO::Avr_IO(){
     QList <uint8_t*> inpPtrs = inputs.values();
     for (int i = 0 ; i < inputs.size();i++){
         uint8_t *t = inpPtrs.at(i);
-        *t = 0;
+        *t = 255;
     }
 
     outputs["PORTB0"] = 0;
@@ -156,7 +156,7 @@ int Avr_IO::update(int cycles){
             }else{
                 *reg[0] &= ~shift;
             }
-            portb[8] &= ~shift;
+            //portb[8] &= ~shift;
         }
 
         //Port C
@@ -175,7 +175,7 @@ int Avr_IO::update(int cycles){
             }else{
                 *reg[3] &= ~(shift);
             }
-            portc[8] &= ~shift;
+            //portc[8] &= ~shift;
         }
         //Port D
         if (*reg[7] & (1 << i)){
@@ -193,7 +193,7 @@ int Avr_IO::update(int cycles){
             }else{
                 *reg[6] &= ~shift;
             }
-            portd[8] &= ~shift;
+            //portd[8] &= ~shift;
         }
 
         /*

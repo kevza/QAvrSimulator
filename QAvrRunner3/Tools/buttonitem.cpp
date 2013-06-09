@@ -22,15 +22,12 @@ ButtonItem::ButtonItem()
  * @param event
  */
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
-    qDebug() << "Pressed";
+    if(hardware){
+        *hardware->getInputs()[this->pin] = 1;
+    }
+
     this->setPixmap(QPixmap(pressedTex));
     this->update();
-    if(hardware){
-        QMutex m;
-        m.lock();
-        *hardware->getInputs()[this->pin] = 1;
-        m.unlock();
-    }
 }
 
 /**
@@ -38,15 +35,11 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
  * @param event
  */
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
-    qDebug() << "Released";
+    if(hardware){
+        *hardware->getInputs()[this->pin] = 0;
+    } 
     this->setPixmap(QPixmap(depressedTex));
     this->update();
-    if(hardware){
-        QMutex m;
-        m.lock();
-        *hardware->getInputs()[this->pin] = 0;
-        m.unlock();
-    }
 }
 
 

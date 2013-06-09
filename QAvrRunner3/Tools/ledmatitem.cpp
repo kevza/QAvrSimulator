@@ -27,7 +27,10 @@ void LedMatItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
             if (this->mat){
-                painter->setBrush(QBrush(QColor(theMap[leds.at(y * 5 + x)],0,0)));
+                if (theMap[leds.at(y * 5 + x)] > 0)
+                    painter->setBrush(QBrush(QColor(255,0,0)));
+                else
+                    painter->setBrush(Qt::black);
             }else{
                 painter->setBrush(Qt::black);
             }
