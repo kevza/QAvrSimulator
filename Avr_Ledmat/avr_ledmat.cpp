@@ -133,7 +133,7 @@ int Avr_Ledmat::update(int cycles){
             //C6 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                grid[i * 5]+= 10;
+                grid[i * 5]+= 1;
 
             }
 
@@ -142,7 +142,7 @@ int Avr_Ledmat::update(int cycles){
             //B7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 1]+= 10;
+                 grid[i * 5 + 1]+= 1;
 
             }
 
@@ -151,7 +151,7 @@ int Avr_Ledmat::update(int cycles){
             //C4 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 2]+= 10;
+                 grid[i * 5 + 2]+= 1;
 
             }
 
@@ -160,7 +160,7 @@ int Avr_Ledmat::update(int cycles){
             //C7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 3]+= 10;
+                 grid[i * 5 + 3]+= 1;
 
             }
 
@@ -170,14 +170,14 @@ int Avr_Ledmat::update(int cycles){
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
 
-                 grid[i * 5 + 4]+= 10;
+                 grid[i * 5 + 4]+= 1;
             }
         }
 
 
     }
     count += 1;
-    if (count == 128){
+    if (count == 1024){
         count = 0;
         updateOut();
     }
@@ -191,15 +191,15 @@ QMap <QString, uint8_t*> Avr_Ledmat::getInputs(){
 }
 
 QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
+    for (int i =0 ; i < 35; i++){
+        grid[i] = 0;
+    }
     return outputs;
 }
 
 
 void Avr_Ledmat::updateOut(){
     for (int i = 0 ; i < 35; i++){
-        if (grid[i] > 0){
-            grid[i] -=1;
-        }
         if (grid[i] > 255){
             grid[i] = 255;
         }

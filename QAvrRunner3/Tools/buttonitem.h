@@ -13,12 +13,14 @@ class ButtonItem : public QGraphicsPixmapItem
         void setPin(QString pin);
         void setTexturePressed(QString file);
         void setTextureDepressed(QString file);
+        void setPushLow(bool set);
 
     private:
         Avr_Hardware_Interface *hardware;
         QString pin;
         QString pressedTex;
         QString depressedTex;
+        bool pushLow;
 
 };
 

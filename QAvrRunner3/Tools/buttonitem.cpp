@@ -14,6 +14,7 @@ ButtonItem::ButtonItem()
     this->pin = "PIND7";
     pressedTex = ":/icons/Icons/Play.png";
     depressedTex = ":/icons/Icons/Stop.png";
+    pushLow = false;
 }
 
 
@@ -23,7 +24,7 @@ ButtonItem::ButtonItem()
  */
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
     if(hardware){
-        *hardware->getInputs()[this->pin] = 1;
+        *hardware->getInputs()[this->pin] = pushLow ? 0 : 1;
     }
 
     this->setPixmap(QPixmap(pressedTex));
@@ -36,7 +37,7 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
  */
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
     if(hardware){
-        *hardware->getInputs()[this->pin] = 0;
+        *hardware->getInputs()[this->pin] = pushLow ? 1:0;
     } 
     this->setPixmap(QPixmap(depressedTex));
     this->update();
@@ -57,4 +58,8 @@ void ButtonItem::setTexturePressed(QString file){
 
 void ButtonItem::setTextureDepressed(QString file){
     depressedTex = file;
+}
+
+void ButtonItem::setPushLow(bool set){
+    this->pushLow = set;
 }

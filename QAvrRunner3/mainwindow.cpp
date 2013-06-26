@@ -24,11 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
     int xPos[] = {80,140,140,140,200,260};
     int yPos[] = {60,0,60,120,60,120};
     QString ports[] = {"PINC6","PINC7","PINC4","PINC5","PINB7","PIND7"};
+    bool setting[] = {true,true,true,true,true,false};
     for (int i = 0; i < 6; i++){
         btn[i] = new ButtonItem();
         btn[i]->setScale(0.2);
         btn[i]->setX(xPos[i]);btn[i]->setY(yPos[i]);
         btn[i]->setPin(ports[i]);
+        btn[i]->setPushLow(setting[i]);
         myScene->addItem(btn[i]);
     }
 
