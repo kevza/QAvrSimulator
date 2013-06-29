@@ -317,9 +317,9 @@ bool Avr_Core::setOverflow(){
 *@brief Checks if an instruction is a two word instruction
 */
 inline bool Avr_Core::isTwoWord(uint16_t inst){
-	if ((inst & 0xf000) == 0x9000){
-		switch (inst & 0xf800){ 
-			case LDS: case STS:
+    if ((inst & 0xf000) == 0x9000){
+        switch (inst & 0xfe0f){
+            case LDS: case STSL:
 				return true;
 			break;
 		}
@@ -1570,7 +1570,7 @@ std::string Avr_Core::decodeInstruction(){
 						Rd = GET_REGISTER_5_BIT_D;
 						B = inst & 0x7;
                         this->cCount = 1;
-                        if (reg->ram[Rd] & BIT(B) == 0){
+                        if ((reg->ram[Rd] & (1 << B)) == 0){
                             //Bit in Register Not Set Skip Instruction
 							reg->pc++;
                             this->cCount = 2;
@@ -1586,7 +1586,7 @@ std::string Avr_Core::decodeInstruction(){
                         Rd = GET_REGISTER_5_BIT_D;
 						B = inst & 0x7;
                         this->cCount = 1;
-                        if (reg->ram[Rd] & BIT(B) != 0){
+                        if ((reg->ram[Rd] & (1 << B)) != 0){
 							//Bit in Register Set Skip Instruction
 							reg->pc++;
                             this->cCount = 2;
