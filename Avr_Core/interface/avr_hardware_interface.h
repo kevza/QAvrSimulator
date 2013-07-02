@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QtPlugin>
 #include <stdint.h>
+#include "../core/avr_registers.h"
 
 class Avr_Hardware_Interface
 {
@@ -40,6 +41,22 @@ class Avr_Hardware_Interface
          * @param ptr The pointer to connect
          */
         virtual void bindRegister(QString reg, uint8_t *ptr) = 0;
+
+        /**
+        * @brief bindRegister Binds a register pointer location to a
+        * register
+        * @param reg The register to connect
+        * @para loc The location of the register
+        */
+        virtual void bindRegister(QString res, int loc){}
+
+
+        /**
+          * @brief attachRegister Attach a pointer to the cores register set
+          * @param registers The Register object
+          */
+        virtual void attachRegister(Avr_Registers *regPtr) = 0;
+
          /**
          * @brief update Runs an update cycle for the hardware
          * @param cycles Number of cycles run by last instruction
@@ -58,6 +75,13 @@ class Avr_Hardware_Interface
          * @return a QMap of pointers to outputs
          */
         virtual QMap <QString, uint8_t>  getOutputs() = 0;
+
+        /**
+          * @brief Allows for the passing of general settings in
+          *         text form
+          * @param settings A QMap containing the settings and their keys
+          */
+        virtual void passSetting(QMap <QString, QString> setting){}
 };
 
 Q_DECLARE_INTERFACE(Avr_Hardware_Interface, "com.kevin_luke.Avr_Core_Builder.HardwareUnit/1.0")

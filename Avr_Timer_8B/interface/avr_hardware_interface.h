@@ -58,6 +58,13 @@ class Avr_Hardware_Interface
          * @return a QMap of pointers to outputs
          */
         virtual QMap <QString, uint8_t>  getOutputs() = 0;
+
+        /**
+          * @brief Allows for the passing of general settings in
+          *         text form
+          * @param settings A QMap containing the settings and their keys
+          */
+        virtual passSetting(QMap <QString, QString> setting){}
 };
 
 Q_DECLARE_INTERFACE(Avr_Hardware_Interface, "com.kevin_luke.Avr_Core_Builder.HardwareUnit/1.0")

@@ -737,7 +737,9 @@ std::string Avr_Core::decodeInstruction(){
                 Q = GET_Q;
                 regY = reg->getY();
                 res = debugFormat("LD R%d, (Y)%d + (Q)%d",Rd,regY, Q);
-
+                //Update Status
+                reg->lastRead = regY + Q;
+                reg->lastWrite = Rd;
                 reg->ram[Rd] = reg->ram[regY + Q];
                 reg->pc++;
                 this->cCount = 2;
@@ -747,14 +749,10 @@ std::string Avr_Core::decodeInstruction(){
                 Q = GET_Q;
                 regZ = reg->getZ();
                 res = debugFormat("LD R%d, (Z)%d + (Q)%d",Rd,regZ, Q);
+                //Update Status
+                reg->lastRead = regZ + Q;
+                reg->lastWrite = Rd;
 
-               	if (regZ + Q > reg->ramEnd) {
-					printf("%d\n",(int)regZ + Q);
-					printf("Read past ram end at %d\n",reg->ramEnd);
-					isThreadStopped = true;
-					return "";
-
-				}
 				reg->ram[Rd] = reg->ram[regZ + Q];
                 this->cCount = 2;
                 reg->pc++;
@@ -764,7 +762,9 @@ std::string Avr_Core::decodeInstruction(){
                 Q = GET_Q;
                 regY = reg->getY();
                 res = debugFormat("ST R%d, (Y)%d + (Q)%d",Rd,regY, Q);
-
+                //Update Status
+                reg->lastRead = Rd;
+                reg->lastWrite = regY + Q;
                 //Copy the Data
                 reg->ram[regY + Q] = reg->ram[Rd];
                 this->cCount = 2;
@@ -778,6 +778,10 @@ std::string Avr_Core::decodeInstruction(){
                     K |= (inst & BIT(10)) >> 5;
                     K |= ((~inst) & BIT(8)) >> 1;
                     K |= (inst & BIT(8)) >> 2;
+                    //Update Status
+                    reg->lastRead = K;
+                    reg->lastWrite = Rd;
+
                     reg->ram[Rd] = reg->ram[K];
                     reg->pc++;
                     this->cCount = 1;
@@ -788,7 +792,11 @@ std::string Avr_Core::decodeInstruction(){
                     Rr = GET_REGISTER_5_BIT_D;
                     regZ = reg->getZ();
                     res = debugFormat("ST R%d, (Z)%d + (Q)%d",Rd,regZ, Q);
-                    reg->ram[regZ + Q] = reg->ram[Rr];
+                    //Update Status
+                    reg->lastRead = Rr;
+                    reg->lastWrite = regZ + Q;
+
+                    reg->ram[regZ + Q] = reg->ram[Rr]; 
                     reg->pc++;
                     this->cCount = 1;
 
@@ -801,7 +809,9 @@ std::string Avr_Core::decodeInstruction(){
                     K |= ((~inst) & BIT(8)) >> 1;
                     K |= (inst & BIT(8)) >> 2;
                     res = debugFormat("STS %d, R%d",K, Rd);
-
+                    //Update status
+                    reg->lastRead = Rd;
+                    reg->lastWrite = K;
 
                     reg->ram[K] = reg->ram[Rd];
                     reg->pc++;
@@ -1014,6 +1024,9 @@ std::string Avr_Core::decodeInstruction(){
 									//and high memory devices -- To Do
 									Rd = GET_REGISTER_5_BIT_D;
 									regX = reg->getX();
+                                    //Update Status
+                                    reg->lastRead = regX;
+                                    reg->lastWrite = Rd;
 									switch (inst & 0x3){
                                         case 0x0:
                                             res = debugFormat("LD R%d,%d", Rd, regX);
@@ -1030,6 +1043,7 @@ std::string Avr_Core::decodeInstruction(){
 										case 0x2:
                                             res = debugFormat("LD R%d,-%d", Rd, regX);
 											regX--;
+                                            reg->lastRead--;
 											reg->setX(regX);
                                             this->cCount = 2;
 											reg->ram[Rd] = reg->ram[regX];
@@ -1045,6 +1059,10 @@ std::string Avr_Core::decodeInstruction(){
 									reg->pc++;
                                     lK  = this->flash->getFlash()[reg->pc];
                                     res = debugFormat("LDS R%d, %d",Rd, lK);
+                                    //Update Status
+                                    reg->lastRead = lK;
+                                    reg->lastWrite = Rd;
+
 									reg->ram[Rd] = reg->ram[lK];
 									reg->pc++;
                                     this->cCount = 2;
@@ -1059,6 +1077,9 @@ std::string Avr_Core::decodeInstruction(){
 									}else{	
                                         reg->ram[Rd] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
                                     }
+                                    //Update Status
+                                    reg->lastWrite = Rd;
+
                                     reg->pc++;
                                     this->cCount = 3;
 								break;
@@ -1072,6 +1093,8 @@ std::string Avr_Core::decodeInstruction(){
 									}else{	
                                         reg->ram[Rd] = this->flash->getFlash()[(regZ >> 1) + rampZ] & 0xff;
                                     }
+                                    //Update Status
+                                    reg->lastWrite = Rd;
 									regZ++; reg->setZ(regZ);
 									reg->pc++;
                                     this->cCount = 3;
@@ -1111,6 +1134,8 @@ std::string Avr_Core::decodeInstruction(){
 								case POP:
 									Rd = GET_REGISTER_5_BIT_D;
                                     res = debugFormat("POP R%d",Rd);
+                                    //Update Status
+                                    reg->lastWrite = Rd;
 									reg->ram[Rd] = reg->ram[reg->sp(1)];
 									reg->pc++;
                                     this->cCount = 2;
@@ -1118,6 +1143,8 @@ std::string Avr_Core::decodeInstruction(){
 								case PUSH:
 									Rd = GET_REGISTER_5_BIT_D;
                                     res = debugFormat("PUSH R%d",Rd);
+                                    //Update Status
+                                    reg->lastRead = Rd;
 									reg->ram[reg->sp(0)] = reg->ram[Rd];
 									reg->sp(-1);
 									reg->pc++;
@@ -1145,6 +1172,9 @@ std::string Avr_Core::decodeInstruction(){
 								case ST: case ST1: case ST2:
 									Rr = GET_REGISTER_5_BIT_D;
 									regX = reg->getX();
+                                    //Update Status
+                                    reg->lastWrite = regX;
+                                    reg->lastRead = Rd;
 									switch (inst & 0x3){
                                         case 0x0:
                                             res = debugFormat("ST %d, R%d",regX,Rr);
@@ -1162,6 +1192,7 @@ std::string Avr_Core::decodeInstruction(){
                                             this->cCount = 2;
                                             res = debugFormat("ST -%d, R%d",regX,Rr);
 											regX--;
+                                            reg->lastWrite --;
 											reg->setX(regX);
                                             reg->ram[regX] = reg->ram[Rr];
 										break;
@@ -1173,7 +1204,11 @@ std::string Avr_Core::decodeInstruction(){
                                     Rr = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
                                     res = debugFormat("ST %d+, R%d",regZ,Rr);
-									reg->ram[regZ] = reg->ram[Rr];
+                                    //Update Status
+                                    reg->lastRead = Rr;
+                                    reg->lastWrite = regZ;
+
+                                    reg->ram[regZ] = reg->ram[Rr];
 									regZ++; 
 									reg->setZ(regZ);
 									reg->pc++;
@@ -1183,7 +1218,11 @@ std::string Avr_Core::decodeInstruction(){
 									Rr = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
                                     res = debugFormat("ST -%d, R%d",regZ,Rr);
-									regZ--;
+                                    regZ--;
+                                    //Update Status
+                                    reg->lastRead = Rr;
+                                    reg->lastWrite = regZ;
+
 									reg->ram[regZ] = reg->ram[Rr];
 									reg->setZ(regZ);
 									reg->pc++;
@@ -1195,6 +1234,9 @@ std::string Avr_Core::decodeInstruction(){
 									reg->pc++;
                                     lK = this->flash->getFlash()[reg->pc];
                                     res = debugFormat("STSL %d, R%d",lK,Rr);
+                                    //Update Status
+                                    reg->lastRead = Rd;
+                                    reg->lastWrite = lK;
 									reg->ram[lK] = reg->ram[Rd];
 									reg->pc++;
                                     this->cCount = 2;
@@ -1219,7 +1261,10 @@ std::string Avr_Core::decodeInstruction(){
 								
 								case LDYP:
 									Rd = GET_REGISTER_5_BIT_D;
-									regY = reg->getY();
+                                    regY = reg->getY();
+                                    //Update Status
+                                    reg->lastRead = regY;
+                                    reg->lastWrite = Rd;
                                     reg->ram[Rd] = reg->ram[regY];
 									regY++;
 									reg->setY(regY);
@@ -1230,7 +1275,11 @@ std::string Avr_Core::decodeInstruction(){
 								case LDYM:
 									Rd = GET_REGISTER_5_BIT_D;
 									regY = reg->getY();
-									regY--;
+                                    regY--;
+                                    //Update Status
+                                    reg->lastRead = regY;
+                                    reg->lastWrite = Rd;
+
 									reg->ram[Rd] = reg->ram[regY];
 									reg->setY(regY);
 									reg->pc++;
@@ -1240,6 +1289,10 @@ std::string Avr_Core::decodeInstruction(){
 								case LDZP:
 									Rd = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
+                                    //Update Status
+                                    reg->lastRead = regZ;
+                                    reg->lastWrite = Rd;
+
 									reg->ram[Rd] = reg->ram[regZ];
 									regZ++;
                                     reg->setZ(regZ);
@@ -1252,6 +1305,10 @@ std::string Avr_Core::decodeInstruction(){
 									Rd = GET_REGISTER_5_BIT_D;
 									regZ = reg->getZ();
 									regZ--;
+                                    //Update Status
+                                    reg->lastRead = regZ;
+                                    reg->lastWrite = Rd;
+
 									reg->ram[Rd] = reg->ram[regZ];
 									reg->setZ(regZ);
 									reg->pc++;
@@ -1262,6 +1319,11 @@ std::string Avr_Core::decodeInstruction(){
 								case STYP:
 									Rd = GET_REGISTER_5_BIT_D;
 									regY = reg->getY();
+
+                                    //Update Status
+                                    reg->lastRead = Rd;
+                                    reg->lastWrite = regY;
+
 									reg->ram[regY] = reg->ram[Rd];
 									regY++;
 									reg->setY(regY);						
@@ -1273,6 +1335,10 @@ std::string Avr_Core::decodeInstruction(){
 									Rd = GET_REGISTER_5_BIT_D;
 									regY = reg->getY();
 									regY--;
+                                    //Update Status
+                                    reg->lastRead = Rd;
+                                    reg->lastWrite = regY;
+
 									reg->ram[regY] = reg->ram[Rd];
 									reg->setY(regY);
 									reg->pc++;
@@ -1443,7 +1509,9 @@ std::string Avr_Core::decodeInstruction(){
                     Rd = GET_REGISTER_5_BIT_D;
                     //Debug information
                     res = debugFormat("IN R%d %d",(int)Rd, (int)A);
-
+                    //Update Status
+                    reg->lastRead = A + 0x20;
+                    reg->lastWrite = Rd;
 					reg->ram[Rd] = reg->io[A];
                     this->cCount = 1;
 					reg->pc++;
@@ -1452,6 +1520,9 @@ std::string Avr_Core::decodeInstruction(){
 					A = GET_A_6_BIT;
 					Rr = GET_REGISTER_5_BIT_D;
                     res = debugFormat("OUT %d R%d",(int)A, (int)Rr);
+                    //Update Status
+                    reg->lastRead = Rr;
+                    reg->lastWrite = A + 0x20;
 					reg->io[A] = reg->ram[Rr];
 					res = "out";
                     this->cCount = 1;

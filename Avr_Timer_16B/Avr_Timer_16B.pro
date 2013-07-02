@@ -15,7 +15,6 @@ SOURCES += \
     avr_timer_16b.cpp
 
 HEADERS += \
-    interface/avr_hardware_interface.h \
     avr_timer_16b.h
 
 unix:!symbian {

@@ -15,7 +15,6 @@ SOURCES += \
     avr_io.cpp
 
 HEADERS += \
-    interface/avr_hardware_interface.h \
     avr_io.h
 
 unix:!symbian {

@@ -15,7 +15,6 @@ SOURCES += \
     avr_ledmat.cpp
 
 HEADERS += \
-    interface/avr_hardware_interface.h \
     avr_ledmat.h
 
 unix:!symbian {

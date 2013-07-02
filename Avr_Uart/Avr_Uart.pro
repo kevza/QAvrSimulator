@@ -8,15 +8,16 @@
 
 TARGET = $$qtLibraryTarget(avr_uart)
 TEMPLATE = lib
-CONFIG += plugin
+CONFIG += plugin serialport
 QT  += core gui
 
 SOURCES += \
-    avr_uart.cpp
+    avr_uart.cpp \
+    serial.cpp
 
 HEADERS += \
-    interface/avr_hardware_interface.h \
-    avr_uart.h
+    avr_uart.h \
+    serial.h
 
 unix:!symbian {
     maemo5 {

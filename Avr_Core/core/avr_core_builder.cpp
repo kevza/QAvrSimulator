@@ -76,6 +76,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
 
                 QObject *plugin = loader.instance();
                 Avr_Hardware_Interface *h = qobject_cast<Avr_Hardware_Interface*>(plugin);
+                h->attachRegister(core->reg);
 
                 //Load Registers for the plugin
                 for (int j = 0; j < h->getRegisterCount();j++){
@@ -89,6 +90,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
                     setting = line.substr(i + 1, line.size() - i - 1);
                     qDebug() << "Setting " << QString(setting.c_str()) << "\n";
                     h->bindRegister(QString(id.c_str()),getRegPtr(setting));
+                    h->bindRegister(QString(id.c_str()),getRegLoc(setting));
                 }
                 //Load Interrupts
 
@@ -166,3 +168,11 @@ uint8_t* Avr_Core_Builder::getRegPtr(string loc){
     return   ptr;
 }
 
+
+int Avr_Core_Builder::getRegLoc(string loc){
+    std::stringstream ss;
+    int res;
+    ss << std::hex << loc;
+    ss >> res;
+    return   res;
+}

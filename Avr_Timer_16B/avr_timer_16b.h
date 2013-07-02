@@ -1,7 +1,7 @@
 #ifndef AVR_TIMER_16B_H
 #define AVR_TIMER_16B_H
 
-#include "interface/avr_hardware_interface.h"
+#include "../Avr_Core/interface/avr_hardware_interface.h"
 #include <QMap>
 #include <stdint.h>
 
@@ -47,6 +47,13 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
         * @param ptr The pointer to connect
         */
        virtual void bindRegister(QString reg, uint8_t *ptr);
+
+
+        /**
+         *@brief Attach the full register set
+         */
+        void attachRegister(Avr_Registers *regPtr){}
+
 
         /**
         * @brief update Runs an update cycle for the hardware

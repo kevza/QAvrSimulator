@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QtSerialPort/QSerialPortInfo>
 
 
 #include <Scene/layoutmanager.h>
@@ -12,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->buildMenus();
     core = NULL;
     debugger = new DebugView();
     rom = "";
@@ -23,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Add the buttons to the controller
     int xPos[] = {80,140,140,140,200,260};
     int yPos[] = {60,0,60,120,60,120};
-    QString ports[] = {"PINC6","PINC7","PINC4","PINC5","PINB7","PIND7"};
+    QString ports[] = {"PINB7","PINC7","PINC4","PINC5","PINC6","PIND7"};
     bool setting[] = {true,true,true,true,true,false};
     for (int i = 0; i < 6; i++){
         btn[i] = new ButtonItem();
@@ -76,8 +78,108 @@ MainWindow::~MainWindow()
     }
     delete coresList;
     delete ui;
+    delete portMenu;
+    delete actionGroup;
+    delete actionGroup2;
+    delete baudMenu;
 }
 
+void MainWindow::buildMenus(){
+    //Create Serial Ports Menu
+    actionGroup = new QActionGroup(this);
+    actionGroup->setExclusive(true);
+    portMenu = new QMenu("Serial Ports", this);
+    QSerialPortInfo ports;
+    foreach (QSerialPortInfo p, ports.availablePorts()){
+        QAction *portAction = new QAction(this);
+        portAction->setText(p.description());
+        portAction->setCheckable(true);
+        portAction->setData(p.systemLocation());
+        this->serialPortActions.append(portAction);
+        actionGroup->addAction(portAction);
+        portMenu->addAction(portAction);
+    }
+    QAction *portAction = new QAction(this);
+    portAction->setText(tr("/dev/pts/0"));
+    portAction->setCheckable(true);
+    portAction->setData(tr("/dev/pts/0"));
+    actionGroup->addAction(portAction);
+    portMenu->addAction(portAction);
+    this->serialPortActions.append(portAction);
+    portAction = new QAction(this);
+    portAction->setText(tr("/dev/pts/1"));
+    portAction->setCheckable(true);
+    portAction->setData(tr("/dev/pts/1"));
+    actionGroup->addAction(portAction);
+    portMenu->addAction(portAction);
+    this->serialPortActions.append(portAction);
+    portAction = new QAction(this);
+    portAction->setText(tr("/dev/pts/2"));
+    portAction->setCheckable(true);
+    portAction->setData(tr("/dev/pts/2"));
+    actionGroup->addAction(portAction);
+    portMenu->addAction(portAction);
+    this->serialPortActions.append(portAction);
+    portAction = new QAction(this);
+    portAction->setText(tr("/dev/pts/3"));
+    portAction->setCheckable(true);
+    portAction->setData(tr("/dev/pts/3"));
+    actionGroup->addAction(portAction);
+    portMenu->addAction(portAction);
+    this->serialPortActions.append(portAction);
+    portAction = new QAction(this);
+    portAction->setText(tr("/dev/pts/4"));
+    portAction->setCheckable(true);
+    portAction->setData(tr("/dev/pts/4"));
+    actionGroup->addAction(portAction);
+    portMenu->addAction(portAction);
+    this->serialPortActions.append(portAction);
+    ui->menuSerial->addMenu(portMenu);
+
+    //Create Baud Rate Menu
+    QStringList baud = QStringList()  << "9600" << "19200" << "38400"
+                        << "57600" << "115200";
+    actionGroup2 = new QActionGroup(this);
+    actionGroup2->setExclusive(true);
+    baudMenu = new QMenu("Baud Rate", this);
+    foreach(QString b, baud){
+        QAction *baudAction = new QAction(this);
+        baudAction->setText(b);
+        baudAction->setCheckable(true);
+        baudMenu->addAction(baudAction);
+        this->baudActions.append(baudAction);
+        actionGroup2->addAction(baudAction);
+    }
+    ui->menuSerial->addMenu(baudMenu);
+
+    //Create Refresh Menu
+    QAction *refresh = new QAction(this);
+    refresh->setText("Refresh Ports");
+    connect(refresh,SIGNAL(triggered()),this,SLOT(refresh_menus()));
+    ui->menuSerial->addSeparator();
+    ui->menuSerial->addAction(refresh);
+
+
+}
+
+void MainWindow::refresh_menus(){
+    //Clean Menu
+    foreach (QAction *action, portMenu->actions()){
+        portMenu->removeAction(action);
+        this->serialPortActions.removeOne(action);
+        delete action;
+    }
+    QSerialPortInfo ports;
+    foreach (QSerialPortInfo p, ports.availablePorts()){
+        QAction *portAction = new QAction(this);
+        portAction->setText(p.description());
+        portAction->setCheckable(true);
+        portAction->setData(p.systemLocation());
+        this->serialPortActions.append(portAction);
+        actionGroup->addAction(portAction);
+        portMenu->addAction(portAction);
+    }
+}
 /**
  * @brief MainWindow::core_changed Slot for changes in core from combo box
  * @param def
@@ -121,9 +223,35 @@ void MainWindow::on_actionStart_triggered()
                 core->reg->pc = 0;
                 core->flash->loadHex(rom.toStdString().c_str());
 
+                //Set Menu Bar
                 ui->actionPause->setEnabled(true);
                 ui->actionPause->setChecked(true);
                 ui->actionStep->setEnabled(true);
+
+                //Set Baud Rate on Serial Device
+                foreach (Avr_Hardware_Interface * h ,core->hardware){
+                    if (h->getPluginName() == "AVRUART"){
+                        QString port, baud;
+                        foreach(QAction *action, serialPortActions){
+                            if (action->isChecked()){
+                                port = action->data().toString();
+                                qDebug() << "Port : " << port;
+                            }
+                        }
+                        foreach(QAction *action, baudActions){
+                            if(action->isChecked()){
+                                baud = action->text();
+                            }
+                        }
+                        QMap <QString,QString> setting;
+                        setting["BAUD"] = baud;
+                        h->passSetting(setting);
+                        setting["PORT"] = port;
+                        h->passSetting(setting);
+                    }
+                }
+
+
 
                 //Register the core with the debug window
                 if (debugger){
@@ -156,10 +284,7 @@ void MainWindow::on_actionStart_triggered()
         }
         ui->actionPause->setDisabled(true);
         ui->actionStep->setDisabled(true);
-
     }
-
-
 }
 
 /**
@@ -211,7 +336,6 @@ void MainWindow::gui_update(){
     static bool setup = false;
     if (core){
         if (!setup){
-            qDebug() << "Im not Timed in";
             foreach (Avr_Hardware_Interface * h ,core->hardware){
                 if (h->getPluginName() == "AVRIO"){
                     this->hardware = h;
@@ -221,6 +345,10 @@ void MainWindow::gui_update(){
                 }
                 if (h->getPluginName() == "AVRLEDMAT"){
                     ledMatItem->connectHardware(h);
+                }
+
+                if (h->getPluginName() == "AVRUART"){
+
                 }
             }
             setup = true;

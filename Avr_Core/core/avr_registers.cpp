@@ -11,6 +11,8 @@ Avr_Registers::Avr_Registers(){
     this->rampz = NULL;
     this->eind = NULL;
     this->pc = 0;
+    this->lastRead = 0;
+    this->lastWrite = 0;
 }
 
 /**

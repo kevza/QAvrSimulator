@@ -15,6 +15,9 @@
 #include <QStringList>
 #include <QString>
 #include <QComboBox>
+#include <QActionGroup>
+#include <QAction>
+#include <QtSerialPort/QSerialPortInfo>
 #include <Tools/buttonitem.h>
 #include <Tools/ledmatitem.h>
 #include <Debugger/debugview.h>
@@ -48,6 +51,8 @@ private slots:
 
     void core_changed(QString def);
 
+    void refresh_menus();
+
 protected:
     virtual void closeEvent(QCloseEvent *);
 
@@ -64,6 +69,20 @@ private:
     ButtonItem *btn[6];
     LedMatItem *ledMatItem;
     DebugView *debugger;
+
+    //Menu Groups
+    //Serial Port
+    QActionGroup *actionGroup;
+    QMenu *portMenu;
+    QList <QAction*> serialPortActions;
+    QList <QSerialPortInfo> serialPortInfo;
+
+    QActionGroup *actionGroup2;
+    QList <QAction*> baudActions;
+    QMenu *baudMenu;
+
+    //Build Menus
+    void buildMenus();
 };
 
 #endif // MAINWINDOW_H

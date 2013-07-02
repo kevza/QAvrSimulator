@@ -1,7 +1,7 @@
 #ifndef AVR_IO_H
 #define AVR_IO_H
 
-#include "interface/avr_hardware_interface.h"
+#include "../Avr_Core/interface/avr_hardware_interface.h"
 #include <QMap>
 #include <QApplication>
 #include <iostream>
@@ -46,12 +46,19 @@ class Avr_Ledmat: public QObject, public Avr_Hardware_Interface
         * @param ptr The pointer to connect
         */
        virtual void bindRegister(QString  reg, uint8_t *ptr);
+
+        /**
+         *@brief Attach the full register set
+         */
+        void attachRegister(Avr_Registers *regPtr){}
+
+
         /**
         * @brief update Runs an update cycle for the hardware
         * @param cycles Number of cycles run by last instruction
         * @return An interrupt vector if any
         */
-       virtual int update(int cycles);
+        virtual int update(int cycles);
 
         /**
          * @brief getInputs Returns a QMap of pointers to any required inputs

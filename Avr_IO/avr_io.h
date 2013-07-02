@@ -1,7 +1,7 @@
 #ifndef AVR_IO_H
 #define AVR_IO_H
 
-#include "interface/avr_hardware_interface.h"
+#include "../Avr_Core/interface/avr_hardware_interface.h"
 #include <QMap>
 #include <QApplication>
 #include <iostream>
@@ -64,6 +64,11 @@ class Avr_IO: public QObject, public Avr_Hardware_Interface
          * @return a QMap of pointers to outputs
          */
         virtual QMap <QString, uint8_t>  getOutputs();
+
+        /**
+          * @brief Attaches a pointer to the full register set.
+          */
+        virtual void attachRegister(Avr_Registers *regPtr){}
 
         void updateOut();
 

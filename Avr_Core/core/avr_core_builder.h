@@ -27,6 +27,7 @@ class Avr_Core_Builder : public QObject
         int sizeToInt(string size);
         bool loadProgram(string file);
         uint8_t *getRegPtr(string loc);
+        int getRegLoc(string loc);
         Avr_Hardware_Interface *interface;
 
     private:

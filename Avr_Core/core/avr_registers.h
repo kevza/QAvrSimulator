@@ -57,7 +57,11 @@ class Avr_Registers{
 		//Ram and IO areas <- Will probably look at changing the structure of this
 		uint8_t* ram;
 		uint8_t* io;
-		int ramEnd;
+        int ramEnd;
+
+        //Records of reads and writes for hardware use
+        int lastRead;
+        int lastWrite;
 		
 	private:
 		uint8_t* rampx;

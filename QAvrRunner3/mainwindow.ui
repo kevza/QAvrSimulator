@@ -63,8 +63,14 @@
      <string>Core</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSerial">
+    <property name="title">
+     <string>Serial</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCore"/>
+   <addaction name="menuSerial"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -146,6 +152,51 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionSerial_Device">
+   <property name="text">
+    <string>Serial Device</string>
+   </property>
+  </action>
+  <action name="action9600">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>9600</string>
+   </property>
+  </action>
+  <action name="action14400">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>14400</string>
+   </property>
+  </action>
+  <action name="action19200">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>19200</string>
+   </property>
+  </action>
+  <action name="action28800">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>28800</string>
+   </property>
+  </action>
+  <action name="action38400">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>38400</string>
    </property>
   </action>
  </widget>
