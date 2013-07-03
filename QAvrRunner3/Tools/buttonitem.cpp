@@ -46,6 +46,8 @@ void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 
 void ButtonItem::connectHardware(Avr_Hardware_Interface *core){
     this->hardware = core;
+    //Initialize pin at correct value
+     *hardware->getInputs()[this->pin] = pushLow ? 1:0;
 }
 
 void ButtonItem::setPin(QString pin){

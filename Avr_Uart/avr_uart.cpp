@@ -196,8 +196,16 @@ bool Avr_Uart::openUart(){
             break;
         }
         //Set the Baud Rate
+
+        if (this->baud == "2400")
+                serial.setBaudRate(B2400);
+
+        if (this->baud == "4800")
+                serial.setBaudRate(B4800);
+
         if (this->baud == "9600")
                 serial.setBaudRate(B9600);
+
         if (this->baud == "19200")
                 serial.setBaudRate(B19200);
 

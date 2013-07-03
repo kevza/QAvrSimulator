@@ -37,6 +37,8 @@ void LedMatItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             painter->drawRect(QRect(10 + (12 * x),10 + (12 * y),10,10));
         }
     }
+    if (this->mat)
+        mat->reset();
 }
 
 void LedMatItem::connectHardware(Avr_Hardware_Interface *ledmat){

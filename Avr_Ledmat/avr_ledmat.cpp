@@ -133,7 +133,7 @@ int Avr_Ledmat::update(int cycles){
             //C6 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                grid[i * 5]+= 1;
+                grid[i * 5] = 1;
 
             }
 
@@ -142,7 +142,7 @@ int Avr_Ledmat::update(int cycles){
             //B7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 1]+= 1;
+                 grid[i * 5 + 1] = 1;
 
             }
 
@@ -151,7 +151,7 @@ int Avr_Ledmat::update(int cycles){
             //C4 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 2]+= 1;
+                 grid[i * 5 + 2] = 1;
 
             }
 
@@ -160,7 +160,7 @@ int Avr_Ledmat::update(int cycles){
             //C7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 3]+= 1;
+                 grid[i * 5 + 3] = 1;
 
             }
 
@@ -170,7 +170,7 @@ int Avr_Ledmat::update(int cycles){
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
 
-                 grid[i * 5 + 4]+= 1;
+                 grid[i * 5 + 4] = 1;
             }
         }
 
@@ -191,20 +191,11 @@ QMap <QString, uint8_t*> Avr_Ledmat::getInputs(){
 }
 
 QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
-    for (int i =0 ; i < 35; i++){
-        grid[i] = 0;
-    }
     return outputs;
 }
 
 
 void Avr_Ledmat::updateOut(){
-    for (int i = 0 ; i < 35; i++){
-        if (grid[i] > 255){
-            grid[i] = 255;
-        }
-    }
-
     outputs["C0R0"] = (grid[0]);
     outputs["C1R0"] = (grid[1]);
     outputs["C2R0"] = (grid[2]);
@@ -246,6 +237,12 @@ void Avr_Ledmat::updateOut(){
     outputs["C2R6"] = (grid[32] );
     outputs["C3R6"] = (grid[33]) ;
     outputs["C4R6"] = (grid[34]);
+}
+
+void Avr_Ledmat::reset(){
+    for (int i = 0 ; i < 35; i++){
+        grid[i] = 0;
+    }
 }
 
 Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)

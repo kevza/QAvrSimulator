@@ -74,6 +74,8 @@ class Avr_Ledmat: public QObject, public Avr_Hardware_Interface
 
         void updateOut();
 
+        void reset();
+
     private:
         uint8_t* reg[4];
         QMap <QString,int> regMap;

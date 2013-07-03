@@ -137,7 +137,7 @@ void MainWindow::buildMenus(){
     ui->menuSerial->addMenu(portMenu);
 
     //Create Baud Rate Menu
-    QStringList baud = QStringList()  << "9600" << "19200" << "38400"
+    QStringList baud = QStringList() << "2400" << "4800" << "9600" << "19200" << "38400"
                         << "57600" << "115200";
     actionGroup2 = new QActionGroup(this);
     actionGroup2->setExclusive(true);

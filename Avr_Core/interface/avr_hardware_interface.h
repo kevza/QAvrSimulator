@@ -82,6 +82,12 @@ class Avr_Hardware_Interface
           * @param settings A QMap containing the settings and their keys
           */
         virtual void passSetting(QMap <QString, QString> setting){}
+
+        /**
+        * @brief Runs a full reset on the
+        *   simulated hardware
+        */
+        virtual void reset(){};
 };
 
 Q_DECLARE_INTERFACE(Avr_Hardware_Interface, "com.kevin_luke.Avr_Core_Builder.HardwareUnit/1.0")
