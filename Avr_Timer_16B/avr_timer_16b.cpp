@@ -21,7 +21,7 @@ Avr_Timer_16b::Avr_Timer_16b(){
     registers["OCR1CL"] = 13;
     registers["OCR1CH"] = 14;
     this->prescaler = 0;
-    this->d = 5;
+    this->d = 1;
 }
 
 QString Avr_Timer_16b::getPluginName(){

@@ -2,6 +2,7 @@
 
 //Signal Handler
 bool readyRead;
+
 void signal_handler_IO(int mask){ 
     readyRead = true;
 }
@@ -146,8 +147,17 @@ int Serial::readSerial(){
 
 
 void Serial::writeSerial(unsigned char c){
-    qDebug() << "Sending " << c;
     write(tty_fd, &c,1);
-    qDebug() << "Sent "<< c;
+
+   //Simulate UCFK send behaviour
+    //echo the send character
+    //into the recieve buffer.
+    buffer.buffer[buffer.write] = c;
+    //Check if said location is cleared
+    if (buffer.cleared[buffer.write] == 1)
+        buffer.overrun = 1;
+    //Flag Written
+    buffer.cleared[buffer.write] = 1;
+    buffer.write = (buffer.write + 1) % 2;
 }
 

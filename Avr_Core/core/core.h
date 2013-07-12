@@ -43,7 +43,7 @@ class Avr_Core : public QThread {
 		 * @brief Decodes an instruction
 		 * and updates all registers
 		 */
-		std::string decodeInstruction();
+        void decodeInstruction();
 
         /**
          *@Brief Sets Memory
@@ -91,7 +91,8 @@ class Avr_Core : public QThread {
     private:
         void run();
         int jmp;
-
+        //Debug String
+        std::string res;
 
         //Pointers to Data
         uint8_t R;

@@ -59,18 +59,31 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
         UDR = ptr;
         this->lastUDR = *UDR;
     }
-    if (reg == "UCSRA")
+    if (reg == "UCSRA"){
         UCSRA = ptr;
-    if (reg == "UCSRB")
+        *UCSRA = 0;
+    }
+    if (reg == "UCSRB"){
         UCSRB = ptr;
-    if (reg == "UCSRC")
+        *UCSRB = 0;
+    }
+    if (reg == "UCSRC"){
         UCSRC = ptr;
-    if (reg == "UCSRD")
+        *UCSRC = 0;
+    }
+    if (reg == "UCSRD"){
         UCSRD = ptr;
-    if (reg == "UBRRL")
+        *UCSRD = 0;
+    }
+    if (reg == "UBRRL"){
         UBRRL = ptr;
-    if (reg == "UBRRH")
+        *UBRRL = 0;
+    }
+    if (reg == "UBRRH"){
         UBRRH = ptr;
+        *UBRRH = 0;
+    }
+
 }
 
 /**
@@ -97,6 +110,7 @@ int Avr_Uart::update(int cycles){
         serial.writeSerial(*UDR);
         *UDR = lastUDR;
         *UCSRA |= (1 << 6);
+
         //Clear Last Write
         reg->lastWrite = 0;
         //flag Transmission complete
