@@ -416,6 +416,9 @@ void MainWindow::on_actionHelp_triggered()
     helpView->load(QUrl("qrc:/Help/Help/index.html"));
     helpView->setWindowFlags(Qt::Dialog);
     helpView->show();
+}
 
-
+void MainWindow::on_actionE_xit_triggered()
+{
+   this->close();
 }

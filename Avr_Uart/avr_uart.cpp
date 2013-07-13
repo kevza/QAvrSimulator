@@ -61,27 +61,29 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
     }
     if (reg == "UCSRA"){
         UCSRA = ptr;
-        *UCSRA = 0;
+        //*UCSRA = 0;
     }
     if (reg == "UCSRB"){
         UCSRB = ptr;
-        *UCSRB = 0;
+        oldUCSRB = *ptr;
+        //*UCSRB = 0;
     }
     if (reg == "UCSRC"){
         UCSRC = ptr;
-        *UCSRC = 0;
+        oldUCSRC = *ptr;
+        //*UCSRC = 0;
     }
     if (reg == "UCSRD"){
         UCSRD = ptr;
-        *UCSRD = 0;
+        //*UCSRD = 0;
     }
     if (reg == "UBRRL"){
         UBRRL = ptr;
-        *UBRRL = 0;
+        //*UBRRL = 0;
     }
     if (reg == "UBRRH"){
         UBRRH = ptr;
-        *UBRRH = 0;
+        //*UBRRH = 0;
     }
 
 }
@@ -94,12 +96,19 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
 int Avr_Uart::update(int cycles){
     //Checks if a UART is Open and
     //ready to use
-    if (!isOpen){
-       if (!(*UCSRB & (3 << 3))){
+    if (!isOpen || oldUCSRB != *UCSRB || oldUCSRC != *UCSRC){
+        //Check Reason for Being here
+       if (oldUCSRB == *UCSRB && oldUCSRC == *UCSRC){
             return -1;
+       }
+       //Close old serial if state has changed
+       if (isOpen){
+            serial.closeSerial();
        }
        if (!openUart())
            return -1;
+       oldUCSRB = *UCSRB;
+       oldUCSRC = *UCSRC;
    }
 
    //Checks if something was written to the UDR and
@@ -166,6 +175,7 @@ bool Avr_Uart::openUart(){
             }
             return false;
         }else{
+            qDebug() << "UCSRC STATE " << (int)*UCSRC;
             switch (((*UCSRC)>>1) & 0x3){
                 case 0:
                     //5 bit

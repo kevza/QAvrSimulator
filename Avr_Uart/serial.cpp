@@ -23,6 +23,7 @@ Serial::~Serial(){
 }
 
 void Serial::setDataBits(int n){
+        qDebug() << "Setting Data Bits to : " << n;
         this->dataBits =n;
 }
 void Serial::setParity(int n){
@@ -48,9 +49,6 @@ bool Serial::openSerial(){
         qDebug() << "Error Modem Device";
         exit(1);
     }
-    tcgetattr(STDOUT_FILENO,&old_stdio);
-
-    memset(&stdio,0,sizeof(stdio));
     //Set up callback
     saio.sa_handler = signal_handler_IO;
     sigemptyset(&saio.sa_mask);
@@ -65,50 +63,48 @@ bool Serial::openSerial(){
     O_APPEND and O_NONBLOCK, will work with F_SETFL...) */
     fcntl(tty_fd, F_SETFL, FASYNC);
 
-    //Set Flags
-    stdio.c_iflag=0;
-    stdio.c_oflag=0;
-    stdio.c_cflag=0;
-    stdio.c_lflag=0;
-    stdio.c_cc[VTIME]=0;
-    tcsetattr(STDOUT_FILENO,TCSANOW,&stdio);
-    tcsetattr(STDOUT_FILENO,TCSAFLUSH,&stdio);
     fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);       // make the reads non-blocking
 
     memset(&tio,0,sizeof(tio));
     tio.c_iflag=0;
     tio.c_oflag=0;
-
+    tio.c_lflag=0;
     //Set Character Size
     switch (this->dataBits){
         case 5:
             tio.c_cflag |= CS5;
+            qDebug() << "Set 5 Bit";
         break;
         case 6:
             tio.c_cflag |= CS6;
+            qDebug() << "Set 6 Bit";
         break;
         case 7:
             tio.c_cflag |= CS7;
+            qDebug() << "Set 7 Bit";
         break;
         case 8:
             tio.c_cflag |= CS8;
+            qDebug() << "Set 8 Bit";
         break;
     }
     //Set Stop Bits
-    if (this->stopBits == 2)
+    if (this->stopBits == 2){
         tio.c_cflag |= CSTOPB;
+        qDebug() << "Set 2 Stop Bits";
+    }
 
     if (this->parity == EVEN_PARITY){
         tio.c_cflag |= PARENB;
+        qDebug() << "Set Even Parity";
     }
     if (this->parity == ODD_PARITY){
         tio.c_cflag |= PARENB;
         tio.c_cflag |= PARODD;
+        qDebug() << "Set Odd Parity";
     }
-    tio.c_cflag |= CREAD|CLOCAL;   //Set Read and Ignore Control Lines 
-    tio.c_iflag = IGNPAR | ICRNL;
+    tio.c_cflag |= CREAD|CLOCAL;   //Set Read and Ignore Control Lines
 
-    stdio.c_cc[VMIN]=1;
     tio.c_cc[VMIN]=0;
     tio.c_cc[VTIME]=0;
     cfsetospeed(&tio,this->baud);            // 115200 baud
@@ -121,7 +117,6 @@ bool Serial::openSerial(){
 
 void Serial::closeSerial(){
     close(tty_fd);
-    tcsetattr(STDOUT_FILENO,TCSANOW,&old_stdio);
 }
 
 

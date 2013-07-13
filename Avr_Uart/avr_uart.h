@@ -78,6 +78,9 @@ class Avr_Uart: public QObject, public Avr_Hardware_Interface
         uint8_t *UBRRL;
         uint8_t *UBRRH;
         uint8_t lastUDR;
+
+        uint8_t oldUCSRB;
+        uint8_t oldUCSRC;
         //flags
         bool readComplete;
         bool writeComplete;
