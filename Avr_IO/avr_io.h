@@ -77,6 +77,7 @@ class Avr_IO: public QObject, public Avr_Hardware_Interface
         QMap <QString,int> regMap;
         QMap <QString,uint8_t*> inputs;
         QMap <QString,uint8_t> outputs;
+        uint8_t *out[24];
         uint8_t pinb[8], pinc[8],pind[8];
         uint8_t portb[9],portc[9],portd[9];
 };

@@ -80,7 +80,7 @@ class Avr_Ledmat: public QObject, public Avr_Hardware_Interface
         uint8_t* reg[4];
         QMap <QString,int> regMap;
         QMap <QString,uint8_t> outputs;
-        uint16_t grid[35];
+        uint8_t *grid[35];
         uint8_t  cols[5];
         uint8_t  regM[5];
 };

@@ -3,6 +3,7 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QtWebKit/QWebView>
 
 
 #include <Scene/layoutmanager.h>
@@ -66,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setInterval(20);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
     timer->start();
+    this->setWindowIcon(QIcon(":/icons/Icons/Stop.png"));
 }
 
 MainWindow::~MainWindow()
@@ -379,4 +381,41 @@ void MainWindow::on_actionDebugger_triggered()
         debugger->hide();
 
     }
+}
+
+/**
+  * @brief MainWindow::on_actionAbout_QAvr_Simulator_triggered() Shows the about dialog for QAvrSimulator
+  */
+void MainWindow::on_actionAbout_QAvr_Simulator_triggered()
+{
+    QFile docFile(":/Docs/Docs/About.md");
+    if (!docFile.open(QIODevice::ReadOnly)){
+        qDebug() << "About resource failed to open";
+        return;
+    }
+    QTextStream in(&docFile);
+    QString text = QString(in.readAll());
+    QMessageBox::about(this,"About QAvrSimulator",text);
+}
+
+/**
+  *@brief MainWindows::on_actionAbout_QT_triggered() Displays information about QT version in use.
+  */
+void MainWindow::on_actionAbout_QT_triggered()
+{
+    QMessageBox::aboutQt(this);
+}
+
+/**
+  * @brief MainWindows::on_actionHelp_triggered() Shows help dialog
+  */
+void MainWindow::on_actionHelp_triggered()
+{
+    QWebView *helpView = new QWebView(this);
+    helpView->setWindowTitle(tr("QAvrSimulator Help"));
+    helpView->load(QUrl("qrc:/Help/Help/index.html"));
+    helpView->setWindowFlags(Qt::Dialog);
+    helpView->show();
+
+
 }

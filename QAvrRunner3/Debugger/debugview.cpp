@@ -21,6 +21,7 @@ DebugView::DebugView(QWidget *parent) :
     for (int i = 32 ; i < 0xff; i++){
         ui->ioWidget->addItem(new QListWidgetItem(QString::number(i,16)));
     }
+    this->setWindowIcon(QIcon(":/icons/Icons/Debug.png"));
 }
 
 DebugView::~DebugView()

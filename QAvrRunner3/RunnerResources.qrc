@@ -6,4 +6,10 @@
         <file>Icons/Pause.png</file>
         <file>Icons/Debug.png</file>
     </qresource>
+    <qresource prefix="/Docs">
+        <file>Docs/About.md</file>
+    </qresource>
+    <qresource prefix="/Help">
+        <file>Help/index.html</file>
+    </qresource>
 </RCC>

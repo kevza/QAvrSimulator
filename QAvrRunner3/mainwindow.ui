@@ -54,23 +54,27 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionLoad_Hex"/>
    </widget>
-   <widget class="QMenu" name="menuCore">
-    <property name="title">
-     <string>Core</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuSerial">
     <property name="title">
-     <string>Serial</string>
+     <string>&amp;Serial</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout_QAvr_Simulator"/>
+    <addaction name="actionAbout_QT"/>
+   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuCore"/>
    <addaction name="menuSerial"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -93,7 +97,7 @@
   </widget>
   <action name="actionLoad_Hex">
    <property name="text">
-    <string>Load Hex</string>
+    <string>&amp;Load Hex</string>
    </property>
   </action>
   <action name="actionStart">
@@ -197,6 +201,21 @@
    </property>
    <property name="text">
     <string>38400</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>&amp;Help</string>
+   </property>
+  </action>
+  <action name="actionAbout_QAvr_Simulator">
+   <property name="text">
+    <string>&amp;About QAvr Simulator</string>
+   </property>
+  </action>
+  <action name="actionAbout_QT">
+   <property name="text">
+    <string>About &amp;QT</string>
    </property>
   </action>
  </widget>

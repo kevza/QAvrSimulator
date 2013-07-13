@@ -49,7 +49,7 @@ Avr_IO::Avr_IO(){
         uint8_t *t = inpPtrs.at(i);
         *t = 255;
     }
-
+    //Output Array
     outputs["PORTB0"] = 0;
     outputs["PORTB1"] = 0;
     outputs["PORTB2"] = 0;
@@ -76,6 +76,34 @@ Avr_IO::Avr_IO(){
     outputs["PORTD5"] = 0;
     outputs["PORTD6"] = 0;
     outputs["PORTD7"] = 0;
+
+    //Output Pointers (Yes this is a nasty hack to make things go faster)
+    out[0] = &outputs["PORTB0"];
+    out[1] = &outputs["PORTB1"];
+    out[2] = &outputs["PORTB2"];
+    out[3] = &outputs["PORTB3"];
+    out[4] = &outputs["PORTB4"];
+    out[5] = &outputs["PORTB5"];
+    out[6] = &outputs["PORTB6"];
+    out[7] = &outputs["PORTB7"];
+
+    out[8] = &outputs["PORTC0"];
+    out[9] = &outputs["PORTC1"];
+    out[10] = &outputs["PORTC2"];
+    out[11] = &outputs["PORTC3"];
+    out[12] = &outputs["PORTC4"];
+    out[13] = &outputs["PORTC5"];
+    out[14] = &outputs["PORTC6"];
+    out[15] = &outputs["PORTC7"];
+
+    out[16] = &outputs["PORTD0"];
+    out[17] = &outputs["PORTD1"];
+    out[18] = &outputs["PORTD2"];
+    out[19] = &outputs["PORTD3"];
+    out[20] = &outputs["PORTD4"];
+    out[21] = &outputs["PORTD5"];
+    out[22] = &outputs["PORTD6"];
+    out[23] = &outputs["PORTD7"];
 }
 
 QString Avr_IO::getPluginName(){
@@ -221,33 +249,33 @@ QMap <QString, uint8_t> Avr_IO::getOutputs(){
 
 
 void Avr_IO::updateOut(){
-    outputs["PORTB0"] = portb[0];
-    outputs["PORTB1"] = portb[1];
-    outputs["PORTB2"] = portb[2];
-    outputs["PORTB3"] = portb[3];
-    outputs["PORTB4"] = portb[4];
-    outputs["PORTB5"] = portb[5];
-    outputs["PORTB6"] = portb[6];
-    outputs["PORTB7"] = portb[7];
+    *out[0] = portb[0];
+    *out[1] = portb[1];
+    *out[2] = portb[2];
+    *out[3] = portb[3];
+    *out[4] = portb[4];
+    *out[5] = portb[5];
+    *out[6] = portb[6];
+    *out[7] = portb[7];
 
-    outputs["PORTC0"] = portc[0];
-    outputs["PORTC1"] = portc[1];
-    outputs["PORTC2"] = portc[2];
-    outputs["PORTC3"] = portc[3];
-    outputs["PORTC4"] = portc[4];
-    outputs["PORTC5"] = portc[5];
-    outputs["PORTC6"] = portc[6];
-    outputs["PORTC7"] = portc[7];
+    *out[8] = portc[0];
+    *out[9] = portc[1];
+    *out[10] = portc[2];
+    *out[11] = portc[3];
+    *out[12] = portc[4];
+    *out[13] = portc[5];
+    *out[14] = portc[6];
+    *out[15] = portc[7];
 
 
-    outputs["PORTD0"] = portd[0];
-    outputs["PORTD1"] = portd[1];
-    outputs["PORTD2"] = portd[2];
-    outputs["PORTD3"] = portd[3];
-    outputs["PORTD4"] = portd[4];
-    outputs["PORTD5"] = portd[5];
-    outputs["PORTD6"] = portd[6];
-    outputs["PORTD7"] = portd[7];
+    *out[16] = portd[0];
+    *out[17] = portd[1];
+    *out[18] = portd[2];
+    *out[19] = portd[3];
+    *out[20] = portd[4];
+    *out[21] = portd[5];
+    *out[22] = portd[6];
+    *out[23] = portd[7];
 
     //Reset all ports for next round
     for (int i = 0 ; i < 8 ; i++){

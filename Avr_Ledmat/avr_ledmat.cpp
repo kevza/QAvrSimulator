@@ -17,55 +17,52 @@ Avr_Ledmat::Avr_Ledmat(){
     cols[0] = 6;cols[1] = 7; cols[2] = 4;
     cols[3] = 7;cols[4] = 5;
 
+    grid[0]= &outputs["C0R0"];
+    grid[1]= &outputs["C1R0"];
+    grid[2] = &outputs["C2R0"];
+    grid[3] = &outputs["C3R0"];
+    grid[4]= &outputs["C4R0"];
+
+    grid[5] = &outputs["C0R1"];
+    grid[6]= &outputs["C1R1"];
+    grid[7] = &outputs["C2R1"];
+    grid[8]= &outputs["C3R1"];
+    grid[9] = &outputs["C4R1"];
+
+    grid[10] = &outputs["C0R2"];
+    grid[11] = &outputs["C1R2"];
+    grid[12]= &outputs["C2R2"];
+    grid[13]= &outputs["C3R2"];
+    grid[14]= &outputs["C4R2"];
+
+    grid[15]= &outputs["C0R3"];
+    grid[16]=&outputs["C1R3"];
+    grid[17]= &outputs["C2R3"];
+    grid[18]=&outputs["C3R3"];
+    grid[19]= &outputs["C4R3"];
+
+    grid[20]=&outputs["C0R4"];
+    grid[21]= &outputs["C1R4"];
+    grid[22]=&outputs["C2R4"];
+    grid[23]= &outputs["C3R4"];
+    grid[24]=&outputs["C4R4"];
+
+    grid[25]= &outputs["C0R5"];
+    grid[26]= &outputs["C1R5"];
+    grid[27]= &outputs["C2R5"];
+    grid[28]= &outputs["C3R5"];
+    grid[29]= &outputs["C4R5"];
+
+    grid[30]= &outputs["C0R6"] ;
+    grid[31]= &outputs["C1R6"];
+    grid[32]=&outputs["C2R6"];
+    grid[33]= &outputs["C3R6"];
+    grid[34]=&outputs["C4R6"] ;
+    qDebug() << "Registers Attached!!!!";
+
     for (int i = 0 ; i < 35 ; i++){
-        this->grid[i] = 0;
+        *this->grid[i] = 0;
     };
-
-    outputs["C0R0"] = 0;
-    outputs["C1R0"] = 0;
-    outputs["C2R0"] = 0;
-    outputs["C3R0"] = 0;
-    outputs["C4R0"] = 0;
-
-    outputs["C0R1"] = 0;
-    outputs["C1R1"] = 0;
-    outputs["C2R1"] = 0;
-    outputs["C3R1"] = 0;
-    outputs["C4R1"] = 0;
-
-    outputs["C0R2"] = 0;
-    outputs["C1R2"] = 0;
-    outputs["C2R2"] = 0;
-    outputs["C3R2"] = 0;
-    outputs["C4R2"] = 0;
-
-    outputs["C0R3"] = 0;
-    outputs["C1R3"] = 0;
-    outputs["C2R3"] = 0;
-    outputs["C3R3"] = 0;
-    outputs["C4R3"] = 0;
-
-    outputs["C0R4"] = 0;
-    outputs["C1R4"] = 0;
-    outputs["C2R4"] = 0;
-    outputs["C3R4"] = 0;
-    outputs["C4R4"] = 0;
-
-    outputs["C0R5"] = 0;
-    outputs["C1R5"] = 0;
-    outputs["C2R5"] = 0;
-    outputs["C3R5"] = 0;
-    outputs["C4R5"] = 0;
-
-    outputs["C0R6"] = 0;
-    outputs["C1R6"] = 0;
-    outputs["C2R6"] = 0;
-    outputs["C3R6"] = 0;
-    outputs["C4R6"] = 0;
-
-
-
-
 }
 
 QString Avr_Ledmat::getPluginName(){
@@ -133,7 +130,7 @@ int Avr_Ledmat::update(int cycles){
             //C6 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                grid[i * 5] = 1;
+                *grid[i * 5] = 1;
 
             }
 
@@ -142,7 +139,7 @@ int Avr_Ledmat::update(int cycles){
             //B7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 1] = 1;
+                 *grid[i * 5 + 1] = 1;
 
             }
 
@@ -151,7 +148,7 @@ int Avr_Ledmat::update(int cycles){
             //C4 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 2] = 1;
+                 *grid[i * 5 + 2] = 1;
 
             }
 
@@ -160,7 +157,7 @@ int Avr_Ledmat::update(int cycles){
             //C7 LOW
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
-                 grid[i * 5 + 3] = 1;
+                 *grid[i * 5 + 3] = 1;
 
             }
 
@@ -170,17 +167,18 @@ int Avr_Ledmat::update(int cycles){
             if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
                 //Bi LOW
 
-                 grid[i * 5 + 4] = 1;
+                 *grid[i * 5 + 4] = 1;
             }
         }
 
 
     }
+    /*
     count += 1;
     if (count == 1024){
         count = 0;
         updateOut();
-    }
+    }*/
 
 
     return -1;
@@ -196,6 +194,7 @@ QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
 
 
 void Avr_Ledmat::updateOut(){
+    /*
     outputs["C0R0"] = (grid[0]);
     outputs["C1R0"] = (grid[1]);
     outputs["C2R0"] = (grid[2]);
@@ -237,11 +236,12 @@ void Avr_Ledmat::updateOut(){
     outputs["C2R6"] = (grid[32] );
     outputs["C3R6"] = (grid[33]) ;
     outputs["C4R6"] = (grid[34]);
+    */
 }
 
 void Avr_Ledmat::reset(){
     for (int i = 0 ; i < 35; i++){
-        grid[i] = 0;
+        *grid[i] = 0;
     }
 }
 

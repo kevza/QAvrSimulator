@@ -53,6 +53,12 @@ private slots:
 
     void refresh_menus();
 
+    void on_actionAbout_QAvr_Simulator_triggered();
+
+    void on_actionAbout_QT_triggered();
+
+    void on_actionHelp_triggered();
+
 protected:
     virtual void closeEvent(QCloseEvent *);
 

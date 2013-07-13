@@ -60,10 +60,12 @@ Avr_Core::Avr_Core(Avr_Flash *f, Avr_Memory *mem, Avr_Registers *regI){
 	for (int i = 0 ; i < 8;i++){
 		reg->setSREG(i, 0);
 	}
+    //Set Debug False
+    this->debug = false;
 }
 
 Avr_Core::Avr_Core(){
-
+    this->debug = false;
 }
 
 Avr_Core::~Avr_Core(){
