@@ -35,6 +35,8 @@ class Serial
         void writeSerial(unsigned char c);
         unsigned char data;
         Buffer buffer;
+        bool sEcho;
+        bool hEcho;
 
     private:
         struct termios tio;
@@ -48,7 +50,6 @@ class Serial
         speed_t baud;
         QString port;
 
-        //Signal handler for uart
 
 };
 

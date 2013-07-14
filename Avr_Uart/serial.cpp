@@ -121,7 +121,7 @@ void Serial::closeSerial(){
 
 
 int Serial::readSerial(){
-    if (readyRead){
+    while (readyRead){
         int r = read(tty_fd,&data,1);
         if (r == 1){
             qDebug() << "Read " << data<< " to "<< buffer.write ;
@@ -132,10 +132,18 @@ int Serial::readSerial(){
             //Flag Written
             buffer.cleared[buffer.write] = 1;
             buffer.write = (buffer.write + 1) % 2;
+            //Check Hardware Echo
+            //Send signal back to real board if engaged
+            if (this->hEcho == true){
+                //Save software echo state
+                bool oldSEcho = this->sEcho;
+                this->sEcho = false;
+                this->writeSerial(data);
+                this->sEcho = oldSEcho;
+            }
         }else{
             readyRead = false;
         }
-        return r;
     }
     return -1;
 }
@@ -143,16 +151,18 @@ int Serial::readSerial(){
 
 void Serial::writeSerial(unsigned char c){
     write(tty_fd, &c,1);
-
-   //Simulate UCFK send behaviour
-    //echo the send character
-    //into the recieve buffer.
-    buffer.buffer[buffer.write] = c;
-    //Check if said location is cleared
-    if (buffer.cleared[buffer.write] == 1)
+    //If software echo add sent char to receive buffer
+    if (this->sEcho == true){
+        //Simulate UCFK send behaviour
+        //echo the send character
+        //into the recieve buffer.
+        buffer.buffer[buffer.write] = c;
+        //Check if said location is cleared
+        if (buffer.cleared[buffer.write] == 1)
         buffer.overrun = 1;
-    //Flag Written
-    buffer.cleared[buffer.write] = 1;
-    buffer.write = (buffer.write + 1) % 2;
+        //Flag Written
+        buffer.cleared[buffer.write] = 1;
+        buffer.write = (buffer.write + 1) % 2;
+    }
 }
 

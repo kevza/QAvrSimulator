@@ -162,6 +162,21 @@ void MainWindow::buildMenus(){
     ui->menuSerial->addSeparator();
     ui->menuSerial->addAction(refresh);
 
+    //Create Software Echo Option
+    sEcho = new QAction(this);
+    sEcho->setText("Software Echo");
+    sEcho->setCheckable(true);
+    sEcho->setChecked(true);
+
+    ui->menuSerial->addAction(sEcho);
+
+    hEcho = new QAction(this);
+    hEcho->setText("Hardware Echo");
+    hEcho->setCheckable(true);
+    hEcho->setChecked(false);
+
+    ui->menuSerial->addAction(hEcho);
+
 
 }
 
@@ -248,8 +263,18 @@ void MainWindow::on_actionStart_triggered()
                         }
                         QMap <QString,QString> setting;
                         setting["BAUD"] = baud;
-                        h->passSetting(setting);
                         setting["PORT"] = port;
+                        if (sEcho->isChecked()){
+                            setting["SECHO"] = "True";
+                        }else{
+                            setting["SECHO"] = "False";
+                        }
+
+                        if (hEcho->isChecked()){
+                            setting["HECHO"] = "True";
+                        }else{
+                            setting["HECHO"] = "False";
+                        }
                         h->passSetting(setting);
                     }
                 }

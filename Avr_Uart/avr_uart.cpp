@@ -160,6 +160,22 @@ void Avr_Uart::passSetting(QMap<QString, QString> setting){
     if (setting.contains("BAUD")){
         baud = setting ["BAUD"];
     }
+    //setup hardware Echo
+    if (setting.contains("HECHO")){
+        if (setting["HECHO"]=="True"){
+            serial.hEcho = true;
+        }else{
+            serial.hEcho = false;
+        }
+    }
+    //setup software Echo
+    if (setting.contains("SECHO")){
+        if (setting["SECHO"]=="True"){
+            serial.sEcho = true;
+        }else{
+            serial.sEcho = false;
+        }
+    }
 }
 
 bool Avr_Uart::openUart(){

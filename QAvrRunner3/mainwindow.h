@@ -91,6 +91,10 @@ private:
     QList <QAction*> baudActions;
     QMenu *baudMenu;
 
+    //Serial Echo Settings
+    QAction *sEcho;
+    QAction *hEcho;
+
     //Build Menus
     void buildMenus();
 };
