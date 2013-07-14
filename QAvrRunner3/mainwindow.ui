@@ -72,6 +72,7 @@
     <addaction name="separator"/>
     <addaction name="actionAbout_QAvr_Simulator"/>
     <addaction name="actionAbout_QT"/>
+    <addaction name="action_Report_a_Bug"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSerial"/>
@@ -222,6 +223,11 @@
   <action name="actionE_xit">
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="action_Report_a_Bug">
+   <property name="text">
+    <string>&amp;Report a Bug</string>
    </property>
   </action>
  </widget>

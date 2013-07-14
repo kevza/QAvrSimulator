@@ -61,6 +61,8 @@ private slots:
 
     void on_actionE_xit_triggered();
 
+    void on_action_Report_a_Bug_triggered();
+
 protected:
     virtual void closeEvent(QCloseEvent *);
 

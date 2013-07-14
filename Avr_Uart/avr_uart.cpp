@@ -61,29 +61,29 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
     }
     if (reg == "UCSRA"){
         UCSRA = ptr;
-        //*UCSRA = 0;
+        *UCSRA = 0;
     }
     if (reg == "UCSRB"){
         UCSRB = ptr;
-        oldUCSRB = *ptr;
-        //*UCSRB = 0;
+        oldUCSRB = 0;
+        *UCSRB = 0;
     }
     if (reg == "UCSRC"){
         UCSRC = ptr;
-        oldUCSRC = *ptr;
-        //*UCSRC = 0;
+        oldUCSRC = 0;
+        *UCSRC = 0;
     }
     if (reg == "UCSRD"){
         UCSRD = ptr;
-        //*UCSRD = 0;
+        *UCSRD = 0;
     }
     if (reg == "UBRRL"){
         UBRRL = ptr;
-        //*UBRRL = 0;
+        *UBRRL = 0;
     }
     if (reg == "UBRRH"){
         UBRRH = ptr;
-        //*UBRRH = 0;
+        *UBRRH = 0;
     }
 
 }

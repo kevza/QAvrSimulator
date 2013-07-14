@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtWebKit/QWebView>
+#include <QDesktopServices>
 
 
 #include <Scene/layoutmanager.h>
@@ -67,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setInterval(20);
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
     timer->start();
-    this->setWindowIcon(QIcon(":/icons/Icons/Stop.png"));
+    this->setWindowIcon(QIcon(":/icons/Icons/MainWindow.png"));
 }
 
 MainWindow::~MainWindow()
@@ -421,4 +422,9 @@ void MainWindow::on_actionHelp_triggered()
 void MainWindow::on_actionE_xit_triggered()
 {
    this->close();
+}
+
+void MainWindow::on_action_Report_a_Bug_triggered()
+{
+    QDesktopServices::openUrl(QUrl("mailto:kevzawinning@gmail.com?subject=QAvrBug Report&body=What Happened :....\n\nWhat I Expected to Happen :....\n\nNote: Please Attach the Hex file you were running, the source code that generated the Hex file is also helpful."));
 }

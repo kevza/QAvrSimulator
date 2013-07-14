@@ -5,6 +5,7 @@
         <file>Icons/Play.png</file>
         <file>Icons/Pause.png</file>
         <file>Icons/Debug.png</file>
+        <file>Icons/MainWindow.png</file>
     </qresource>
     <qresource prefix="/Docs">
         <file>Docs/About.md</file>
