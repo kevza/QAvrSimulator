@@ -75,7 +75,7 @@ private:
     Avr_Hardware_Interface *hardware;
     Avr_Hardware_Interface *ledmat;
     QGraphicsRectItem* rect[36];
-    QGraphicsScene* myScene;
+    QGraphicsScene* workbench;
     ButtonItem *btn[6];
     LedMatItem *ledMatItem;
     DebugView *debugger;

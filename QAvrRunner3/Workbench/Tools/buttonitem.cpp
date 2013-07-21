@@ -1,7 +1,6 @@
 #include "buttonitem.h"
 #include <QFile>
 #include <QDebug>
-#include <QMutex>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QGraphicsSceneContextMenuEvent>
@@ -79,12 +78,26 @@ void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
     this->update();
 }
 
-
-void ButtonItem::connectHardware(Avr_Hardware_Interface *core){
-    this->hardware = core;
-    //Initialize pin at correct value
-     *hardware->getInputs()[this->pin] = pushLow ? 1:0;
+void ButtonItem::attachCore(Avr_Core *currentCore){
+    if (currentCore != NULL) {
+        foreach (Avr_Hardware_Interface *h,currentCore->hardware){
+            if (h->getPluginName()=="AVRIO"){
+                this->hardware = h;
+                *hardware->getInputs()[this->pin] = pushLow ? 1:0;
+            }
+        }
+    }
 }
+
+QString ButtonItem::getSettingsString(){
+    return "";
+}
+
+void ButtonItem::setSettingsString(QString settings){
+
+
+}
+
 
 void ButtonItem::setPin(QString pin){
     this->pin = pin;

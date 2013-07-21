@@ -28,7 +28,7 @@ HEADERS  += mainwindow.h \
     Workbench/Tools/buttonitem.h \
     Workbench/Tools/leditem.h \
     Workbench/Tools/ledmatitem.h \
-    Workbench/Tools/toolinterface.h
+    Workbench/Tools/ToolItem.h
 
 FORMS    += mainwindow.ui \
         Debugger/debugview.ui \

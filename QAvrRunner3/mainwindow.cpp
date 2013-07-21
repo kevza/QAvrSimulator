@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Hex,SIGNAL(triggered()),this,SLOT(on_loadHex_clicked()));
 
     //Setup QGraphics Scene (this is testing code not production)
-    myScene = new LayoutManager();
+    workbench = new LayoutManager();
     //Add the buttons to the controller
     int xPos[] = {80,140,140,140,200,260};
     int yPos[] = {60,0,60,120,60,120};
@@ -36,14 +36,14 @@ MainWindow::MainWindow(QWidget *parent) :
         btn[i]->setPin(ports[i]);
         btn[i]->setPushLow(setting[i]);
         btn[i]->bindKey(keyCodes[i]);
-        myScene->addItem(btn[i]);
+        workbench->addItem(btn[i]);
     }
 
     //Add the ledmat to the controller
     ledMatItem = new LedMatItem();
-    myScene->addItem(ledMatItem);
+    workbench->addItem(ledMatItem);
 
-    ui->mainGView->setScene(myScene);
+    ui->mainGView->setScene(workbench);
     ui->mainGView->show();
 
     //Load a list of available cores
@@ -106,52 +106,7 @@ void MainWindow::buildMenus(){
     actionGroup = new QActionGroup(this);
     actionGroup->setExclusive(true);
     portMenu = new QMenu("Serial Ports", this);
-    QSerialPortInfo ports;
-    foreach (QSerialPortInfo p, ports.availablePorts()){
-        QAction *portAction = new QAction(this);
-        portAction->setText(p.description());
-        portAction->setCheckable(true);
-        portAction->setData(p.systemLocation());
-        this->serialPortActions.append(portAction);
-        actionGroup->addAction(portAction);
-        portMenu->addAction(portAction);
-    }
-    QAction *portAction = new QAction(this);
-    portAction->setText(tr("/dev/pts/0"));
-    portAction->setCheckable(true);
-    portAction->setData(tr("/dev/pts/0"));
-    actionGroup->addAction(portAction);
-    portMenu->addAction(portAction);
-    this->serialPortActions.append(portAction);
-    portAction = new QAction(this);
-    portAction->setText(tr("/dev/pts/1"));
-    portAction->setCheckable(true);
-    portAction->setData(tr("/dev/pts/1"));
-    actionGroup->addAction(portAction);
-    portMenu->addAction(portAction);
-    this->serialPortActions.append(portAction);
-    portAction = new QAction(this);
-    portAction->setText(tr("/dev/pts/2"));
-    portAction->setCheckable(true);
-    portAction->setData(tr("/dev/pts/2"));
-    actionGroup->addAction(portAction);
-    portMenu->addAction(portAction);
-    this->serialPortActions.append(portAction);
-    portAction = new QAction(this);
-    portAction->setText(tr("/dev/pts/3"));
-    portAction->setCheckable(true);
-    portAction->setData(tr("/dev/pts/3"));
-    actionGroup->addAction(portAction);
-    portMenu->addAction(portAction);
-    this->serialPortActions.append(portAction);
-    portAction = new QAction(this);
-    portAction->setText(tr("/dev/pts/4"));
-    portAction->setCheckable(true);
-    portAction->setData(tr("/dev/pts/4"));
-    actionGroup->addAction(portAction);
-    portMenu->addAction(portAction);
-    this->serialPortActions.append(portAction);
-    ui->menuSerial->addMenu(portMenu);
+    this->refresh_menus();
 
     //Create Baud Rate Menu
     QStringList baud = QStringList() << "2400" << "4800" << "9600" << "19200" << "38400"
@@ -201,6 +156,8 @@ void MainWindow::refresh_menus(){
         this->serialPortActions.removeOne(action);
         delete action;
     }
+
+    //List Serial Ports
     QSerialPortInfo ports;
     foreach (QSerialPortInfo p, ports.availablePorts()){
         QAction *portAction = new QAction(this);
@@ -211,6 +168,24 @@ void MainWindow::refresh_menus(){
         actionGroup->addAction(portAction);
         portMenu->addAction(portAction);
     }
+
+    //List PTS items, this is only relavant in a
+    //unix based system
+    #ifdef __unix__
+    QAction *portAction;
+    QDir dir("/dev/pts","",QDir::Name,QDir::System);
+    dir.setFilter(QDir::System);
+    foreach( QFileInfo info, dir.entryInfoList()){
+        portAction = new QAction(this);
+        portAction->setText(info.filePath());
+        portAction->setCheckable(true);
+        portAction->setData(info.filePath());
+        actionGroup->addAction(portAction);
+        portMenu->addAction(portAction);
+        this->serialPortActions.append(portAction);
+    }
+    #endif
+    ui->menuSerial->addMenu(portMenu);
 }
 /**
  * @brief MainWindow::core_changed Slot for changes in core from combo box
@@ -262,6 +237,7 @@ void MainWindow::on_actionStart_triggered()
 
                 //Set Baud Rate on Serial Device
                 foreach (Avr_Hardware_Interface * h ,core->hardware){
+                    //Setup Serial Device if it exists
                     if (h->getPluginName() == "AVRUART"){
                         QString port, baud;
                         foreach(QAction *action, serialPortActions){
@@ -292,8 +268,6 @@ void MainWindow::on_actionStart_triggered()
                         h->passSetting(setting);
                     }
                 }
-
-
 
                 //Register the core with the debug window
                 if (debugger){
@@ -378,25 +352,18 @@ void MainWindow::gui_update(){
     static bool setup = false;
     if (core){
         if (!setup){
-            foreach (Avr_Hardware_Interface * h ,core->hardware){
-                if (h->getPluginName() == "AVRIO"){
-                    this->hardware = h;
-                    for (int i = 0 ; i < 6; i++){
-                        btn[i]->connectHardware(h);
-                    }
-                }
-                if (h->getPluginName() == "AVRLEDMAT"){
-                    ledMatItem->connectHardware(h);
-                }
-
-                if (h->getPluginName() == "AVRUART"){
-
+            //Register the current core with all hardware
+            //Items
+            foreach (QGraphicsItem *i,workbench->items()){
+                ToolItemInterface *tool = dynamic_cast<ToolItemInterface*>(i);
+                if (tool != NULL){
+                    tool->attachCore(core);
                 }
             }
             setup = true;
         }else{
            //this->ui->mainGView->repaint();
-            ledMatItem->update();
+            workbench->update(workbench->sceneRect());
         }
     }
 }

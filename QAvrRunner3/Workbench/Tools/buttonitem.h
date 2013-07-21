@@ -2,8 +2,9 @@
 #define BUTTONITEM_H
 #include <core/core.h>
 #include <QGraphicsPixmapItem>
+#include <Workbench/Tools/ToolItem.h>
 
-class ButtonItem : public QGraphicsPixmapItem
+class ButtonItem : public ToolItemInterface,public QGraphicsPixmapItem
 {
     public:
         ButtonItem();
@@ -11,8 +12,11 @@ class ButtonItem : public QGraphicsPixmapItem
         virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
         virtual void keyPressEvent(QKeyEvent *event);
         virtual void keyReleaseEvent(QKeyEvent *event);
-
-        void connectHardware(Avr_Hardware_Interface *h);
+        //toolitem virtual functions
+        virtual void attachCore(Avr_Core *currentCore);
+        virtual void setSettingsString(QString settings);
+        virtual QString getSettingsString();
+        //Button Functions
         void setPin(QString pin);
         void setTexturePressed(QString file);
         void setTextureDepressed(QString file);
