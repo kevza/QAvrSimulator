@@ -14,25 +14,25 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-        Tools/ledmatitem.cpp \
-        Tools/leditem.cpp \
-        Tools/buttonitem.cpp \
         Debugger/debugview.cpp \
-        Scene/layoutmanager.cpp \
-        Scene/connectiondialog.cpp
+        Workbench/connectiondialog.cpp \
+    Workbench/layoutmanager.cpp \
+    Workbench/Tools/buttonitem.cpp \
+    Workbench/Tools/leditem.cpp \
+    Workbench/Tools/ledmatitem.cpp
 
 HEADERS  += mainwindow.h \
-        Tools/ledmatitem.h \
-        Tools/leditem.h \
-        Tools/buttonitem.h \
-        Debugger/debugview.h \
-        Scene/layoutmanager.h \
-        Scene/connectiondialog.h \
-        Tools/toolinterface.h
+                Debugger/debugview.h \
+             Workbench/connectiondialog.h \
+    Workbench/layoutmanager.h \
+    Workbench/Tools/buttonitem.h \
+    Workbench/Tools/leditem.h \
+    Workbench/Tools/ledmatitem.h \
+    Workbench/Tools/toolinterface.h
 
 FORMS    += mainwindow.ui \
         Debugger/debugview.ui \
-        Scene/connectiondialog.ui
+            Workbench/connectiondialog.ui
 
 
 RESOURCES += \

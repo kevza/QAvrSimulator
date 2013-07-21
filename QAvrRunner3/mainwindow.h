@@ -18,8 +18,8 @@
 #include <QActionGroup>
 #include <QAction>
 #include <QtSerialPort/QSerialPortInfo>
-#include <Tools/buttonitem.h>
-#include <Tools/ledmatitem.h>
+#include <Workbench/Tools/buttonitem.h>
+#include <Workbench/Tools/ledmatitem.h>
 #include <Debugger/debugview.h>
 
 namespace Ui {
@@ -97,6 +97,10 @@ private:
 
     //Build Menus
     void buildMenus();
+
+    //Handle Key Press Events
+    virtual void keyPressEvent(QKeyEvent *);
+    virtual void keyReleaseEvent(QKeyEvent *);
 };
 
 #endif // MAINWINDOW_H

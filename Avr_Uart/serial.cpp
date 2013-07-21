@@ -15,6 +15,10 @@ Serial::Serial()
     buffer.read = 0;
     buffer.write = 0;
     buffer.overrun = 0;
+    buffer.cleared[0] =0;
+    buffer.cleared[1] = 0;
+    buffer.buffer[0] = 0;
+    buffer.buffer[1] = 0;
 }
 
 Serial::~Serial(){
@@ -123,7 +127,7 @@ void Serial::closeSerial(){
 int Serial::readSerial(){
     while (readyRead){
         int r = read(tty_fd,&data,1);
-        if (r == 1){
+        if (r > 0){
             qDebug() << "Read " << data<< " to "<< buffer.write ;
             buffer.buffer[buffer.write] = data;
             //Check if said location is cleared
@@ -153,6 +157,7 @@ void Serial::writeSerial(unsigned char c){
     write(tty_fd, &c,1);
     //If software echo add sent char to receive buffer
     if (this->sEcho == true){
+        qDebug() << "Run Software Echo";
         //Simulate UCFK send behaviour
         //echo the send character
         //into the recieve buffer.

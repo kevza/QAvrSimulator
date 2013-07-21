@@ -61,6 +61,7 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
     }
     if (reg == "UCSRA"){
         UCSRA = ptr;
+        //Buffer Ready for Transmission
         *UCSRA = 0;
     }
     if (reg == "UCSRB"){
@@ -118,29 +119,33 @@ int Avr_Uart::update(int cycles){
         qDebug() << "Transmit " << (int)*UDR;
         serial.writeSerial(*UDR);
         *UDR = lastUDR;
+        //Set Bytes transmitted and
+        //buffer is clear.
         *UCSRA |= (1 << 6);
 
         //Clear Last Write
         reg->lastWrite = 0;
         //flag Transmission complete
    }else{
-        //Assert Send buffer is clear
-        *UCSRA |= (1 << 5);
+       *UCSRA |= (1 << 5);
    }
 
     //Check if a Read is ready
    if ((*UCSRB) & (1 << 4)){
         serial.readSerial();
+        //Check if data has been read
+        //increment buffer if it has
+        if (reg->lastRead == 0xce){
+            serial.buffer.read = (serial.buffer.read + 1) % 2;
+            *UCSRA &= ~(1 << 7);
+            reg->lastRead = 0;
+        }
+        //Load new data from the buffer.
         if (serial.buffer.cleared[serial.buffer.read]){
             *UDR = serial.buffer.buffer[serial.buffer.read];
             lastUDR = *UDR;
             serial.buffer.cleared[serial.buffer.read] = 0;
             *UCSRA |= (1 << 7);
-        }
-        if (reg->lastRead == 0xce){
-            serial.buffer.read = (serial.buffer.read + 1) % 2;
-            *UCSRA &= ~(1 << 7);
-            reg->lastRead = 0;
         }
    }
 

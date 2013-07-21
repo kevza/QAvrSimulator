@@ -32,7 +32,6 @@ bool LayoutManager::loadLayout(QString layout){
 bool LayoutManager::saveLayout(QString layout){
 
 
-
     return true;
 }
 

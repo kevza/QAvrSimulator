@@ -24,17 +24,20 @@ void LedMatItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         theMap = mat->getOutputs();
     }
     //Draw the leds and paint them the correct color
+    painter->setBrush(Qt::gray);
+    painter->drawRect(QRect(8,8,62,86));
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
             if (this->mat){
                 if (theMap[leds.at((6 - y) * 5 + (4 - x))] > 0)
-                    painter->setBrush(QBrush(QColor(255,0,0)));
+                    painter->setBrush(QBrush(QColor(0,255,100)));
                 else
-                    painter->setBrush(Qt::black);
+                    painter->setBrush(Qt::gray);
             }else{
-                painter->setBrush(Qt::black);
+                painter->setBrush(Qt::gray);
             }
-            painter->drawRect(QRect(10 + (12 * x),10 + (12 * y),10,10));
+            painter->drawEllipse(QRect(10 + (12 * x),10 + (12 * y),10,10));
+
         }
     }
     if (this->mat)

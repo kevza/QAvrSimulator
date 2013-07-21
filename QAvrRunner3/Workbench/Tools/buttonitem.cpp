@@ -2,6 +2,9 @@
 #include <QFile>
 #include <QDebug>
 #include <QMutex>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QGraphicsSceneContextMenuEvent>
 /**
  * @brief ButtonItem::ButtonItem
  */
@@ -15,8 +18,41 @@ ButtonItem::ButtonItem()
     pressedTex = ":/icons/Icons/Play.png";
     depressedTex = ":/icons/Icons/Stop.png";
     pushLow = false;
+    keyId = -1;
 }
 
+/**
+  *@brief ButtonItem::keyPressEvent
+  *@param event
+  */
+void ButtonItem::keyPressEvent(QKeyEvent *event){
+    if (event != NULL && event->key() == keyId){
+        if (hardware)
+            *hardware->getInputs()[this->pin] = pushLow ? 0 : 1;
+        this->setPixmap(QPixmap(pressedTex));
+        this->update();
+    }
+    QGraphicsPixmapItem::keyPressEvent(event);
+}
+
+/**
+ * @brief ButtonItem::keyReleaseEvent
+ * @param event
+ */
+void ButtonItem::keyReleaseEvent(QKeyEvent *event){
+    if(event != NULL && event->key() == keyId){
+        if (hardware)
+            *hardware->getInputs()[this->pin] = pushLow ? 1:0;
+        this->setPixmap(QPixmap(depressedTex));
+        this->update();
+     }
+    QGraphicsPixmapItem::keyPressEvent(event);
+}
+
+
+void ButtonItem::bindKey(int key){
+    this->keyId = key;
+}
 
 /**
  * @brief ButtonItem::mousePressEvent
