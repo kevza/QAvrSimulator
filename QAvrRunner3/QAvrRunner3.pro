@@ -15,7 +15,6 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         Debugger/debugview.cpp \
-        Workbench/connectiondialog.cpp \
     Workbench/layoutmanager.cpp \
     Workbench/Tools/buttonitem.cpp \
     Workbench/Tools/leditem.cpp \
@@ -23,7 +22,6 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
                 Debugger/debugview.h \
-             Workbench/connectiondialog.h \
     Workbench/layoutmanager.h \
     Workbench/Tools/buttonitem.h \
     Workbench/Tools/leditem.h \
@@ -31,23 +29,20 @@ HEADERS  += mainwindow.h \
     Workbench/Tools/ToolItem.h
 
 FORMS    += mainwindow.ui \
-        Debugger/debugview.ui \
-            Workbench/connectiondialog.ui
+        Debugger/debugview.ui
 
 
 RESOURCES += \
     RunnerResources.qrc
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Avr_Core/release/ -lAvr_Core
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Avr_Core/debug/ -lAvr_Core
+else:unix: LIBS += -L$$OUT_PWD/../Avr_Core/ -lAvr_Core
+
 INCLUDEPATH += $$PWD/../Avr_Core
 DEPENDPATH += $$PWD/../Avr_Core
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/release/ -lAvr_Core
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/debug/ -lAvr_Core
-else:unix: LIBS += -L$$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/ -lAvr_Core
-
-INCLUDEPATH += $$PWD/../Avr_Core/core
-DEPENDPATH += $$PWD/../Avr_Core/core
-
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/release/Avr_Core.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/debug/Avr_Core.lib
-else:unix: PRE_TARGETDEPS += $$PWD/../../QAvrSimulator-Build/build-Avr_Core-Desktop-Release/libAvr_Core.a
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/release/Avr_Core.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/debug/Avr_Core.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/libAvr_Core.a

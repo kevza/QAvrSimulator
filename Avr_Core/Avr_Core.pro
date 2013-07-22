@@ -30,6 +30,7 @@ HEADERS +=\
     core/avr_core_builder.h \
     interface/avr_hardware_interface.h
 
+
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib

@@ -17,6 +17,8 @@ SOURCES += \
 HEADERS += \
     avr_io.h
 
+DESTDIR = ..\QAvrRunner3\plugins
+
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib

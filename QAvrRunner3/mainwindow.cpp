@@ -107,6 +107,7 @@ void MainWindow::buildMenus(){
     actionGroup->setExclusive(true);
     portMenu = new QMenu("Serial Ports", this);
     this->refresh_menus();
+    ui->menuSerial->addMenu(portMenu);
 
     //Create Baud Rate Menu
     QStringList baud = QStringList() << "2400" << "4800" << "9600" << "19200" << "38400"
@@ -185,7 +186,7 @@ void MainWindow::refresh_menus(){
         this->serialPortActions.append(portAction);
     }
     #endif
-    ui->menuSerial->addMenu(portMenu);
+
 }
 /**
  * @brief MainWindow::core_changed Slot for changes in core from combo box

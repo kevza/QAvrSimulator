@@ -19,6 +19,8 @@ HEADERS += \
     avr_uart.h \
     serial.h
 
+DESTDIR = ..\QAvrRunner3\plugins
+
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib
