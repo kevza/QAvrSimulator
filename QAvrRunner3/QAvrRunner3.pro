@@ -3,7 +3,6 @@
 # Project created by QtCreator 2013-01-13T11:36:02
 #
 #-------------------------------------------------
-CONFIG += serialport
 QT       += core gui webkit
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

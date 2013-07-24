@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QCloseEvent>
 #include <QComboBox>
-#include <QtSerialPort/QSerialPortInfo>
 #include <QtWebKit/QWebView>
 #include <QDesktopServices>
 
@@ -158,7 +157,9 @@ void MainWindow::refresh_menus(){
         delete action;
     }
 
-    //List Serial Ports
+    //List Serial Ports - The old way using
+    //qserialport lib - this will be a pain for uni
+    /*
     QSerialPortInfo ports;
     foreach (QSerialPortInfo p, ports.availablePorts()){
         QAction *portAction = new QAction(this);
@@ -168,11 +169,28 @@ void MainWindow::refresh_menus(){
         this->serialPortActions.append(portAction);
         actionGroup->addAction(portAction);
         portMenu->addAction(portAction);
-    }
+    }*/
 
-    //List PTS items, this is only relavant in a
+    //List PTS items, this is only relevant in a
     //unix based system
     #ifdef __unix__
+    QDir serialDir("/dev/serial/by_id","", QDir::Name,QDir::System);
+    //check that there are some serial devices attached
+    if (serialDir.exists()) {
+        foreach (QFileInfo info, serialDir.entryInfoList()){
+            QAction *portAction = new QAction(this);
+            QString port = info.filePath();
+            //get the device name here.
+
+            portAction->setText(info.filePath());
+            portAction->setCheckable(true);
+            portAction->setData(info.filePath());
+            this->serialPortActions.append(portAction);
+            actionGroup->addAction(portAction);
+            portMenu->addAction(portAction);
+        }
+    }
+
     QAction *portAction;
     QDir dir("/dev/pts","",QDir::Name,QDir::System);
     dir.setFilter(QDir::System);

@@ -17,7 +17,6 @@
 #include <QComboBox>
 #include <QActionGroup>
 #include <QAction>
-#include <QtSerialPort/QSerialPortInfo>
 #include <Workbench/Tools/buttonitem.h>
 #include <Workbench/Tools/ledmatitem.h>
 #include <Debugger/debugview.h>
@@ -85,8 +84,6 @@ private:
     QActionGroup *actionGroup;
     QMenu *portMenu;
     QList <QAction*> serialPortActions;
-    QList <QSerialPortInfo> serialPortInfo;
-
     QActionGroup *actionGroup2;
     QList <QAction*> baudActions;
     QMenu *baudMenu;
