@@ -16,6 +16,7 @@ class Avr_Ledmat: public QObject, public Avr_Hardware_Interface
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_Ledmat();
+        ~Avr_Ledmat();
 
         virtual QString getPluginName();
 

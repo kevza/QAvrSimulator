@@ -16,6 +16,7 @@ class Avr_IO: public QObject, public Avr_Hardware_Interface
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_IO();
+        ~Avr_IO();
 
         virtual QString getPluginName();
 

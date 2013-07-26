@@ -86,6 +86,8 @@ void ButtonItem::attachCore(Avr_Core *currentCore){
                 *hardware->getInputs()[this->pin] = pushLow ? 1:0;
             }
         }
+    }else{
+        this->hardware = NULL;
     }
 }
 

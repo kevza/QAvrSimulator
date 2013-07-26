@@ -1,0 +1,90 @@
+[Avr_Core/core/avr_core_builder.cpp:6]: (warning) Member variable 'Avr_Core_Builder::interface' is not initialized in the constructor.
+[Avr_Core/core/avr_core_builder.cpp:6]: (warning) Member variable 'Avr_Core_Builder::core' is not initialized in the constructor.
+[Avr_Core/core/avr_memory.cpp:11]: (warning) Member variable 'Avr_Memory::ram' is not initialized in the constructor.
+[Avr_Core/core/avr_memory.cpp:11]: (warning) Member variable 'Avr_Memory::ramEnd' is not initialized in the constructor.
+[Avr_Core/core/avr_memory.cpp:11]: (warning) Member variable 'Avr_Memory::eeprom' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::sreg' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::ram' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::io' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::ramEnd' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::spH' is not initialized in the constructor.
+[Avr_Core/core/avr_registers.cpp:7]: (warning) Member variable 'Avr_Registers::spL' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:1572]: (style) Suspicious condition (bitwise operator + comparison); Clarify expression with parentheses.
+[Avr_Core/core/core.cpp:44]: (warning) Member variable 'Avr_Core::pc' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:44]: (warning) Member variable 'Avr_Core::cCount' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:44]: (warning) Member variable 'Avr_Core::isThreadStopped' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:44]: (warning) Member variable 'Avr_Core::jmp' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:44]: (warning) Member variable 'Avr_Core::lastInstruction' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::sreg' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::pc' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::cCount' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::mem' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::reg' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::flash' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::isThreadStopped' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::jmp' is not initialized in the constructor.
+[Avr_Core/core/core.cpp:67]: (warning) Member variable 'Avr_Core::lastInstruction' is not initialized in the constructor.
+[Avr_Core/core/flash.h:21]: (style) 'class Avr_Flash' does not have a copy constructor which is recommended since the class contains a pointer to allocated memory.
+[Avr_IO/avr_io.cpp:3]: (warning) Member variable 'Avr_IO::reg' is not initialized in the constructor.
+[Avr_Ledmat/avr_ledmat.cpp:130]: (style) Variable 'count' is assigned a value that is never used.
+[Avr_Ledmat/avr_ledmat.cpp:4]: (warning) Member variable 'Avr_Ledmat::reg' is not initialized in the constructor.
+[Avr_Timer_16B/avr_timer_16b.cpp:95]: (style) Variable 'skipCompare' is assigned a value that is never used.
+[Avr_Timer_16B/avr_timer_16b.cpp:7]: (warning) Member variable 'Avr_Timer_16b::reg' is not initialized in the constructor.
+[Avr_Uart/avr_uart.cpp:4]: (warning) Member variable 'Avr_Uart::reg' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:279]: (error) Invalid number of character ({) when these macros are defined: ''.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::sEcho' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::hEcho' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::parity' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::dataBits' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::stopBits' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::baud' is not initialized in the constructor.
+[Avr_Uart/serial.cpp:39]: (warning) Member variable 'Serial::tty_fd' is not initialized in the constructor.
+[QAvrRunner3/Workbench/Tools/ledmatitem.cpp:6]: (warning) Member variable 'LedMatItem::m_update' is not initialized in the constructor.
+[QAvrRunner3/mainwindow.cpp:419]: (style) The scope of the variable 'setup' can be reduced.
+[QAvrRunner3/mainwindow.cpp:235]: (style) The scope of the variable 'portAction' can be reduced.
+[Avr_Core_Tests/opcode_tests.cpp:25]: (style) The function 'TearDown' is never used.
+[QAvrRunner3/Workbench/Tools/ledmatitem.cpp:19]: (style) The function 'boundingRect' is never used.
+[QAvrRunner3/mainwindow.cpp:262]: (style) The function 'closeEvent' is never used.
+[QAvrRunner3/Workbench/Tools/ledmatitem.cpp:73]: (style) The function 'contextMenuEvent' is never used.
+[Avr_Core/core/core.cpp:251]: (style) The function 'getA5Bit' is never used.
+[Avr_Core/core/core.cpp:244]: (style) The function 'getA6Bit' is never used.
+[Avr_IO/avr_io.cpp:140]: (style) The function 'getInterruptCount' is never used.
+[Avr_IO/avr_io.cpp:148]: (style) The function 'getInterrupts' is never used.
+[Avr_Core/core/core.cpp:216]: (style) The function 'getK6Bit' is never used.
+[Avr_Core/core/core.cpp:222]: (style) The function 'getK8Bit' is never used.
+[Avr_Core/core/avr_registers.cpp:213]: (style) The function 'getRampd' is never used.
+[Avr_Core/core/avr_registers.cpp:192]: (style) The function 'getRampx' is never used.
+[Avr_Core/core/avr_registers.cpp:199]: (style) The function 'getRampy' is never used.
+[Avr_Core/core/core.cpp:181]: (style) The function 'getRegister4BitR' is never used.
+[Avr_Core/core/core.cpp:190]: (style) The function 'getRegister5BitR' is never used.
+[Avr_IO/avr_io.cpp:130]: (style) The function 'getRegisters' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:94]: (style) The function 'getSettingsString' is never used.
+[Avr_Core/core/avr_registers.cpp:47]: (style) The function 'ioG' is never used.
+[Avr_Core/core/avr_registers.cpp:54]: (style) The function 'ioS' is never used.
+[QAvrRunner3/Workbench/layoutmanager.cpp:21]: (style) The function 'loadLayout' is never used.
+[Avr_Core/core/avr_core_builder.cpp:146]: (style) The function 'loadProgram' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:60]: (style) The function 'mousePressEvent' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:73]: (style) The function 'mouseReleaseEvent' is never used.
+[QAvrRunner3/mainwindow.cpp:463]: (style) The function 'on_actionAbout_QAvr_Simulator_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:478]: (style) The function 'on_actionAbout_QT_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:443]: (style) The function 'on_actionDebugger_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:495]: (style) The function 'on_actionE_xit_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:486]: (style) The function 'on_actionHelp_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:376]: (style) The function 'on_actionPause_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:281]: (style) The function 'on_actionStart_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:396]: (style) The function 'on_actionStep_triggered' is never used.
+[QAvrRunner3/mainwindow.cpp:500]: (style) The function 'on_action_Report_a_Bug_triggered' is never used.
+[QAvrRunner3/Workbench/Tools/ledmatitem.cpp:23]: (style) The function 'paint' is never used.
+[Avr_Core/core/avr_registers.cpp:33]: (style) The function 'ramG' is never used.
+[Avr_Core/core/avr_registers.cpp:40]: (style) The function 'ramS' is never used.
+[Avr_Core/core/core.cpp:105]: (style) The function 'run' is never used.
+[QAvrRunner3/Workbench/layoutmanager.cpp:32]: (style) The function 'saveLayout' is never used.
+[Avr_Core/core/avr_registers.cpp:88]: (style) The function 'setEINDP' is never used.
+[Avr_Core/core/avr_registers.cpp:84]: (style) The function 'setRAMPDP' is never used.
+[Avr_Core/core/avr_registers.cpp:72]: (style) The function 'setRAMPXP' is never used.
+[Avr_Core/core/avr_registers.cpp:76]: (style) The function 'setRAMPYP' is never used.
+[Avr_Core/core/avr_registers.cpp:80]: (style) The function 'setRAMPZP' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:98]: (style) The function 'setSettingsString' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:112]: (style) The function 'setTextureDepressed' is never used.
+[QAvrRunner3/Workbench/Tools/buttonitem.cpp:108]: (style) The function 'setTexturePressed' is never used.
+(information) Cppcheck cannot find all the include files (use --check-config for details)

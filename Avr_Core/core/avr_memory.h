@@ -9,7 +9,8 @@
 */
 class Avr_Memory{
 	public:
-		Avr_Memory();	
+        Avr_Memory();
+        ~Avr_Memory();
 		void initRam(int size);
 		void initEprom(int size);
 		uint8_t *getRam();

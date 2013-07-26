@@ -24,6 +24,10 @@ Avr_Timer_16b::Avr_Timer_16b(){
     this->d = 1;
 }
 
+Avr_Timer_16b::~Avr_Timer_16b(){
+
+}
+
 QString Avr_Timer_16b::getPluginName(){
     return "TIMER16B";
 }

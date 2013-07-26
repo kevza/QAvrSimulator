@@ -5,9 +5,22 @@ Avr_Uart::Avr_Uart(){
         readComplete = false;
         isOpen = false;
         writeComplete = false;
+        this->lastUDR = 0;
+         UDR = NULL;
+        UCSRA = NULL;
+        UCSRB = NULL;
+        UCSRC = NULL;
+        UCSRD = NULL;
+        UBRRL = NULL;
+        UBRRH = NULL;
+
+        oldUCSRB = 0;
+        oldUCSRC = 0;
 
 }
-
+Avr_Uart::~Avr_Uart(){
+    serial.closeSerial();
+}
 
 QString Avr_Uart::getPluginName(){
     return "AVRUART";
@@ -104,7 +117,8 @@ int Avr_Uart::update(int cycles){
        }
        //Close old serial if state has changed
        if (isOpen){
-            serial.closeSerial();
+           qDebug() << "Closing Serial Port";
+            serial.closeSerial();            
        }
        if (!openUart())
            return -1;
@@ -242,26 +256,75 @@ bool Avr_Uart::openUart(){
         }
         //Set the Baud Rate
 
-        if (this->baud == "2400")
-                serial.setBaudRate(B2400);
+        if (this->baud == "2400"){
+                #ifdef __unix
+                    serial.setBaudRate(B2400);
+                #endif
+                #ifdef __WIN32
+                    serial.setBaudRate(2400); 
+                #endif
+         }
 
-        if (this->baud == "4800")
+        if (this->baud == "4800"){
+                #ifdef __unix
                 serial.setBaudRate(B4800);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(4800);
+                #endif
 
-        if (this->baud == "9600")
+        }
+
+        if (this->baud == "9600"){
+                #ifdef __unix
                 serial.setBaudRate(B9600);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(9600);
+                #endif
 
-        if (this->baud == "19200")
+
+        }
+
+        if (this->baud == "19200"){
+                #ifdef __unix
                 serial.setBaudRate(B19200);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(19200);
+                #endif
 
-        if (this->baud == "38400")
+        }
+
+        if (this->baud == "38400"){
+                #ifdef __unix
                 serial.setBaudRate(B38400);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(38400);
+                #endif
 
-        if (this->baud == "57600")
+        }
+
+        if (this->baud == "57600"){
+                #ifdef __unix
                 serial.setBaudRate(B57600);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(57600);
+                #endif
 
-        if (this->baud == "115200")
+        }
+
+        if (this->baud == "115200"){
+                #ifdef __unix
                 serial.setBaudRate(B115200);
+                #endif
+                 #ifdef __WIN32
+                    serial.setBaudRate(115200);
+                #endif
+
+        }
         serial.setPort(port);
 
         if (serial.openSerial()> 0){
@@ -269,7 +332,7 @@ bool Avr_Uart::openUart(){
             isOpen = true;
             return true;
         }else{
-            qDebug() << "Something went wrong";
+            qDebug() << "Something went wrong" ;
             exit(1);
         }
 

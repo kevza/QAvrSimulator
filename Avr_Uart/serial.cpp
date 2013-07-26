@@ -1,11 +1,37 @@
 #include "serial.h"
-
+//This file reaks of platform dependent code and it desperately needs fixing
 //Signal Handler
 bool readyRead;
-
+#ifdef __unix
 void signal_handler_IO(int mask){ 
     readyRead = true;
 }
+#endif
+#ifdef __WIN32
+bool abContinue = true;
+char winReceived;
+HANDLE hCommPort;
+//Keep Checking for Data
+DWORD WINAPI winWatcher(void *arg){
+    qDebug() << "Thread Active";
+        //HANDLE hCommPort = (HANDLE)arg;
+        while (abContinue){
+                if (!readyRead){
+                    DWORD dwBytesRead = 0;
+                    ReadFile(hCommPort, &winReceived, 1, &dwBytesRead, NULL);
+                    int r = dwBytesRead;
+                    if (r > 0){
+                        readyRead = true;
+                    }
+                }
+                Sleep(1000);
+        }
+    return 0;
+}
+
+
+#endif
+
 
 
 Serial::Serial()
@@ -23,7 +49,6 @@ Serial::Serial()
 
 Serial::~Serial(){
     this->closeSerial();
-
 }
 
 void Serial::setDataBits(int n){
@@ -36,7 +61,7 @@ void Serial::setParity(int n){
 void Serial::setStopBits(int n){
     this->stopBits = n;
 }
-void Serial::setBaudRate(speed_t speed){
+void Serial::setBaudRate(unsigned int speed){
     this->baud = speed;
 
 }
@@ -48,6 +73,8 @@ void Serial::setPort(QString p){
 bool Serial::openSerial(){
 
     qDebug() << this->port;
+//Only build this part for unix/linux systems
+#ifdef __unix
     tty_fd = open(this->port.toStdString().c_str(), O_RDWR |O_NOCTTY | O_NONBLOCK);
     if (tty_fd == -1){
         qDebug() << "Error Modem Device";
@@ -115,18 +142,111 @@ bool Serial::openSerial(){
     cfsetispeed(&tio,this->baud);            // 115200 baud
     //tcflush(tty_fd, TCIFLUSH);
     tcsetattr(tty_fd,TCSANOW,&tio);
+#endif
+#ifdef __WIN32
+    //Create the windows serial file handle
+    wchar_t wtext[20];
+    mbstowcs(wtext, this->port.toStdString().c_str(), strlen(this->port.toStdString().c_str())+1);//Plus null
+    LPWSTR gszPort = wtext;
+    tty_fd = CreateFile( gszPort,
+                        GENERIC_READ | GENERIC_WRITE,
+                        0,
+                        0,
+                        OPEN_EXISTING,
+                        0,
+                        0);
+    if (tty_fd == INVALID_HANDLE_VALUE){
+        qDebug() << this->port << " failed to open." ;
+        return false;
+    }else{
+        qDebug() << this->port << " successfully opened.";
+    }
+    //Apply Settings
+    DCB dcb;
+    if (!GetCommState(tty_fd, &dcb)){
+        //Cant setup serial
+        return false;
+    }
+    //Setup Settings
+    FillMemory(&dcb, sizeof(dcb), 0);
+    dcb.DCBlength = sizeof(dcb);
+    //Create Serial String
+    char serSet[80];
+    char par[2];
+    //Build Parity Settings
+    if (this->parity == EVEN_PARITY){
+        par[0] = 'e';
+    }else if (this->parity == ODD_PARITY){
+        par[0]  = 'o';
+    }else{
+        par[0] = 'n';
+    }
+    par[1] = 0;
+    sprintf(serSet, "%d,%s,%d,%d", this->baud,par ,this->dataBits,this->stopBits);
+    qDebug() << "Com settings " << QString(serSet);
+    //convert for windows friendly opperation
+    mbstowcs(wtext, this->port.toStdString().c_str(), strlen(this->port.toStdString().c_str())+1);//Plus null
+    LPWSTR comSettings = wtext;
+
+    if (!BuildCommDCB(comSettings, &dcb)) {
+       return false;
+    }
+
+    COMMTIMEOUTS timeouts={0};
+    timeouts.ReadIntervalTimeout=15;
+    timeouts.ReadTotalTimeoutConstant=50;
+    timeouts.ReadTotalTimeoutMultiplier=10;
+    timeouts.WriteTotalTimeoutConstant=50;
+    timeouts.WriteTotalTimeoutMultiplier=10;
+    if(!SetCommTimeouts(tty_fd, &timeouts)){
+        //handle error
+        return false;
+    }
+    DWORD dwThreadId;
+   //Start Watcher Thread
+   //Set handle
+   hCommPort = tty_fd;
+   //Thread to run
+   abContinue = true;
+   readThread =  CreateThread(NULL,0,winWatcher,(void*)&tty_fd,0,&dwThreadId);
+   if (readThread == NULL){
+       qDebug() << "Create thread failed";
+       exit(2);
+   }
+
+
+
+    qDebug() << "Settings applied seial port is ready to go";
+#endif
 
     return true;
    }
 
 void Serial::closeSerial(){
+#ifdef __unix
     close(tty_fd);
+#endif
+#ifdef __WIN32
+    abContinue = false;
+    CloseHandle(tty_fd);
+    CloseHandle(readThread);
+    qDebug() << "Close Handle";
+#endif
 }
 
 
 int Serial::readSerial(){
+    #ifdef __unix
     while (readyRead){
-        int r = read(tty_fd,&data,1);
+
+           int r = read(tty_fd,&data,1);
+    #endif
+    #ifdef __WIN32
+    if (readyRead){
+       int r =0;
+       r = 1;
+       data = winReceived;
+    #endif
         if (r > 0){
             qDebug() << "Read " << data<< " to "<< buffer.write ;
             buffer.buffer[buffer.write] = data;
@@ -145,6 +265,9 @@ int Serial::readSerial(){
                 this->writeSerial(data);
                 this->sEcho = oldSEcho;
             }
+            #ifdef __WIN32
+            readyRead = false;
+            #endif
         }else{
             readyRead = false;
         }
@@ -152,9 +275,16 @@ int Serial::readSerial(){
     return -1;
 }
 
-
 void Serial::writeSerial(unsigned char c){
+#ifdef __unix
     write(tty_fd, &c,1);
+#endif
+#ifdef __WIN32
+    DWORD dwBytesRead = 0;
+    //Do something better here
+    WriteFile(tty_fd, &c, 1, &dwBytesRead, NULL);
+
+#endif
     //If software echo add sent char to receive buffer
     if (this->sEcho == true){
         qDebug() << "Run Software Echo";

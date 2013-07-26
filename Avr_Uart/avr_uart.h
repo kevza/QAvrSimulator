@@ -15,6 +15,7 @@ class Avr_Uart: public QObject, public Avr_Hardware_Interface
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_Uart();
+        ~Avr_Uart();
 
         /**
         * @brief getRegisterCount Returns the count of registers that need to be setup

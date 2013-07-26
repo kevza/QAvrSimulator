@@ -106,9 +106,14 @@ Avr_IO::Avr_IO(){
     out[23] = &outputs["PORTD7"];
 }
 
+Avr_IO::~Avr_IO(){
+
+}
+
 QString Avr_IO::getPluginName(){
     return "AVRIO";
 }
+
 
 /**
  * @brief Avr_IO::getRegisterCount

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 QT       += core gui webkit
-
+CONFIG += console
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QAvrRunner3
@@ -42,6 +42,6 @@ else:unix: LIBS += -L$$OUT_PWD/../Avr_Core/ -lAvr_Core
 INCLUDEPATH += $$PWD/../Avr_Core
 DEPENDPATH += $$PWD/../Avr_Core
 
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/release/Avr_Core.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/debug/Avr_Core.lib
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/release/libAvr_Core.a
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/debug/libAvr_Core.a
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../Avr_Core/libAvr_Core.a

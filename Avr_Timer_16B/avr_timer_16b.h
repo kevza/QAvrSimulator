@@ -13,6 +13,7 @@ class Avr_Timer_16b: public QObject, public Avr_Hardware_Interface
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_Timer_16b();
+        ~Avr_Timer_16b();
 
 
         virtual QString getPluginName();

@@ -1,12 +1,18 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <unistd.h>
 #include <stdio.h>
-#include <termios.h>
-#include <fcntl.h>
-#include <sys/signal.h>
-#include <sys/types.h>
+#ifdef __unix
+    #include <unistd.h>
+    #include <termios.h>
+    #include <fcntl.h>
+    #include <sys/signal.h>
+    #include <sys/types.h>
+#endif
+#ifdef __WIN32
+    #include <windows.h>
+    #include <process.h>
+#endif
 #include <QString>
 #include <QDebug>
 
@@ -27,11 +33,15 @@ class Serial
         void setDataBits(int n);
         void setParity(int n);
         void setStopBits(int n);
-        void setBaudRate(speed_t speed);
+        void setBaudRate(unsigned int speed);
         void setPort(QString p);
         bool openSerial();
         void closeSerial();
         int readSerial();
+#ifdef __WIN32
+        char readWinSerial(HANDLE tty);
+
+#endif
         void writeSerial(unsigned char c);
         unsigned char data;
         Buffer buffer;
@@ -39,15 +49,21 @@ class Serial
         bool hEcho;
 
     private:
+    #ifdef __unix
         struct termios tio;
         struct termios stdio;
         struct termios old_stdio;
         struct sigaction saio;
         int tty_fd;
+    #endif
+    #ifdef __WIN32
+        HANDLE tty_fd;
+        HANDLE readThread;
+    #endif
         int parity;
         int dataBits;
         int stopBits;
-        speed_t baud;
+        unsigned int baud;
         QString port;
 
 

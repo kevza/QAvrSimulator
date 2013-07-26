@@ -65,6 +65,10 @@ Avr_Ledmat::Avr_Ledmat(){
     };
 }
 
+Avr_Ledmat::~Avr_Ledmat(){
+
+}
+
 QString Avr_Ledmat::getPluginName(){
     return "AVRLEDMAT";
 }

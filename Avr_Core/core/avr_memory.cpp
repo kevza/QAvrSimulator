@@ -6,9 +6,18 @@
 */
 #include "avr_memory.h"
 #include <cstdio>
+#include <QDebug>
+
 Avr_Memory::Avr_Memory(){
 
 
+}
+
+Avr_Memory::~Avr_Memory(){
+    qDebug() << "Clean up Ram";
+    if (this->ram) {
+        delete this->ram;
+    }
 }
 
 /**
@@ -23,6 +32,8 @@ void Avr_Memory::initRam(int size){
 	fflush(stdout);
 	this->ramEnd = size;
 }
+
+
 
 /**
 *@brief Initialize the system Epprom

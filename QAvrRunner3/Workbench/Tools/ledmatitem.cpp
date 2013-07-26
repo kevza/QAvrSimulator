@@ -55,6 +55,8 @@ void LedMatItem::attachCore(Avr_Core *currentCore){
                 this->mat = h;
             }
         }
+    }else{
+        this->mat = NULL;
     }
 }
 

@@ -69,7 +69,13 @@ Avr_Core::Avr_Core(){
 }
 
 Avr_Core::~Avr_Core(){
-
+    qDebug() << "Clean up cores mess";
+    foreach (Avr_Hardware_Interface *item, this->hardware){
+        //clean hardware
+        delete item;
+    }
+    delete this->reg;
+    delete this->mem;
 	//delete reg;
 }
 
