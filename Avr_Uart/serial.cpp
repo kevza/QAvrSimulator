@@ -9,22 +9,22 @@ void signal_handler_IO(int mask){
 #endif
 #ifdef __WIN32
 bool abContinue = true;
-char winReceived;
+unsigned char winReceived;
 HANDLE hCommPort;
 //Keep Checking for Data
 DWORD WINAPI winWatcher(void *arg){
     qDebug() << "Thread Active";
-        //HANDLE hCommPort = (HANDLE)arg;
         while (abContinue){
                 if (!readyRead){
                     DWORD dwBytesRead = 0;
                     ReadFile(hCommPort, &winReceived, 1, &dwBytesRead, NULL);
                     int r = dwBytesRead;
                     if (r > 0){
-                        readyRead = true;
+                        qDebug() << "Byte Recieved set readyread flag";
+                       readyRead = true;
                     }
                 }
-                Sleep(1000);
+                Sleep(100);
         }
     return 0;
 }
@@ -171,29 +171,33 @@ bool Serial::openSerial(){
     FillMemory(&dcb, sizeof(dcb), 0);
     dcb.DCBlength = sizeof(dcb);
     //Create Serial String
-    char serSet[80];
-    char par[2];
     //Build Parity Settings
     if (this->parity == EVEN_PARITY){
-        par[0] = 'e';
+        dcb.Parity = 2;
     }else if (this->parity == ODD_PARITY){
-        par[0]  = 'o';
+        dcb.Parity = 1;
     }else{
-        par[0] = 'n';
+        dcb.Parity = 0;
     }
-    par[1] = 0;
-    sprintf(serSet, "%d,%s,%d,%d", this->baud,par ,this->dataBits,this->stopBits);
-    qDebug() << "Com settings " << QString(serSet);
-    //convert for windows friendly opperation
-    mbstowcs(wtext, this->port.toStdString().c_str(), strlen(this->port.toStdString().c_str())+1);//Plus null
-    LPWSTR comSettings = wtext;
+    dcb.BaudRate = this->baud;
+    dcb.ByteSize = this->dataBits;
+    if (this->stopBits == 1){
+        dcb.StopBits = 0;
+    }else{
+        dcb.StopBits = 2;
+    }
 
-    if (!BuildCommDCB(comSettings, &dcb)) {
-       return false;
+    if (!SetCommState(tty_fd,&dcb)){
+        qDebug() << "Set Comms state failed : " << GetLastError();
+        return false;
     }
+
+    qDebug() << "Baud Rate Set to : " << dcb.BaudRate;
+    qDebug() << "Byte Size Set to : " << dcb.ByteSize;
+    qDebug() << "Stop Bits Set to : " << dcb.StopBits;
 
     COMMTIMEOUTS timeouts={0};
-    timeouts.ReadIntervalTimeout=15;
+    timeouts.ReadIntervalTimeout=50;
     timeouts.ReadTotalTimeoutConstant=50;
     timeouts.ReadTotalTimeoutMultiplier=10;
     timeouts.WriteTotalTimeoutConstant=50;
@@ -202,6 +206,8 @@ bool Serial::openSerial(){
         //handle error
         return false;
     }
+
+
     DWORD dwThreadId;
    //Start Watcher Thread
    //Set handle
@@ -238,16 +244,14 @@ void Serial::closeSerial(){
 int Serial::readSerial(){
     #ifdef __unix
     while (readyRead){
+        int r = read(tty_fd,&data,1);
+        if (r > 0){
 
-           int r = read(tty_fd,&data,1);
     #endif
     #ifdef __WIN32
     if (readyRead){
-       int r =0;
-       r = 1;
        data = winReceived;
     #endif
-        if (r > 0){
             qDebug() << "Read " << data<< " to "<< buffer.write ;
             buffer.buffer[buffer.write] = data;
             //Check if said location is cleared
@@ -268,9 +272,11 @@ int Serial::readSerial(){
             #ifdef __WIN32
             readyRead = false;
             #endif
+        #ifdef __unix
         }else{
             readyRead = false;
         }
+        #endif
     }
     return -1;
 }
@@ -282,8 +288,9 @@ void Serial::writeSerial(unsigned char c){
 #ifdef __WIN32
     DWORD dwBytesRead = 0;
     //Do something better here
+    qDebug() << "Writting to Serial";
     WriteFile(tty_fd, &c, 1, &dwBytesRead, NULL);
-
+    qDebug() << "Write Complete";
 #endif
     //If software echo add sent char to receive buffer
     if (this->sEcho == true){

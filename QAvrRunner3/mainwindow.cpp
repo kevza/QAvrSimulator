@@ -424,8 +424,10 @@ void MainWindow::on_loadHex_clicked(){
  *          timeout
  */
 void MainWindow::gui_update(){
+    //Updates all elements of the view if there is a valid
+    //core running
     if (core){
-            workbench->update(workbench->sceneRect());
+        workbench->update(workbench->sceneRect());
     }
 }
 
