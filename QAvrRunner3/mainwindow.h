@@ -19,6 +19,7 @@
 #include <QAction>
 #include <Workbench/Tools/buttonitem.h>
 #include <Workbench/Tools/ledmatitem.h>
+#include <Workbench/Tools/leditem.h>
 #include <Debugger/debugview.h>
 
 namespace Ui {
@@ -77,6 +78,7 @@ private:
     QGraphicsScene* workbench;
     ButtonItem *btn[6];
     LedMatItem *ledMatItem;
+    LedItem *led;
     DebugView *debugger;
 
     //Menu Groups

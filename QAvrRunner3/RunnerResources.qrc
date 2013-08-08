@@ -6,6 +6,12 @@
         <file>Icons/Pause.png</file>
         <file>Icons/Debug.png</file>
         <file>Icons/MainWindow.png</file>
+        <file>Icons/ButtonOff.png</file>
+        <file>Icons/BlueLedOn.png</file>
+        <file>Icons/RedLedOn.png</file>
+        <file>Icons/RedLedOff.png</file>
+        <file>Icons/ButtonOn.png</file>
+        <file>Icons/background.png</file>
     </qresource>
     <qresource prefix="/Docs">
         <file>Docs/About.md</file>

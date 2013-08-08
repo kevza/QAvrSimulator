@@ -197,11 +197,11 @@ bool Serial::openSerial(){
     qDebug() << "Stop Bits Set to : " << dcb.StopBits;
 
     COMMTIMEOUTS timeouts={0};
-    timeouts.ReadIntervalTimeout=50;
-    timeouts.ReadTotalTimeoutConstant=50;
-    timeouts.ReadTotalTimeoutMultiplier=10;
-    timeouts.WriteTotalTimeoutConstant=50;
-    timeouts.WriteTotalTimeoutMultiplier=10;
+    timeouts.ReadIntervalTimeout=1;
+    timeouts.ReadTotalTimeoutConstant=1;
+    timeouts.ReadTotalTimeoutMultiplier=1;
+    timeouts.WriteTotalTimeoutConstant=5;
+    timeouts.WriteTotalTimeoutMultiplier=1;
     if(!SetCommTimeouts(tty_fd, &timeouts)){
         //handle error
         return false;

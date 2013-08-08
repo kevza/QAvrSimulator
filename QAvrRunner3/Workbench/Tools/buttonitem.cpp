@@ -9,13 +9,14 @@
  */
 ButtonItem::ButtonItem()
 {
-    this->setPixmap(QPixmap(":/icons/Icons/Stop.png"));
+    pressedTex = ":/icons/Icons/ButtonOn.png";
+    depressedTex = ":/icons/Icons/ButtonOff.png";
+
+    this->setPixmap(QPixmap(depressedTex));
     this->setVisible(true);
     this->hardware = NULL;
     //Set default to main press button for lack of a better option
     this->pin = "PIND7";
-    pressedTex = ":/icons/Icons/Play.png";
-    depressedTex = ":/icons/Icons/Stop.png";
     pushLow = false;
     keyId = -1;
 }
