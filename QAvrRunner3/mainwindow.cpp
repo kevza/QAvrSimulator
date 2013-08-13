@@ -138,12 +138,13 @@ void MainWindow::buildMenus(){
     }
     ui->menuSerial->addMenu(baudMenu);
 
-    //Create Refresh Menu
-    QAction *refresh = new QAction(this);
-    refresh->setText("Refresh Ports");
-    connect(refresh,SIGNAL(triggered()),this,SLOT(refresh_menus()));
+    //Set timer to automatically refresh
+    //the serial port list
+    QTimer *refresh = new QTimer(this);
+    refresh->setInterval(5000);
+    refresh->start();
+    connect(refresh,SIGNAL(timeout()),this,SLOT(refresh_menus()));
     ui->menuSerial->addSeparator();
-    ui->menuSerial->addAction(refresh);
 
     //Create Software Echo Option
     sEcho = new QAction(this);
@@ -165,16 +166,23 @@ void MainWindow::buildMenus(){
 
 void MainWindow::refresh_menus(){
     //Clean Menu
+    QString currentPort = "";
     foreach (QAction *action, portMenu->actions()){
         portMenu->removeAction(action);
+        if (action->isChecked()){
+            currentPort = action->text();
+        }
         this->serialPortActions.removeOne(action);
         delete action;
     }
 
     //Enumerate windows serial ports
+    //checks for ports by attempting to
+    //open them. This may cause a bug with
+    //the automated serial refresh and needs
+    //to be checked.
     #ifdef __WIN32
     QStringList keys;
-    qDebug() << "Getting Windows serial ports";
     for (int i = 0 ; i < 10; i++) {
         char port[40];
         sprintf(port,"COM%d",i);
@@ -198,43 +206,41 @@ void MainWindow::refresh_menus(){
         }
         CloseHandle(p);
     }
-
-
+    //Build the serial port menu
     foreach (QString key,keys ){
         QAction *portAction = new QAction(this);
         QString port = key;
-        //get the device name here.
-
         portAction->setText(key);
         portAction->setCheckable(true);
+        if (key == currentPort){
+            portAction->setChecked(true);
+        }
         portAction->setData(key);
         this->serialPortActions.append(portAction);
         actionGroup->addAction(portAction);
         portMenu->addAction(portAction);
-
-
     }
 
     #endif
 
 
-    //List PTS items, this is only relevant in a
-    //unix based system
+    //List UNIX serial ports, checking serial ports by-id first
+    //and then checking pts ports for socat created virtual
+    //null modems
     #ifdef __unix__
     QDir serialDir("/dev/serial/by-id","", QDir::Name,QDir::System);
     //check that there are some serial devices attached
-    qDebug() << "Getting Linux Serial Ports";
     if (serialDir.exists()) {
         qDebug() << "Serial Ports Exist";
         foreach (QFileInfo info, serialDir.entryInfoList()){
             QAction *portAction = new QAction(this);
             QString port = info.filePath();
 
-            qDebug() << port;
-            //get the device name here.
-
             portAction->setText(info.filePath());
             portAction->setCheckable(true);
+            if (port == currentPort){
+                portAction->setChecked(true);
+            }
             portAction->setData(info.filePath());
             this->serialPortActions.append(portAction);
             actionGroup->addAction(portAction);
@@ -246,9 +252,16 @@ void MainWindow::refresh_menus(){
     QDir dir("/dev/pts","",QDir::Name,QDir::System);
     dir.setFilter(QDir::System);
     foreach( QFileInfo info, dir.entryInfoList()){
+        //Skip ptmx entry
+        if (info.filePath().contains("ptmx")){
+            continue;
+        }
         portAction = new QAction(this);
         portAction->setText(info.filePath());
         portAction->setCheckable(true);
+        if (currentPort == info.filePath()){
+            portAction->setChecked(true);
+        }
         portAction->setData(info.filePath());
         actionGroup->addAction(portAction);
         portMenu->addAction(portAction);
@@ -257,6 +270,7 @@ void MainWindow::refresh_menus(){
     #endif
 
 }
+
 /**
  * @brief MainWindow::core_changed Slot for changes in core from combo box
  * @param def
