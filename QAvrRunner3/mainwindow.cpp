@@ -2,7 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QCloseEvent>
 #include <QComboBox>
-#include <QtWebKit/QWebView>
+//#include <QtWebKit/QWebView>
+
 #include <QDesktopServices>
 #ifdef __WIN32
     #include <QSettings>
@@ -65,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Set the plugin directory
     d.setCurrent("./plugins");
+    qDebug() << d.currentPath();
 
     QStringList filter;
     filter << "*.def";
@@ -505,11 +507,12 @@ void MainWindow::on_actionAbout_QT_triggered()
   */
 void MainWindow::on_actionHelp_triggered()
 {
+    /*
     QWebView *helpView = new QWebView(this);
     helpView->setWindowTitle(tr("QAvrSimulator Help"));
     helpView->load(QUrl("qrc:/Help/Help/index.html"));
     helpView->setWindowFlags(Qt::Dialog);
-    helpView->show();
+    helpView->show();*/
 }
 
 void MainWindow::on_actionE_xit_triggered()

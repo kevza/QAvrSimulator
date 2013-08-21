@@ -13,6 +13,7 @@
 class Avr_Ledmat: public QObject, public Avr_Hardware_Interface
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Avr_Hardware_Interface" FILE "")
     Q_INTERFACES(Avr_Hardware_Interface)
     public:
         Avr_Ledmat();

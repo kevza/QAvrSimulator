@@ -9,7 +9,7 @@
 TARGET = $$qtLibraryTarget(avr_uart)
 TEMPLATE = lib
 CONFIG += plugin serialport
-QT  += core gui
+QT  += widgets
 
 SOURCES += \
     avr_uart.cpp \

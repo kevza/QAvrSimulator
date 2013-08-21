@@ -220,4 +220,4 @@ QMap <QString, uint8_t> Avr_Timer_16b::getOutputs(){
     return QMap <QString, uint8_t >();
 }
 
-Q_EXPORT_PLUGIN2(avr_timer_16b ,Avr_Timer_16b)
+//Q_EXPORT_PLUGIN2(avr_timer_16b ,Avr_Timer_16b)

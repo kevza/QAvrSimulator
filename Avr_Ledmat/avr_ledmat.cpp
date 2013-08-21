@@ -249,4 +249,4 @@ void Avr_Ledmat::reset(){
     }
 }
 
-Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)
+//Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)

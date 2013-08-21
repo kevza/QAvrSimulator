@@ -9,7 +9,7 @@
 TARGET = $$qtLibraryTarget(avr_io)
 TEMPLATE = lib
 CONFIG += plugin
-QT  += core gui
+QT  += widgets
 
 SOURCES += \
     avr_io.cpp

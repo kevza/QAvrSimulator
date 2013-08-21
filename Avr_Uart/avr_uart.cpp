@@ -342,4 +342,4 @@ bool Avr_Uart::openUart(){
     return false;
 }
 
-Q_EXPORT_PLUGIN2(avr_uart ,Avr_Uart)
+//Q_EXPORT_PLUGIN2(avr_uart ,Avr_Uart)

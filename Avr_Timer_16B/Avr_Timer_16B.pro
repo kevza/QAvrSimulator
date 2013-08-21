@@ -9,8 +9,7 @@
 TARGET = $$qtLibraryTarget(avr_timer_16b)
 TEMPLATE = lib
 CONFIG += plugin
-QT  += core gui
-
+QT  += widgets
 SOURCES += \
     avr_timer_16b.cpp
 

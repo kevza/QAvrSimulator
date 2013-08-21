@@ -290,4 +290,4 @@ void Avr_IO::updateOut(){
     }
 }
 
-Q_EXPORT_PLUGIN2(avr_io ,Avr_IO)
+//Q_EXPORT_PLUGIN2(avr_io ,Avr_IO)

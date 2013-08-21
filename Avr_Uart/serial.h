@@ -6,7 +6,7 @@
     #include <unistd.h>
     #include <termios.h>
     #include <fcntl.h>
-    #include <sys/signal.h>
+    #include <signal.h>
     #include <sys/types.h>
 #endif
 #ifdef __WIN32
