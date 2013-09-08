@@ -8,8 +8,6 @@
     #include <QSettings>
     #include <windows.h>
 #endif
-
-
 #include <Workbench/layoutmanager.h>
 
 
@@ -19,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->buildMenus();
+    pluginPath = QDir::homePath() + "/.config/QAvrSimulator/plugins/";
     core = NULL;
     debugger = new DebugView();
     rom = "";
@@ -61,10 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Load a list of available cores
     coresList = new QComboBox();
-    QDir d;
-
+    QDir d(pluginPath);
     //Set the plugin directory
-    d.setCurrent("./plugins");
 
     QStringList filter;
     filter << "*.def";
@@ -306,7 +303,7 @@ void MainWindow::on_actionStart_triggered()
 {
     if (ui->actionStart->isChecked()){
         if (QFile(rom).exists()){
-            if (QFile(coreDef).exists()){
+            if (QFile(pluginPath + coreDef).exists()){
                 Avr_Core_Builder builder;
                 core = builder.loadCore(coreDef);
                 //Register the current core with all hardware

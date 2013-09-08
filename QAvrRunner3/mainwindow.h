@@ -80,6 +80,7 @@ private:
     LedMatItem *ledMatItem;
     LedItem *led;
     DebugView *debugger;
+    QString pluginPath;
 
     //Menu Groups
     //Serial Port
