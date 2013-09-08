@@ -319,11 +319,6 @@ void MainWindow::on_actionStart_triggered()
                 core->reg->pc = 0;
                 core->flash->loadHex(rom.toStdString().c_str());
 
-                //Set Menu Bar
-                ui->actionPause->setEnabled(true);
-                ui->actionPause->setChecked(true);
-                ui->actionStep->setEnabled(true);
-
                 //Set Baud Rate on Serial Device
                 foreach (Avr_Hardware_Interface * h ,core->hardware){
                     //Setup Serial Device if it exists
@@ -362,6 +357,11 @@ void MainWindow::on_actionStart_triggered()
                 if (debugger){
                     debugger->attachCore(core);
                 }
+                //Start Core if its not paused
+                core->isThreadStopped = ui->actionPause->isChecked();
+                if (!core->isThreadStopped){
+                    core->start();
+                }
             }else{
                 QMessageBox msgBox;
                 msgBox.setText("Please select a valid core!");
@@ -394,8 +394,6 @@ void MainWindow::on_actionStart_triggered()
             delete core;
             core = NULL;
         }
-        ui->actionPause->setDisabled(true);
-        ui->actionStep->setDisabled(true);
     }
 }
 
@@ -409,13 +407,11 @@ void MainWindow::on_actionPause_triggered()
         if (core){
             this->core->isThreadStopped = true;
         }
-        this->ui->actionStep->setEnabled(true);
     }else{
         if (core){
             this->core->isThreadStopped = false;
             this->core->start();
         }
-        this->ui->actionStep->setDisabled(true);
     }
 }
 
@@ -424,8 +420,12 @@ void MainWindow::on_actionPause_triggered()
  */
 void MainWindow::on_actionStep_triggered()
 {
+    this->ui->actionPause->setChecked(true);
+    this->ui->actionStart->setChecked(true);
     if (core){
         core->step();
+    }else{
+        this->on_actionStart_triggered();
     }
 }
 
