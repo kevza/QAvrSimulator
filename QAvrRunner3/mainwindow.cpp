@@ -10,6 +10,7 @@
 #endif
 #include <Workbench/layoutmanager.h>
 
+#define PLUGIN_PATH "/opt/QAvrSimulator/plugins/"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->buildMenus();
-    pluginPath = QDir::homePath() + "/.config/QAvrSimulator/plugins/";
+    pluginPath = PLUGIN_PATH;
     core = NULL;
     debugger = new DebugView();
     rom = "";
@@ -31,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     int xPos[] = {30,70,70,70,110,260};
     int yPos[] = {80,40,80,120,80,120};
     int keyCodes[] = {52,56,53,50,54,Qt::Key_Enter};
-    QString ports[] = {"PINB7","PINC7","PINC4","PINC5","PINC6","PIND7"};
+    QString ports[] = {"PINC5","PINB7","PINC4","PINC6","PINC7","PIND7"};
     bool setting[] = {true,true,true,true,true,false};
     for (int i = 0; i < 6; i++){
         btn[i] = new ButtonItem();
@@ -45,11 +46,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Add the ledmat to the controller
     ledMatItem = new LedMatItem();
-    ledMatItem->setX(153);ledMatItem->setY(10);
+    ledMatItem->rotate(90);
+    ledMatItem->setX(250);ledMatItem->setY(10);
     workbench->addItem(ledMatItem);
 
     led = new LedItem();
-    led->setX(240);led->setY(20);
+    led->setX(260);led->setY(20);
 
 
     led->setScale(0.1);
@@ -129,6 +131,9 @@ void MainWindow::buildMenus(){
         QAction *baudAction = new QAction(this);
         baudAction->setText(b);
         baudAction->setCheckable(true);
+        if (b == "2400") {
+            baudAction->setChecked(true);
+        }
         baudMenu->addAction(baudAction);
         this->baudActions.append(baudAction);
         actionGroup2->addAction(baudAction);
