@@ -390,7 +390,7 @@ void Avr_Core::decodeInstruction(){
 		case 0x0000:
 			if (inst == 0x0000){
                 if (this->debug)
-                    res  = "nop";
+                    res  = debugFormat("NOP");
 				reg->pc++;
 			}else{
 				switch (inst & 0xfc00){
@@ -654,7 +654,6 @@ void Avr_Core::decodeInstruction(){
 					reg->ram[Rd] = R;
 					reg->pc++;
                     this->cCount = 1;
-					res = "eor";
 				break;
 				case MOV:
 					Rd = GET_REGISTER_5_BIT_D;
@@ -1423,7 +1422,7 @@ void Avr_Core::decodeInstruction(){
 									reg->pc++;
                                     this->cCount = 2;
                                     if (this->debug)
-                                        res = "ldyp";
+                                        res = debugFormat("LDY R%d, Y+%d",Rd,reg->lastRead);
 								break;
 								case LDYM:
 									Rd = GET_REGISTER_5_BIT_D;
@@ -1438,7 +1437,7 @@ void Avr_Core::decodeInstruction(){
 									reg->pc++;
                                     this->cCount = 2;
                                     if (this->debug)
-                                        res = "ldym";
+                                        res = debugFormat("LDY R%d, -Y%d",Rd,reg->lastRead);
 								break;
 								case LDZP:
 									Rd = GET_REGISTER_5_BIT_D;
@@ -1454,7 +1453,7 @@ void Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
 
                                     if (this->debug)
-                                        res = "ldzp";
+                                        res = debugFormat("LDZ R%d, Z+%d",Rd,reg->lastRead);
 								break;
 									
 								case LDZM:
@@ -1471,7 +1470,7 @@ void Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
 
                                     if (this->debug)
-                                        res = "ldzm";
+                                        res = debugFormat("LDZ R%d, -Z%d",Rd,reg->lastRead);
 								break;
 								
 								case STYP:
@@ -1489,7 +1488,7 @@ void Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
 
                                     if (this->debug)
-                                        res = "styp";
+                                        res = debugFormat("ST Y+%d, R%d",reg->lastWrite,Rd);
 								break;
 								case STYM:
 									Rd = GET_REGISTER_5_BIT_D;
@@ -1505,7 +1504,7 @@ void Avr_Core::decodeInstruction(){
                                     this->cCount = 2;
 
                                     if (this->debug)
-                                        res = "stym";
+                                        res = debugFormat("ST -Y%d, R%d",reg->lastWrite + 1,Rd);
 								break;
 								default:
 									switch (inst & 0xffff){
@@ -1525,7 +1524,7 @@ void Avr_Core::decodeInstruction(){
                                             this->cCount = 4;
 
                                             if (this->debug)
-                                                res = "eical";
+                                                res = debugFormat("EICAL");
 										break;
 										case ICALL:
 											reg->pc++;
@@ -1545,26 +1544,26 @@ void Avr_Core::decodeInstruction(){
 											}
 											reg->pc = reg->getZ(); //Eind assumed to be 0
                                             if (this->debug)
-                                                res = "icall";
+                                                res = debugFormat("ICALL");
 										break;
 										case EIJMP:
 											reg->pc = reg->getZ() | (reg->getEind() << 16);
                                             this->cCount = 2;
 
                                             if (this->debug)
-                                                res = "eijmp";
+                                                res = debugFormat("EIJMP");
 										break;
 										case ELPMI:
 											/*to do*/
                                             if (this->debug)
-                                                res = "elpmi";
+                                                res = debugFormat("ELPMI - Not Implemented");
 										break;
 										case IJMP:
 											reg->pc = reg->getZ();
                                             this->cCount = 2;
 
                                             if (this->debug)
-                                                res = "ijmp";
+                                                res = debugFormat("IJMP");
 										break;
                                         case LPM: //R0 implied
 											regZ = reg->getZ();
@@ -1577,7 +1576,7 @@ void Avr_Core::decodeInstruction(){
 											reg->pc++;
                                             this->cCount = 3;
                                             if (this->debug)
-                                                res = "lpm";
+                                                res = debugFormat("LPM R0, Z%d",(regZ)>> 1 + rampZ);
 										break;
 										case RET:case RETI:
                                             if (mem->getRamEnd() < 65536){
@@ -1591,11 +1590,11 @@ void Avr_Core::decodeInstruction(){
                                                 this->cCount = 5;
                                             }
                                             if (this->debug)
-                                                res = "ret";
+                                                res = debugFormat("RET");
 											if (inst & 0x10){
 												reg->setSREG(I,1);
                                                 if (this->debug)
-                                                    res = "reti";
+                                                    res = debugFormat("RETI");
 											}
 										break;
 										
@@ -1603,20 +1602,20 @@ void Avr_Core::decodeInstruction(){
 										case SLEEP:
 											/*to do*/
                                             if (this->debug)
-                                                res = "sleep";
+                                                res = debugFormat("SLEEP - Not Implemented");
 										break;
 										case SPM:case SPM2:
 											/*to do*/
 
                                             if (this->debug)
-                                                res = "spm";
+                                                res = debugFormat("SPM - Not Implemented");
 										break;
 										case WDR:
 											/*to do*/
 											reg->pc++;
                                             this->cCount = 1;
                                             if (this->debug)
-                                                res = "wdr";
+                                                res = debugFormat("WDR - Not Implemented");
 										break;
 										default:
 											if (COM){
@@ -1632,13 +1631,13 @@ void Avr_Core::decodeInstruction(){
 												reg->pc++;
                                                 this->cCount = 1;
                                                 if (this->debug)
-                                                    res = "com";
+                                                    res = debugFormat("COM R%d",Rd);
 											}else if (DES){
 												/*to do*/
                                                 this->cCount = 2;
                                                 this->pc++;
                                                 if (this->debug)
-                                                    res = "des";
+                                                    res = debugFormat("DES - Not Implemented");
 											}else if (MUL){
 												Rr = GET_REGISTER_5_BIT_R;
 												Rd = GET_REGISTER_5_BIT_D;
@@ -1650,21 +1649,21 @@ void Avr_Core::decodeInstruction(){
                                                 this->cCount = 2;
 												reg->pc++;
                                                 if (this->debug)
-                                                    res = "mul";
+                                                    res = debugFormat("MUL R%d, R%d",Rd,Rr);
 											}else if (BCLR){
 												//Clear Selected Register
 												reg->setSREG((inst ^ 0x9488) >> 4, 0);
 												reg->pc++;
                                                 this->cCount = 1;
                                                 if (this->debug)
-                                                    res = "bclr";
+                                                    res =  debugFormat("BCLR %d",(inst ^ 0x9488) >> 4);
 											}else if (BSET){
 												//Set Selected Register
 												reg->setSREG((inst - 0x9408) >> 4,1);
 												reg->pc++;
                                                 this->cCount = 1;
                                                 if (this->debug)
-                                                    res = "bset";
+                                                    res = debugFormat("BSET %d",(inst - 0x9408)>> 4);
 											}
 											
 										break;
@@ -1754,11 +1753,14 @@ void Avr_Core::decodeInstruction(){
 			if (jmp & 0x800){
                 jmp = ((~jmp & 0xfff) + 1) & 0xfff;
                 reg->pc = reg->pc - jmp;
+                if (this->debug)
+                    res = debugFormat("RCALL %d",-jmp);
 			}else{
                 reg->pc = reg->pc + jmp;
+                if (this->debug)
+                    res = debugFormat("RCALL %d", jmp);
 			}	
-            if (this->debug)
-                res = "rcall";
+
 		break;
 
 		//1110
@@ -1767,7 +1769,7 @@ void Avr_Core::decodeInstruction(){
 			K = GET_K_8_BIT;
 			reg->ram[Rd] = K;
             if (this->debug)
-                res ="ldi";
+                res = debugFormat("LDI R%d, %d",Rd,K);
             this->cCount = 1;
 			reg->pc++;
 		break;
@@ -1787,7 +1789,7 @@ void Avr_Core::decodeInstruction(){
                 this->cCount = 1;
 				reg->pc++;
                 if (this->debug)
-                    res = "bld";
+                    res = debugFormat("BLD R%d, %d",Rd, B);
 			}else if ((inst & 0xfc00) == BRBC){ //Equivelent instruction BRNE
 				//Branch if clear
 				R = inst & 0x7; 
@@ -1800,7 +1802,7 @@ void Avr_Core::decodeInstruction(){
                     this->cCount = 1;
 				}
                 if (this->debug)
-                    res = "brbc";
+                    res = debugFormat("BRBC %d, %d",R,jmp);
 			}else if ((inst & 0xfc00) == BRBS){
 				//Branch if set
 				R = inst & 0x7;
@@ -1813,7 +1815,7 @@ void Avr_Core::decodeInstruction(){
                     this->cCount = 1;
 				}
                 if (this->debug)
-                    res = "brbs";
+                    res = debugFormat("BRBS %d, %d",R, jmp);
 			}else{
 				switch (inst & 0xfe08){
 					case BST:
@@ -1824,7 +1826,7 @@ void Avr_Core::decodeInstruction(){
                         this->cCount = 1;
 
                         if (this->debug)
-                            res = "bst";
+                            res = debugFormat("BST R%d, %d",Rd, B);
 
 					break;
 					case SBRC:
@@ -1842,7 +1844,7 @@ void Avr_Core::decodeInstruction(){
 						}
 						reg->pc++;
                         if (this->debug)
-                            res = "sbrc";
+                            res = debugFormat("SBRC R%d, %d",Rd,B);
 
 					break;
 					case SBRS:
@@ -1861,7 +1863,7 @@ void Avr_Core::decodeInstruction(){
 						reg->pc++;
 
                         if (this->debug)
-                            res = "sbrs";
+                            res = debugFormat("SBRS R%d, %d",Rd,B);
 
 					break;
 				}

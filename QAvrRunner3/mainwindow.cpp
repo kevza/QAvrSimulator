@@ -9,10 +9,9 @@
     #include <QSettings>
     #include <windows.h>
 #endif
-
-
 #include <Workbench/layoutmanager.h>
 
+#define PLUGIN_PATH "/opt/QAvrSimulator/plugins/"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->buildMenus();
+    pluginPath = PLUGIN_PATH;
     core = NULL;
     debugger = new DebugView();
     rom = "";
@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     int xPos[] = {30,70,70,70,110,260};
     int yPos[] = {80,40,80,120,80,120};
     int keyCodes[] = {52,56,53,50,54,Qt::Key_Enter};
-    QString ports[] = {"PINB7","PINC7","PINC4","PINC5","PINC6","PIND7"};
+    QString ports[] = {"PINC5","PINB7","PINC4","PINC6","PINC7","PIND7"};
     bool setting[] = {true,true,true,true,true,false};
     for (int i = 0; i < 6; i++){
         btn[i] = new ButtonItem();
@@ -47,11 +47,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Add the ledmat to the controller
     ledMatItem = new LedMatItem();
-    ledMatItem->setX(153);ledMatItem->setY(10);
+
+    ledMatItem->setRotation(90);
+    ledMatItem->setX(250);ledMatItem->setY(10);
     workbench->addItem(ledMatItem);
 
     led = new LedItem();
-    led->setX(240);led->setY(20);
+    led->setX(260);led->setY(20);
 
 
     led->setScale(0.1);
@@ -62,11 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Load a list of available cores
     coresList = new QComboBox();
-    QDir d;
-
-    //Set the plugin directory
-    d.setCurrent("./plugins");
-    qDebug() << d.currentPath();
+    QDir d(pluginPath);
 
     QStringList filter;
     filter << "*.def";
@@ -134,6 +132,9 @@ void MainWindow::buildMenus(){
         QAction *baudAction = new QAction(this);
         baudAction->setText(b);
         baudAction->setCheckable(true);
+        if (b == "2400") {
+            baudAction->setChecked(true);
+        }
         baudMenu->addAction(baudAction);
         this->baudActions.append(baudAction);
         actionGroup2->addAction(baudAction);
@@ -308,7 +309,7 @@ void MainWindow::on_actionStart_triggered()
 {
     if (ui->actionStart->isChecked()){
         if (QFile(rom).exists()){
-            if (QFile(coreDef).exists()){
+            if (QFile(pluginPath + coreDef).exists()){
                 Avr_Core_Builder builder;
                 core = builder.loadCore(coreDef);
                 //Register the current core with all hardware
@@ -323,11 +324,6 @@ void MainWindow::on_actionStart_triggered()
                 core->isThreadStopped = true;
                 core->reg->pc = 0;
                 core->flash->loadHex(rom.toStdString().c_str());
-
-                //Set Menu Bar
-                ui->actionPause->setEnabled(true);
-                ui->actionPause->setChecked(true);
-                ui->actionStep->setEnabled(true);
 
                 //Set Baud Rate on Serial Device
                 foreach (Avr_Hardware_Interface * h ,core->hardware){
@@ -367,6 +363,11 @@ void MainWindow::on_actionStart_triggered()
                 if (debugger){
                     debugger->attachCore(core);
                 }
+                //Start Core if its not paused
+                core->isThreadStopped = ui->actionPause->isChecked();
+                if (!core->isThreadStopped){
+                    core->start();
+                }
             }else{
                 QMessageBox msgBox;
                 msgBox.setText("Please select a valid core!");
@@ -399,8 +400,6 @@ void MainWindow::on_actionStart_triggered()
             delete core;
             core = NULL;
         }
-        ui->actionPause->setDisabled(true);
-        ui->actionStep->setDisabled(true);
     }
 }
 
@@ -414,13 +413,11 @@ void MainWindow::on_actionPause_triggered()
         if (core){
             this->core->isThreadStopped = true;
         }
-        this->ui->actionStep->setEnabled(true);
     }else{
         if (core){
             this->core->isThreadStopped = false;
             this->core->start();
         }
-        this->ui->actionStep->setDisabled(true);
     }
 }
 
@@ -429,8 +426,12 @@ void MainWindow::on_actionPause_triggered()
  */
 void MainWindow::on_actionStep_triggered()
 {
+    this->ui->actionPause->setChecked(true);
+    this->ui->actionStart->setChecked(true);
     if (core){
         core->step();
+    }else{
+        this->on_actionStart_triggered();
     }
 }
 

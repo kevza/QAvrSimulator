@@ -15,12 +15,12 @@
 	<div id="introduction">
 		<h2>Introduction</h2>
 		<p>QAvrSimulator provides a simple simulation of ATMEGA/AVR architecture systems. In particular it simulates the University of Canterbury FunKit4 development board. </p>
-		<p>It is designed with simplicity in mind and makes it easy to create a simulation of a simple Embedded circuit with buttons, leds, and ledmat displays. The simulator also allows for serial communication between two copys of QAvrSimulator running on the same computer or with a hardware serial device connected to a serial port on the computer.</p>
+		<p>It is designed with simplicity in mind and makes it easy to create a simulation of a simple Embedded circuit with buttons, LED's, and ledmat displays. The simulator also allows for serial communication between two copies of QAvrSimulator running on the same computer or with a hardware serial device connected to a serial port on the computer.</p>
 	</div>
 
 	<div id="starting">
 		<h2>Getting Started</h2>
-		<p>QAvrSimulator works by running intel hex files that have been compiled to target an AVR chip. To run a program we need to open a suitable .hex file and select the correct settings for QAvrSimulator to use to run the file.</p>
+		<p>QAvrSimulator works by running intel hex files that have been compiled to target an AVR chip. To run a program we need to open a suitable hex file and select the correct settings for QAvrSimulator to use to run the file.</p>
 		<div>		
 			<h3>Steps to run a program</h3>
 			<ol>
@@ -30,39 +30,39 @@
 			</ol>
 		</div>
 		<h3>Selecting a hex file</h3>
-		<p>QAvrSimulator requires an intex hex file to run, this will normally be created when you compile your program for deployment and there should be one int the build directory of the compiled program. If you cant find a .hex file in your build directory you will need to use "avr-objdump" to create one.</p>
-		<p>"avr-objdump" is used to copy the contents of a compiled AVR program into a form that is easy to send to a chip by a programmer. In the case of QAvrSimulator .hex files are a convenient format for the simulator to work with.</p>
-		<p>To use "avr-objdump", open a terminal window and navigate to where your project has built. Make sure your project has compiled correctly and there are no errors. Find the .out or .elf file, this is the compiled program. Use the following command to create the .hex file. </p>
+		<p>QAvrSimulator requires an intel hex file to run, this will normally be created when you compile your program for deployment and there should be one in the build directory of the compiled program. If you cant find a hex file in your build directory, you will need to use "avr-objdump" to create one.</p>
+		<p>"avr-objdump" is used to copy the contents of a compiled AVR program into a form that is easy to send to a chip by a programmer. In the case of QAvrSimulator hex files are a convenient format for the simulator to work with.</p>
+		<p>To use "avr-objdump", open a terminal window and navigate to where your project has been built. Make sure your project has compiled correctly and there are no errors. Find the .out or .elf file. This is the compiled program. Use the following command to create the hex file. </p>
 		<p><b>$avr-objdump -O ihex YourProgram.out YourProgram.hex</b></p>
 
-		<p>If the conversion is successful there will now be a .hex file ready for use by the simulator. Using QAvrSimulator go to "File-&gtLoad Hex" and open your hex file.</p>
+		<p>If the conversion is successful there will now be a hex file ready for use by the simulator. Using QAvrSimulator go to "File-&gtLoad Hex" and open your hex file.</p>
 		<h3>Select AVR processor type to simulate</h3>
 		<p>Using the drop down list select the processor that your program is targeted to (Note: The University Canterbury Funkit uses the Atmega32u2). It is important that you select the correct chip as there are differences that can make the difference between your program running and not running.</p>
 		<h3>Start the Program</h3>
-		<p>Running the program is controlled using the Play, Pause, and Step buttons on the menu bar. Programs always start in a paused state to allow for stepping through individual instructions, otherwise the program can be unpaused and the program will run normally.</p>
-		<p>Everytime the Play button is pressed to start QAvrSimulator will load a fresh copy of the program and reset the simulation state. This is usefull if you are making changes to your program while running it in the simulator, every time Play is pressed QAvrSimulator will reload the latest version of your program.</p>
-		<p>The program will always start/restart in a paused state. This is primarially to help with debugging and it is possible to step through the individual instructions one by one. Using the debug window you will be able to see the processor state change as each machine instruction is executed. In single step mode the machine instructions are disassembled and the resulting assembly instructions are displayed in the "Trace" pane of the debugger.A program can be paused and restarted at any point after it has loaded.</p>
+		<p>Running the program is controlled using the Play, Pause, and Step buttons on the menu bar.</p>
+		<p>Every time the Play button is pressed to start, QAvrSimulator will load a fresh copy of the program and reset the simulation state. This is useful if you are making changes to your program while running it in the simulator. Every time Play is pressed, QAvrSimulator will reload the latest version of your program.</p>
+		<p>If you start he program by pressing the Step button, your program will start in a paused state. This is primarily to help with debugging and it is possible to step through the individual instructions one by one. Using the debug window you will be able to see the processor state change as each machine instruction is executed. In single step mode the machine instructions are disassembled and the resulting assembly instructions are displayed in the "Trace" pane of the debugger. A program can be paused and restarted at any point after it has loaded.</p>
 	</div>
 	<div id="serial">
 		<h2>Serial Communications</h2>
-		<p>QAvrSimulator provides options for a serial interface between 2 copies of QAvrSimulator and between QAvrSimulator and real hardware attached to the host computer.</p> 
-		<p>To use the serial interface you must select the port you intend to use and the baud rate required (QAvrSimulator overrides the baud rate defined in your program). These settings will be applied when your program is started or at the next restart if you are already running the program.<p>
+		<p>QAvrSimulator provides options for a serial interface between 2 copies of QAvrSimulator, and between QAvrSimulator and real hardware, attached to the host computer.</p> 
+		<p>To use the serial interface you must select the port you intend to use and the baud rate required (QAvrSimulator overrides the baud rate defined in your program). These settings will be applied when your program is started, or at the next restart, if you are already running the program.<p>
 	   	<h3>QAvrSimulator to QAvrSimulator Communications</h3>
-		<p>To create a communications link between two copies of QAvrSimulator two virtual serial ports are required. These virtual ports must be connected in a Null Modem configuration (Port1 Rx and Tx connects to Port2's Tx and Rx respectively). </p>
+		<p>To create a communications link between two copies of QAvrSimulator, two virtual serial ports are required. These virtual ports must be connected in a Null Modem configuration (Port1 Rx and Tx connects to Port2's Tx and Rx respectively). </p>
 		<h4>Virtual Serial Ports in Linux</h4>
-		<p>This is easy to accomplish in a Linux/Unix based system using a program called "Socat". Socat redirects serial streams of information and can be used to simulate two serial ports. To create two virtual serial ports use the following command</p>
+		<p>This is easy to accomplish in a Linux/Unix based system using a program called "Socat". Socat redirects serial streams of information and can be used to simulate two serial ports. To create two virtual serial ports, use the following command</p>
 		<p><b>$socat -d -d pty,raw,echo=0 pty,raw,echo=0</b></p>
-		<p>Socat will then start and display in the terminal the names of the virtual serial ports which should be of the form "/dev/pts/x" where x is the number of the port. When you set the serial settings use these ports, one for each copy of QAvrSimulator running.</p>
+		<p>Socat will then start and display in the terminal the names of the virtual serial ports which should be of the form "/dev/pts/x" where x is the number of the port. When you set the serial settings, use these ports; one for each copy of QAvrSimulator running.</p>
 		<h4>Virtual Serial Ports in Windows</h4>
-		<p>To create a pair of virtual serial ports in Windows you will need to use an additonal program. I suggest "Com0Com". <a href="http://www.sourceforge.net/projects/com0com">(Com0Com website.)</a> As with socat this will create a Null Modem pair of ports that two copies of QAvrSimulator can use to communicate with eachother.</p>
+		<p>To create a pair of virtual serial ports in Windows you will need to use an additional program. I suggest "Com0Com". <a href="http://www.sourceforge.net/projects/com0com">(Com0Com website.)</a> As with Socat, this will create a Null Modem pair of ports that two copies of QAvrSimulator can use to communicate with each other.</p>
 		<h4>Additional Serial Settings</h4>
-		<p>It is also possible to make serial transmissions echo back to the sender. This is useful for simulating hardware situations where this is the case (UCFunKit in IR mode for example). There are two options Hardware Echo and Software Echo. Software echo causes to the program running in the simulator to think that it is recieving an echo of any byte it recieves. Hardware echo causes QAvrSimulator to echo recieved bytes back to the device/program it is linked to.</p>
+		<p>It is also possible to make serial transmissions echo back to the sender. This is useful for simulating hardware situations where this is the case (UCFunKit in IR mode for example). There are two options; Hardware Echo and Software Echo. Software Echo causes to the program running in the simulator to think that it is receiving an echo of any byte it receives. Hardware Echo causes QAvrSimulator to echo received bytes back to the device/program it is linked to.</p>
 		<h5>Using Software Echo</h5>
-		<p>With the UCFunKit4 the device UART has a bug which results in the UART imeddiately receiving any byte that it is has sent. It is useful to be able to simulate this so that QAvrSimulator behaves as the UCFunKit would when transmitting information.</p>
-		<p>To activate Software Echo check the Software Echo option in the Serial Menu. When you start/restart your program the Sofrware Echo setting will be applied.</p>
+		<p>With the UCFunKit4, the device UART has a bug which results in the UART immediately receiving any byte that it has sent. It is useful to be able to simulate this so that QAvrSimulator behaves as the UCFunKit would when transmitting information.</p>
+		<p>To activate Software Echo, check the Software Echo option in the Serial Menu. When you start/restart your program the Software Echo setting will be applied.</p>
 
 		<h5>Using Hardware Echo</h5>
-		<p>When a UCFunKit is hardwired to a serial connection as in the case of connection to a computer (The QAvrSimulator Host) the behaviour of the UCFunKit Uart is modified and the echoing behaviour no longer occurs. To simulate this go to the Serial Menu and check Hardware Echo. With Hardware Echo activated QAvrSimulator will echo any recieved bytes back to the external board, this is sufficient to emulate the normal serial echo behaviours of the UCFunKit.</p>
+		<p>When a UCFunKit is hard wired to a serial connection, as in the case when connecting to a computer (The QAvrSimulator Host), the behaviour of the UCFunKit UART is modified and the echoing behaviour no longer occurs. To simulate this go to the Serial Menu and check Hardware Echo. With Hardware Echo activated QAvrSimulator will echo any received bytes back to the external board. This is sufficient to emulate the normal serial echo behaviours of the UCFunKit.</p>
 
 	</div>
 </body>

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QDebug>
 #include <QDir>
+#define PLUGIN_PATH  "/opt/QAvrSimulator/plugins/"
 
 Avr_Core_Builder::Avr_Core_Builder(QObject *parent) : QObject(parent)
 {  
@@ -24,7 +25,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
     //Load Configuration File
     string line;string id;string setting;
 
-    QString path = QDir::currentPath() + "/" + mmcu;
+    QString path = PLUGIN_PATH + mmcu;
     ifstream configFile;
     configFile.open(path.toStdString().c_str());
 
@@ -71,7 +72,7 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
             }else if (id == "PLUGINLIB"){
 
                 qDebug() << "Load Plugin " << QString(setting.c_str()) << "\n";
-                loader.setFileName(QDir::currentPath()+"/" +QString(setting.c_str()));
+                loader.setFileName(PLUGIN_PATH +QString(setting.c_str()));
                 loader.load();
 
                 QObject *plugin = loader.instance();

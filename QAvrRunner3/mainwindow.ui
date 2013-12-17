@@ -126,7 +126,7 @@
     <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="RunnerResources.qrc">
@@ -138,7 +138,7 @@
   </action>
   <action name="actionStep">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="RunnerResources.qrc">
