@@ -4,7 +4,7 @@ SUBDIRS = Avr_Core \
             Avr_Ledmat \
             Avr_Timer_16B \
             Avr_Uart \
-            QAvrRunner3
+            QAvrSimulator
 
 OTHER_FILES += \
     android/src/org/kde/necessitas/ministro/IMinistro.aidl \

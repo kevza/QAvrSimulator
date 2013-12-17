@@ -2,7 +2,7 @@
 #include <iostream>
 #include <QDebug>
 #include <QDir>
-#define PLUGIN_PATH  "/opt/QAvrSimulator/plugins/"
+#define PLUGIN_PATH  "/sdcard/plugins/"
 
 Avr_Core_Builder::Avr_Core_Builder(QObject *parent) : QObject(parent)
 {  

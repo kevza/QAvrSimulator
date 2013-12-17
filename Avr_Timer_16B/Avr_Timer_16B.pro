@@ -16,7 +16,7 @@ SOURCES += \
 HEADERS += \
     avr_timer_16b.h
 
-DESTDIR = ..\QAvrRunner3\plugins
+DESTDIR = ..\QAvrSimulator\plugins
 
 unix:!symbian {
     maemo5 {

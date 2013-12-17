@@ -19,7 +19,7 @@ HEADERS += \
     avr_uart.h \
     serial.h
 
-DESTDIR = ..\QAvrRunner3\plugins
+DESTDIR = ..\QAvrSimulator\plugins
 
 unix:!symbian {
     maemo5 {

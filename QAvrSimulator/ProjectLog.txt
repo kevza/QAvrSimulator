@@ -1,0 +1,7 @@
+#QtAvrSimulator Project Log file
+========================================
+To do's:
+    - Format help and about text boxes.
+    - Optimise plugin structure.
+    - Finalize plugin installation method (Could switch to linking dynamic libs? Or even static libs).
+    - Add customizable gui.

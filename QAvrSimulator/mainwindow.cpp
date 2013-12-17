@@ -11,7 +11,7 @@
 #endif
 #include <Workbench/layoutmanager.h>
 
-#define PLUGIN_PATH "/opt/QAvrSimulator/plugins/"
+#define PLUGIN_PATH "/sdcard/plugins/"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(gui_update()));
     timer->start();
     this->setWindowIcon(QIcon(":/icons/Icons/MainWindow.png"));
+    qDebug() << QDir::currentPath();
 }
 
 MainWindow::~MainWindow()
@@ -439,7 +440,7 @@ void MainWindow::on_actionStep_triggered()
  * @brief MainWindow::on_loadHex_clicked Selects a hex file to run in the simulator
  */
 void MainWindow::on_loadHex_clicked(){
-    rom = QFileDialog::getOpenFileName(this, tr("Open Hex"), "~", tr("Hex Files (*.hex)"));
+    rom = QFileDialog::getOpenFileName(this, tr("Open Hex"), "/sdcard", tr("Hex Files (*.hex)"));
     if (!QFile(rom).exists()){
         rom = "";
     }
@@ -508,12 +509,18 @@ void MainWindow::on_actionAbout_QT_triggered()
   */
 void MainWindow::on_actionHelp_triggered()
 {
-    /*
-    QWebView *helpView = new QWebView(this);
-    helpView->setWindowTitle(tr("QAvrSimulator Help"));
-    helpView->load(QUrl("qrc:/Help/Help/index.html"));
-    helpView->setWindowFlags(Qt::Dialog);
-    helpView->show();*/
+    //QWebView *helpView = new QWebView(this);
+    //helpView->setWindowTitle(tr("QAvrSimulator Help"));
+    //helpView->load(QUrl("qrc:/Help/Help/index.html"));
+    //helpView->setWindowFlags(Qt::Dialog);
+    //helpView->show();
+    QFile helpFile(":/Help/Help/index.html");
+    if (!helpFile.open(QIODevice::ReadOnly)){
+        qDebug() << "Help resource failed to open.";
+    }
+    QTextStream in(&helpFile);
+    QString text= QString(in.readAll());
+    QMessageBox::about(this, "QAvrSimulator Help", text);
 }
 
 void MainWindow::on_actionE_xit_triggered()
