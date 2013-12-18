@@ -19,22 +19,25 @@ class Avr_Hardware_Interface
          * @return
          */
         virtual int getRegisterCount() = 0;
+
         /**
          * @brief getInterruptCount Returns the count of interrupt vectors that need to be set
          * @return
          */
         virtual int getInterruptCount() = 0;
+
         /**
          * @brief getRegisters Returns a list of Relevant Registers
          * @return
          */
         virtual QStringList getRegisters() = 0;
+
         /**
          * @brief getInterrupts Returns a list of relevant Interrupts
          * @return
          */
         virtual QStringList getInterrupts() = 0;
-        //Bind Registers
+
          /**
          * @brief bindRegister Binds a pointer to a register
          * @param n The register to connect
@@ -47,9 +50,9 @@ class Avr_Hardware_Interface
         * register
         * @param reg The register to connect
         * @para loc The location of the register
-        */
+        *
         virtual void bindRegister(QString res, int loc){}
-
+        */
 
         /**
           * @brief attachRegister Attach a pointer to the cores register set

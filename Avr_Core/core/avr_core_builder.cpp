@@ -72,14 +72,18 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
             }else if (id == "PLUGINLIB"){
 
                 qDebug() << "Load Plugin " << QString(setting.c_str()) << "\n";
-                loader.setFileName(PLUGIN_PATH +QString(setting.c_str()));
+                loader.setFileName(PLUGIN_PATH + QString(setting.c_str()));
                 loader.load();
 
                 QObject *plugin = loader.instance();
+
                 Avr_Hardware_Interface *h = qobject_cast<Avr_Hardware_Interface*>(plugin);
+
+                //Attach all registers
                 h->attachRegister(core->reg);
 
                 //Load Registers for the plugin
+                //this loads specific registers for specific roles
                 for (int j = 0; j < h->getRegisterCount();j++){
                     configFile >> line;
                     if (line[0]==';'){
@@ -91,11 +95,9 @@ Avr_Core* Avr_Core_Builder::loadCore(QString mmcu){
                     setting = line.substr(i + 1, line.size() - i - 1);
                     qDebug() << "Setting " << QString(setting.c_str()) << "\n";
                     h->bindRegister(QString(id.c_str()),getRegPtr(setting));
-                    h->bindRegister(QString(id.c_str()),getRegLoc(setting));
+                   //h->bindRegister(QString(id.c_str()),getRegLoc(setting));
                 }
                 //Load Interrupts
-
-
 
                 core->hardware.push_back(h);
             }else if (id == "INTERFACE"){

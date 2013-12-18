@@ -1,5 +1,6 @@
 #include "avr_io.h"
 #include <QDebug>
+
 Avr_IO::Avr_IO(){
     //Registers
     regMap["PINB"] = 0;

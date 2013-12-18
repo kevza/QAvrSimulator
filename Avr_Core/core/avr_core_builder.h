@@ -32,7 +32,6 @@ class Avr_Core_Builder : public QObject
 
     private:
         Avr_Core *core;
-        //QVector <Avr_Hardware> hardware;
 };
 
 #endif // AVR_CORE_BUILDER_H
