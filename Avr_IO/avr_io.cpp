@@ -170,7 +170,7 @@ void Avr_IO::bindRegister(QString reg, uint8_t *ptr){
  * @param cycles The number of cycles since the last update
  * @return Any relevant Interrupt Vector
  */
-int Avr_IO::update(int cycles){
+int Avr_IO::update(int /*cycles*/){
     static int count = 0;
 
     //UPDATE REGISTERS

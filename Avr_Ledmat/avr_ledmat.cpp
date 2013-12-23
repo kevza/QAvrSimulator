@@ -126,9 +126,7 @@ void Avr_Ledmat::bindRegister(QString reg, uint8_t *ptr){
  * @param cycles The number of cycles since the last update
  * @return Any relevant Interrupt Vector
  */
-int Avr_Ledmat::update(int cycles){
-    static int count = 0;
-
+int Avr_Ledmat::update(int /*cycles*/){
     for (int i = 0 ; i < 7 ; i++){
         if ((*reg[2] & (1 << 6)) && !(*reg[3] & (1 << 6))){
             //C6 LOW
@@ -177,13 +175,6 @@ int Avr_Ledmat::update(int cycles){
 
 
     }
-    /*
-    count += 1;
-    if (count == 1024){
-        count = 0;
-        updateOut();
-    }*/
-
 
     return -1;
 }

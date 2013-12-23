@@ -105,6 +105,14 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent(QKeyEvent *event){
     for (int i = 0 ; i < 6 ; i++)
         btn[i]->keyPressEvent(event);
+
+    if (event->key() == Qt::Key_Back){
+        qDebug() << "Key back event";
+        event->accept();
+        this->close();
+        return;
+
+    }
     QMainWindow::keyPressEvent(event) ;
 }
 
@@ -232,13 +240,18 @@ void MainWindow::refresh_menus(){
     //and then checking pts ports for socat created virtual
     //null modems
     #ifdef __unix__
-    QDir serialDir("/dev/serial/by-id","", QDir::Name,QDir::System);
+    //QDir serialDir("/dev/serial/by-id","", QDir::Name,QDir::System);
+    QDir serialDir("/dev","",QDir::Name, QDir::System);
     //check that there are some serial devices attached
     if (serialDir.exists()) {
         qDebug() << "Serial Ports Exist";
         foreach (QFileInfo info, serialDir.entryInfoList()){
             QAction *portAction = new QAction(this);
             QString port = info.filePath();
+            qDebug() << port;
+            //Andorid devices are not listed in serial/by-id
+            //and this all needs a modified kernel to work at all
+            if (!port.contains("/dev/ttyUSB")) continue;
 
             portAction->setText(info.filePath());
             portAction->setCheckable(true);

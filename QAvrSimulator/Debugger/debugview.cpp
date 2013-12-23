@@ -85,3 +85,13 @@ void DebugView::update(){
         mutex.unlock();
     }
 }
+
+
+void DebugView::keyPressEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Back){
+        qDebug() << "Close debug viewer.";
+        event->accept();
+        this->close();
+    }
+}
+

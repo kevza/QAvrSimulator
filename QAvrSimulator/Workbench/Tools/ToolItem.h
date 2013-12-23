@@ -14,8 +14,6 @@ class ToolItemInterface{
 
 
 
-
-
 };
 
 #endif // TOOLITEM_H

@@ -18,6 +18,7 @@ public:
     explicit DebugView(QWidget *parent = 0);
     ~DebugView();
     void attachCore(Avr_Core *core);
+    virtual void keyPressEvent(QKeyEvent *);
 
 private:
     Ui::DebugView *ui;

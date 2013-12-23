@@ -1556,7 +1556,7 @@ void Avr_Core::decodeInstruction(){
 											reg->pc++;
                                             this->cCount = 3;
                                             if (this->debug)
-                                                res = debugFormat("LPM R0, Z%d",(regZ)>> 1 + rampZ);
+                                                res = debugFormat("LPM R0, Z%d",((regZ)>> 1) + rampZ);
 										break;
 										case RET:case RETI:
                                             if (mem->getRamEnd() < 65536){
