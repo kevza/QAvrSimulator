@@ -174,7 +174,7 @@ int Avr_IO::update(int /*cycles*/){
     static int count = 0;
 
     //UPDATE REGISTERS
-    for (int i = 0; i < 8 ; i++){
+    for (int i = 0; i < 8 ; ++i){
         //Port B
         uint8_t shift = (1 << i);
         if (*reg[1] & shift){
