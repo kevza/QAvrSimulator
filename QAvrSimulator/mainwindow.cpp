@@ -11,7 +11,7 @@
 #endif
 #include <Workbench/layoutmanager.h>
 
-#define PLUGIN_PATH "/sdcard/plugins/"
+#define PLUGIN_PATH "/opt/QAvrSimulator/plugins/"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

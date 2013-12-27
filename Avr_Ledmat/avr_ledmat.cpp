@@ -127,49 +127,46 @@ void Avr_Ledmat::bindRegister(QString reg, uint8_t *ptr){
  * @return Any relevant Interrupt Vector
  */
 int Avr_Ledmat::update(int /*cycles*/){
-    for (int i = 0 ; i < 7 ; i++){
-        if ((*reg[2] & (1 << 6)) && !(*reg[3] & (1 << 6))){
+    for (int i = 0 ; i < 7 ; ++i){
+        int j = i * 5;
+        int shift = (1 << i);
+        if (*grid[j] < 255 && (*reg[2] & (1 << 6)) && !(*reg[3] & (1 << 6))){
             //C6 LOW
-            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+            if ((*reg[0] & shift) && !(*reg[1] & shift)){
                 //Bi LOW
-                *grid[i * 5] = 1;
-
+                *grid[j] += 1;
             }
 
         }
-        if ((*reg[0] & (1 << 7)) && !(*reg[1] & (1 << 7))){
+        if (*grid[j + 1] < 255 && (*reg[0] & (1 << 7)) && !(*reg[1] & (1 << 7))){
             //B7 LOW
-            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+            if ((*reg[0] & shift) && !(*reg[1] & shift)){
                 //Bi LOW
-                 *grid[i * 5 + 1] = 1;
-
+                 *grid[j + 1] += 1;
             }
 
         }
-        if ((*reg[2] & (1 << 4)) && !(*reg[3] & (1 << 4))){
+        if (*grid[j + 2] < 255 && (*reg[2] & (1 << 4)) && !(*reg[3] & (1 << 4))){
             //C4 LOW
-            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+            if ((*reg[0] & shift) && !(*reg[1] & shift)){
                 //Bi LOW
-                 *grid[i * 5 + 2] = 1;
-
+                 *grid[j + 2] += 1;
             }
 
         }
-        if ((*reg[2] & (1 << 7)) && !(*reg[3] & (1 << 7))){
+        if (*grid[j + 3] < 255 && (*reg[2] & (1 << 7)) && !(*reg[3] & (1 << 7))){
             //C7 LOW
-            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+            if ((*reg[0] & shift) && !(*reg[1] & shift)){
                 //Bi LOW
-                 *grid[i * 5 + 3] = 1;
-
+                 *grid[j + 3] += 1;
             }
 
         }
-        if ((*reg[2] & (1 << 5)) && !(*reg[3] & (1 << 5))){
+        if (*grid[j + 4] < 255 && (*reg[2] & (1 << 5)) && !(*reg[3] & (1 << 5))){
             //C6 LOW
-            if ((*reg[0] & (1 << i)) && !(*reg[1] & (1 << i))){
+            if ((*reg[0] & shift) && !(*reg[1] & shift)) {
                 //Bi LOW
-
-                 *grid[i * 5 + 4] = 1;
+                 *grid[j + 4] += 1;
             }
         }
 
@@ -189,49 +186,6 @@ QMap <QString, uint8_t> Avr_Ledmat::getOutputs(){
 
 
 void Avr_Ledmat::updateOut(){
-    /*
-    outputs["C0R0"] = (grid[0]);
-    outputs["C1R0"] = (grid[1]);
-    outputs["C2R0"] = (grid[2]);
-    outputs["C3R0"] = (grid[3]);
-    outputs["C4R0"] = (grid[4]);
-
-    outputs["C0R1"] = (grid[5]);
-    outputs["C1R1"] = (grid[6] );
-    outputs["C2R1"] = (grid[7] );
-    outputs["C3R1"] = (grid[8] );
-    outputs["C4R1"] = (grid[9] );
-
-    outputs["C0R2"] = (grid[10] );
-    outputs["C1R2"] = (grid[11] );
-    outputs["C2R2"] = (grid[12] );
-    outputs["C3R2"] = (grid[13] );
-    outputs["C4R2"] = (grid[14]);
-
-    outputs["C0R3"] = (grid[15] );
-    outputs["C1R3"] = (grid[16] );
-    outputs["C2R3"] = (grid[17] );
-    outputs["C3R3"] = (grid[18] );
-    outputs["C4R3"] = (grid[19] );
-
-    outputs["C0R4"] = (grid[20] );
-    outputs["C1R4"] = (grid[21] );
-    outputs["C2R4"] = (grid[22] );
-    outputs["C3R4"] = (grid[23] );
-    outputs["C4R4"] = (grid[24] );
-
-    outputs["C0R5"] = (grid[25] );
-    outputs["C1R5"] = (grid[26]);
-    outputs["C2R5"] = (grid[27] );
-    outputs["C3R5"] = (grid[28] );
-    outputs["C4R5"] = (grid[29] );
-
-    outputs["C0R6"] = (grid[30] );
-    outputs["C1R6"] = (grid[31] );
-    outputs["C2R6"] = (grid[32] );
-    outputs["C3R6"] = (grid[33]) ;
-    outputs["C4R6"] = (grid[34]);
-    */
 }
 
 void Avr_Ledmat::reset(){
@@ -239,5 +193,3 @@ void Avr_Ledmat::reset(){
         *grid[i] = 0;
     }
 }
-
-//Q_EXPORT_PLUGIN2(avr_ledmat ,Avr_Ledmat)
