@@ -12,6 +12,7 @@
 #include <Workbench/layoutmanager.h>
 
 #define PLUGIN_PATH "/opt/QAvrSimulator/plugins/"
+//#define PLUGIN_PATH "/sdcard/plugins/"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -240,18 +241,16 @@ void MainWindow::refresh_menus(){
     //and then checking pts ports for socat created virtual
     //null modems
     #ifdef __unix__
-    QDir serialDir("/dev/serial/by-id","", QDir::Name,QDir::System);
-    //QDir serialDir("/dev","",QDir::Name, QDir::System);
+    //QDir serialDir("/dev/serial/by-id","", QDir::Name,QDir::System);
+    QDir serialDir("/dev","",QDir::Name, QDir::System);
     //check that there are some serial devices attached
     if (serialDir.exists()) {
-        qDebug() << "Serial Ports Exist";
         foreach (QFileInfo info, serialDir.entryInfoList()){
             QAction *portAction = new QAction(this);
             QString port = info.filePath();
-            qDebug() << port;
             //Andorid devices are not listed in serial/by-id
             //and this all needs a modified kernel to work at all
-            //if (!port.contains("/dev/ttyUSB")) continue;
+            if (!port.contains("/dev/ttyUSB")) continue;
 
             portAction->setText(info.filePath());
             portAction->setCheckable(true);
@@ -329,7 +328,7 @@ void MainWindow::on_actionStart_triggered()
                 //Register the current core with all hardware
                 //Items
                 foreach (QGraphicsItem *i,workbench->items()){
-                    ToolItemInterface *tool = dynamic_cast<ToolItemInterface*>(i);
+                    ToolItem *tool = dynamic_cast<ToolItem*>(i);
                     if (tool != NULL){
                         tool->attachCore(core);
                     }
@@ -406,7 +405,7 @@ void MainWindow::on_actionStart_triggered()
             }
             //Detach all hardware items
             foreach (QGraphicsItem *i,workbench->items()){
-                ToolItemInterface *tool = dynamic_cast<ToolItemInterface*>(i);
+                ToolItem *tool = dynamic_cast<ToolItem*>(i);
                 if (tool != NULL){
                     tool->attachCore(NULL);
                 }

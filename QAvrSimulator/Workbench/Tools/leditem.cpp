@@ -3,12 +3,13 @@
 
 LedItem::LedItem()
 {
-    offPath = ":/icons/Icons/RedLedOff.png";
-    onPath = ":/icons/Icons/BlueLedOn.png";
+    offPath = QPixmap(":/icons/Icons/RedLedOff.png");
+    onPath = QPixmap(":/icons/Icons/BlueLedOn.png");
     pin = "PORTC2";
-    this->setPixmap(QPixmap(offPath));
+    //this->setPixmap(QPixmap(offPath));
     this->setVisible(true);
     this->hardware = NULL;
+    this->update();
 }
 
 
@@ -39,16 +40,22 @@ QString LedItem::getSettingsString(){
 }
 
 void LedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
+    qDebug() << "Painting Led Item";
     QMap <QString,unsigned char> pins;
     if (this->hardware){
         pins = this->hardware->getOutputs();
         if (pins.contains(pin)){
             if (pins[pin] >0) {
-                this->setPixmap(QPixmap(onPath));
+                painter->drawPixmap(0, 0, onPath);
             }else{
-                this->setPixmap(QPixmap(offPath));
+                painter->drawPixmap(0, 0, offPath);
             }
         }
+    }else{
+        painter->drawPixmap(0, 0, offPath);
     }
-    QGraphicsPixmapItem::paint(painter,option,widget);
+}
+
+QRectF LedItem::boundingRect() const{
+     return QRectF(10,10,68,92);
 }

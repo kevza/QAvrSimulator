@@ -108,6 +108,7 @@ void Avr_Uart::bindRegister(QString reg, uint8_t *ptr){
  * @return Any relevant Interrupt Vector
  */
 int Avr_Uart::update(int cycles){
+
     //Checks if a UART is Open and
     //ready to use
     if (!isOpen || oldUCSRB != *UCSRB || oldUCSRC != *UCSRC){
@@ -118,7 +119,7 @@ int Avr_Uart::update(int cycles){
        //Close old serial if state has changed
        if (isOpen){
            qDebug() << "Closing Serial Port";
-            serial.closeSerial();            
+            serial.closeSerial();
        }
        if (!openUart())
            return -1;
@@ -333,7 +334,7 @@ bool Avr_Uart::openUart(){
             return true;
         }else{
             qDebug() << "Something went wrong" ;
-            exit(1);
+            return false;
         }
 
     }else{

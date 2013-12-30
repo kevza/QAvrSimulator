@@ -1,4 +1,7 @@
 #include "serial.h"
+#include <stdlib.h>
+
+
 //This file reaks of platform dependent code and it desperately needs fixing
 //Signal Handler
 bool readyRead;
@@ -71,14 +74,26 @@ void Serial::setPort(QString p){
 
 
 bool Serial::openSerial(){
+    //Convert port using super user permissions
+    //android
+    qDebug() << "Set serial port to " << this->port;
+    char permissionsChange[500];
+    qDebug() << sprintf(permissionsChange,"su -c \"chmod 666 %s\"", this->port.toStdString().c_str());
+    //qDebug() << QString(permissionsChange);
+    if (system(permissionsChange)){
+        qDebug() << "Permissions change failed";
+        return false;
+    }
 
-    qDebug() << this->port;
+    qDebug() << "Finished permissions updates";
+
 //Only build this part for unix/linux systems
 #ifdef __unix
     tty_fd = open(this->port.toStdString().c_str(), O_RDWR |O_NOCTTY | O_NONBLOCK);
     if (tty_fd == -1){
         qDebug() << "Error Modem Device";
-        exit(1);
+        return false;
+        //exit(1);
     }
     //Set up callback
     saio.sa_handler = signal_handler_IO;

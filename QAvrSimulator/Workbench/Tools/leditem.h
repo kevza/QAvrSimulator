@@ -1,10 +1,10 @@
 #ifndef LEDITEM_H
 #define LEDITEM_H
-#include <QGraphicsItem>
-#include <QGraphicsPixmapItem>
 #include <Workbench/Tools/ToolItem.h>
 
-class LedItem :public ToolItemInterface, public QGraphicsPixmapItem
+#include <QPainter>
+
+class LedItem :public ToolItem
 {
 public:
     LedItem();
@@ -12,15 +12,16 @@ public:
     virtual void attachCore(Avr_Core *currentCore);
     virtual void setSettingsString(QString settings);
     virtual QString getSettingsString();
+    QRectF boundingRect() const;
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
     bool m_update();
 private:
-    QString onPath;
-    QString offPath;
+    QPixmap onPath;
+    QPixmap offPath;
     QString pin;
-    Avr_Hardware_Interface *hardware;
 };
 
 #endif // LEDITEM_H

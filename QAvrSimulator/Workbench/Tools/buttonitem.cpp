@@ -12,7 +12,8 @@ ButtonItem::ButtonItem()
     pressedTex = ":/icons/Icons/ButtonOn.png";
     depressedTex = ":/icons/Icons/ButtonOff.png";
 
-    this->setPixmap(QPixmap(depressedTex));
+    //this->setPixmap(QPixmap(depressedTex));
+    this->buttonState = RELEASED;
     this->setVisible(true);
     this->hardware = NULL;
     //Set default to main press button for lack of a better option
@@ -26,13 +27,15 @@ ButtonItem::ButtonItem()
   *@param event
   */
 void ButtonItem::keyPressEvent(QKeyEvent *event){
+    ToolItem::keyPressEvent(event);
     if (event != NULL && event->key() == keyId){
         if (hardware)
             *hardware->getInputs()[this->pin] = pushLow ? 0 : 1;
-        this->setPixmap(QPixmap(pressedTex));
+        //this->setPixmap(QPixmap(pressedTex));
+        this->buttonState = PRESSED;
         this->update();
     }
-    QGraphicsPixmapItem::keyPressEvent(event);
+    //QGraphicsPixmapItem::keyPressEvent(event);
 }
 
 /**
@@ -40,22 +43,46 @@ void ButtonItem::keyPressEvent(QKeyEvent *event){
  * @param event
  */
 void ButtonItem::keyReleaseEvent(QKeyEvent *event){
+    ToolItem::keyReleaseEvent(event);
     if(event != NULL && event->key() == keyId){
         if (hardware)
             *hardware->getInputs()[this->pin] = pushLow ? 1:0;
-        this->setPixmap(QPixmap(depressedTex));
+        //this->setPixmap(QPixmap(depressedTex));
+        this->buttonState = RELEASED;
         this->update();
      }
-    QGraphicsPixmapItem::keyPressEvent(event);
+    //QGraphicsPixmapItem::keyPressEvent(event);
 }
 
+/**
+ * @brief paint
+ * @param painter
+ * @param option
+ * @param widget
+ */
+void ButtonItem::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/){
+   if (this->buttonState == PRESSED) {
+       QPixmap pixmap(pressedTex);
+        painter->drawPixmap(0, 0, pixmap);
+        this->setGeometry(this->x(),this->y(),pixmap.width(),pixmap.height());
+   } else {
+       QPixmap pixmap(depressedTex);
+        painter->drawPixmap(0,0, pixmap);
+        this->setGeometry(this->x(),this->y(),pixmap.width(),pixmap.height());
+   }
+}
+
+QRectF ButtonItem::boundingRect() const {
+    //this->rect();
+    return this->rect();
+}
 
 void ButtonItem::bindKey(int key){
     this->keyId = key;
 }
 
-/**
- * @brief ButtonItem::mousePressEvent
+ /**
+ * @brief ButtonItem::mousePressEven
  * @param event
  */
 void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
@@ -63,8 +90,12 @@ void ButtonItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
         *hardware->getInputs()[this->pin] = pushLow ? 0 : 1;
     }
 
-    this->setPixmap(QPixmap(pressedTex));
+    //this->setPixmap(QPixmap(pressedTex));
+    this->buttonState = PRESSED;
     this->update();
+
+    ToolItem::mousePressEvent(event);
+    event->accept();
 }
 
 /**
@@ -75,8 +106,12 @@ void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
     if(hardware){
         *hardware->getInputs()[this->pin] = pushLow ? 1:0;
     } 
-    this->setPixmap(QPixmap(depressedTex));
+    //this->setPixmap(QPixmap(depressedTex));
+    this->buttonState = RELEASED;
     this->update();
+
+    ToolItem::mouseReleaseEvent(event);
+    event->accept();
 }
 
 void ButtonItem::attachCore(Avr_Core *currentCore){

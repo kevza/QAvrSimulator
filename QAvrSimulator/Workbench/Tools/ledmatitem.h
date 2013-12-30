@@ -8,12 +8,11 @@
 #include <core/avr_core_builder.h>
 #include <Workbench/Tools/ToolItem.h>
 
-class LedMatItem:public QGraphicsWidget, public ToolItemInterface
-{
+class LedMatItem: public ToolItem {
         Q_OBJECT
         public:
             LedMatItem();
-            virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
             //toolitem virtual functions
             virtual void attachCore(Avr_Core *currentCore);
             virtual void setSettingsString(QString settings);
@@ -21,14 +20,11 @@ class LedMatItem:public QGraphicsWidget, public ToolItemInterface
 
             QRectF boundingRect() const;
 
-        private slots:
-            void toggleChecked();
-
         protected:
             void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
             bool m_update;
+
         private:
-            Avr_Hardware_Interface *mat;
             QStringList leds;
             bool posFixed;
 };

@@ -2,6 +2,7 @@
 #define SERIAL_H
 
 #include <stdio.h>
+
 #ifdef __unix
     #include <unistd.h>
     #include <termios.h>
@@ -9,10 +10,12 @@
     #include <signal.h>
     #include <sys/types.h>
 #endif
+
 #ifdef __WIN32
     #include <windows.h>
     #include <process.h>
 #endif
+
 #include <QString>
 #include <QDebug>
 

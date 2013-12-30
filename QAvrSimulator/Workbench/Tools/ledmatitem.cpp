@@ -5,7 +5,7 @@
 
 LedMatItem::LedMatItem()
 {
-    this->mat = NULL;
+    this->hardware = NULL;
     this->posFixed = true;
     leds  << "C4R0"<< "C3R0"<< "C2R0"<< "C1R0"<< "C0R0"
           << "C4R1"<< "C3R1"<< "C2R1"<< "C1R1"<< "C0R1"
@@ -17,21 +17,21 @@ LedMatItem::LedMatItem()
 }
 
 QRectF LedMatItem::boundingRect() const{
-    return QRectF(10,10,68,92);
+   return QRectF(0,0,100,100);
 }
 
 void LedMatItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 //Create the led mat
     QMap<QString,uint8_t> theMap;
-    if (this->mat){
-        theMap = mat->getOutputs();
+    if (this->hardware){
+        theMap = hardware->getOutputs();
     }
     //Draw the leds and paint them the correct color
     painter->setBrush(Qt::gray);
     painter->drawRect(QRect(8,8,62,86));
     for (int x = 0 ; x < 5; x++){
         for (int y = 0; y < 7;y++){
-            if (this->mat){
+            if (this->hardware){
                 if (theMap[leds.at((6 - y) * 5 + (4 - x))] > 0)
                     painter->setBrush(QBrush(QColor(0,theMap[leds.at((6 - y) * 5 + ( 4 - x))],theMap[leds.at((6 - y) * 5 + ( 4 - x))] / 2)));
                 else
@@ -43,8 +43,8 @@ void LedMatItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
         }
     }
-    if (this->mat)
-        mat->reset();
+    if (this->hardware)
+        hardware->reset();
 }
 
 
@@ -52,11 +52,11 @@ void LedMatItem::attachCore(Avr_Core *currentCore){
     if (currentCore != NULL) {
         foreach(Avr_Hardware_Interface *h, currentCore->hardware)    {
             if (h->getPluginName() == "AVRLEDMAT"){
-                this->mat = h;
+                this->hardware = h;
             }
         }
     }else{
-        this->mat = NULL;
+        this->hardware = NULL;
     }
 }
 
@@ -68,19 +68,4 @@ QString LedMatItem::getSettingsString(){
 void LedMatItem::setSettingsString(QString settings){
 
 
-}
-
-void LedMatItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event){
-    QMenu *menu = new QMenu();
-    QAction *fixed = menu->addAction("Set Fixed");
-    fixed->setCheckable(true);
-    fixed->setChecked(this->posFixed);
-    connect(fixed,SIGNAL(triggered()),this,SLOT(toggleChecked()));
-    menu->exec(event->screenPos());
-}
-
-
-void LedMatItem::toggleChecked(){
-    this->posFixed = !this->posFixed;
-    this->setFlag(QGraphicsItem::ItemIsMovable,!this->posFixed);
 }
