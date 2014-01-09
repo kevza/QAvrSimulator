@@ -40,7 +40,6 @@ QString LedItem::getSettingsString(){
 }
 
 void LedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-    qDebug() << "Painting Led Item";
     QMap <QString,unsigned char> pins;
     if (this->hardware){
         pins = this->hardware->getOutputs();
