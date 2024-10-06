@@ -2,6 +2,8 @@
 
 This is an Atmega AVR simulator with a front end user interface that emulates the UCFunkit4 used in the ENCE260 course at the University of Canterbury NZ.
 
+![QAvrSimulator](./QAVRSimScreenShot.png)
+
 ## Key Features:
 - Plugin framework for adding extra features and hardware
 - Graphical interface for input and output
